@@ -1,0 +1,13 @@
+﻿<Solution>
+  <Folder Name="/Admin/">
+    <Project Path="src\backend\Veritas.Admin.API\Veritas.Admin.API.csproj" Type="Classic C#" />
+    <Project Path="src\backend\Veritas.Admin.Application\Veritas.Admin.Application.csproj" Type="Classic C#" />
+  </Folder>
+  <Folder Name="/Public/" />
+  <Project Path="src\backend\Veritas.DbMigrator\Veritas.DbMigrator.csproj" Type="Classic C#" />
+  <Project Path="src\backend\Veritas.Domain\Veritas.Domain.csproj" Type="Classic C#" />
+  <Project Path="src\backend\Veritas.Infrastructure\Veritas.Infrastructure.csproj" Type="Classic C#" />
+  <Project Path="src\backend\Veritas.ServiceDefaults\Veritas.ServiceDefaults.csproj" Type="Classic C#" />
+  <Project Path="src\backend\Veritas.Shared\Veritas.Shared.csproj" Type="Classic C#" />
+  <Project Path="src\orchestration\Veritas.AppHost\Veritas.AppHost.csproj" Type="Classic C#" />
+</Solution>

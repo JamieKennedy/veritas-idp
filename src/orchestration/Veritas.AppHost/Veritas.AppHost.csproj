@@ -1,0 +1,24 @@
+<Project Sdk="Aspire.AppHost.Sdk/13.1.2">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UserSecretsId>8d251f14-1626-4702-b567-357dc2fc7216</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="13.1.2" />
+    <PackageReference Include="Aspire.Hosting.RabbitMQ" Version="13.1.2" />
+    <PackageReference Include="Aspire.Hosting.Redis" Version="13.1.2" />
+    <PackageReference Include="Aspire.Hosting.Seq" Version="13.1.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\backend\Veritas.Admin.API\Veritas.Admin.API.csproj" />
+    <ProjectReference Include="..\..\backend\Veritas.DbMigrator\Veritas.DbMigrator.csproj" />
+    <ProjectReference Include="..\..\backend\Veritas.Infrastructure\Veritas.Infrastructure.csproj" IsApsireProjectResource="false" />
+  </ItemGroup>
+
+</Project>
