@@ -10,21 +10,27 @@ namespace Veritas.Admin.API.Controllers.v1;
 [ApiController]
 public class SetupController : BaseController<SetupController>
 {
-    private readonly IConfiguration _configuration;
+    private readonly string _setupToken;
     private readonly ISystemFlagService _systemFlagService;
-
-    private string SetupToken => _configuration["SETUP_TOKEN"] ?? throw new InvalidOperationException("SETUP_TOKEN is not configured.");
     
     public SetupController(ILogger<SetupController> logger, IConfiguration configuration, ISystemFlagService systemFlagService) : base(logger)
     {
-        _configuration = configuration;
+        _setupToken = configuration["SETUP_TOKEN"] ?? throw new InvalidOperationException("SETUP_TOKEN is not configured.");
         _systemFlagService = systemFlagService; 
     }
 
     [HttpPost]
     public async Task<IActionResult> Setup([FromBody] SetupDto setupDto)
     {
-        if(setupDto.SetupToken != SetupToken) return Unauthorized("Invalid setup token.");
+        if (string.IsNullOrWhiteSpace(setupDto.SetupToken))
+        {
+            return BadRequest("Setup token is required.");
+        }
+
+        if (!string.Equals(setupDto.SetupToken, _setupToken, StringComparison.Ordinal))
+        {
+            return Unauthorized("Invalid setup token.");
+        }
         
         
         return Ok();

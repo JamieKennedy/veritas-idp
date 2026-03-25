@@ -21,8 +21,8 @@ Because this value is a secret parameter, you should provide it via user-secrets
 Run these commands from anywhere:
 
 ```powershell
-dotnet user-secrets set "Parameters:setup-token" "your-dev-setup-token" --project "C:\Users\jamie\Documents\Projects\veritas\src\orchestration\Veritas.AppHost\Veritas.AppHost.csproj"
-dotnet run --project "C:\Users\jamie\Documents\Projects\veritas\src\orchestration\Veritas.AppHost\Veritas.AppHost.csproj"
+dotnet user-secrets set "Parameters:setup-token" "your-dev-setup-token" --project "<path-to-your-project>\src\orchestration\Veritas.AppHost\Veritas.AppHost.csproj"
+dotnet run --project "<path-to-your-project>\src\orchestration\Veritas.AppHost\Veritas.AppHost.csproj"
 ```
 
 Notes:
@@ -34,7 +34,7 @@ Notes:
 
 ```powershell
 $env:Parameters__setup-token = "your-dev-setup-token"
-dotnet run --project "C:\Users\jamie\Documents\Projects\veritas\src\orchestration\Veritas.AppHost\Veritas.AppHost.csproj"
+dotnet run --project "<path-to-your-project>\src\orchestration\Veritas.AppHost\Veritas.AppHost.csproj"
 ```
 
 ## Deployment guidance
@@ -49,8 +49,7 @@ Recommended sources:
 
 Avoid:
 
-- Printing `SETUP_TOKEN` in logs
-- Committing token values to `appsettings*.json`, Compose files, or source code
+- Printing `SETUP_TOKEN` in logs or exposing it in any way.
 
 ## Rotation and lifecycle
 

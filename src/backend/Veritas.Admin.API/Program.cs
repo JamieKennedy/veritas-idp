@@ -3,6 +3,12 @@ using Veritas.Admin.API.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var configuredSetupToken = builder.Configuration["SETUP_TOKEN"];
+if (string.IsNullOrWhiteSpace(configuredSetupToken))
+{
+    throw new InvalidOperationException("SETUP_TOKEN is missing. Configure it before starting Veritas.Admin.API.");
+}
+
 
 builder.AddServiceDefaults();
 
