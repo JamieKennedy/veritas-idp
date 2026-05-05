@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="13.2.4" />
+        <PackageReference Include="Aspire.Seq" Version="13.2.4" />
+        <PackageReference Include="Grpc.AspNetCore" Version="2.71.0" />
+        <PackageReference Include="Grpc.AspNetCore.Server.Reflection" Version="2.71.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.5" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.5" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\building-blocks\contracts\Veritas.PlatformService.Contracts\Veritas.PlatformService.Contracts.csproj" />
+      <ProjectReference Include="..\..\..\building-blocks\service-defaults\Veritas.ServiceDefaults\Veritas.ServiceDefaults.csproj" />
+      <ProjectReference Include="..\Veritas.PlatformService.Application\Veritas.PlatformService.Application.csproj" />
+      <ProjectReference Include="..\Veritas.PlatformService.Infrastructure\Veritas.PlatformService.Infrastructure.csproj" />
+    </ItemGroup>
+
+</Project>
