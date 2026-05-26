@@ -1,4 +1,4 @@
-## Core principles
+﻿## Core principles
 
 - Backend: **.NET**
 - Frontend: **React**
@@ -58,7 +58,7 @@
 
 **Owns:**
 
-- Users
+- Users (public and admin)
 - Emails/usernames/phones
 - Password hashes
 - MFA enrollment
@@ -430,8 +430,7 @@ Examples:
 
 ## Database
 
-- One **Postgres DB per service**
-- No direct cross-service DB access
+- One **Postgres DB**
 - Each service owns its schema and write model
 
 ## Messaging

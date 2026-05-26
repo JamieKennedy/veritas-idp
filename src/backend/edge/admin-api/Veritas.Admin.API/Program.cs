@@ -7,7 +7,8 @@ builder.AddServiceDefaults();
 
 // Add services to the container.
 builder.AddSeqEndpoint("seq");
-builder.Services.ConfigurePlatformGrpcClients();
+builder.Services.AddVeritasModules(builder.Configuration);
+builder.ConfigureVeritasMessaging();
 
 builder.Services.ConfigureVersioning();
 
@@ -17,6 +18,7 @@ builder.Services.ConfigureOpenApi();
 
 var app = builder.Build();
 
+app.UseDefaultSerilogRequestLogging();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

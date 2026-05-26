@@ -7,19 +7,28 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Asp.Versioning.Http" Version="10.0.0-preview.1" />
-        <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="10.0.0-preview.1" />
-        <PackageReference Include="Aspire.Seq" Version="13.1.2" />
-        <PackageReference Include="Grpc.Net.ClientFactory" Version="2.71.0" />
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.3"/>
+        <PackageReference Include="Asp.Versioning.Http" Version="10.0.0" />
+        <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="10.0.0" />
+        <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="13.3.5" />
+        <PackageReference Include="Aspire.Seq" Version="13.3.5" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.8"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.8" />
         <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="10.0.2" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-        <PackageReference Include="Scalar.AspNetCore" Version="2.12.52" />
+        <PackageReference Include="Scalar.AspNetCore" Version="2.12.54" />
+        <PackageReference Include="WolverineFx" Version="5.4.3" />
+        <PackageReference Include="WolverineFx.EntityFrameworkCore" Version="5.4.3" />
+        <PackageReference Include="WolverineFx.Postgresql" Version="5.4.3" />
+        <PackageReference Include="WolverineFx.RabbitMQ" Version="5.4.3" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\..\building-blocks\contracts\Veritas.PlatformService.Contracts\Veritas.PlatformService.Contracts.csproj" />
+      <ProjectReference Include="..\..\..\building-blocks\contracts\Veritas.Contracts.Messages\Veritas.Contracts.Messages.csproj" />
       <ProjectReference Include="..\..\..\building-blocks\service-defaults\Veritas.ServiceDefaults\Veritas.ServiceDefaults.csproj" />
+      <ProjectReference Include="..\..\..\services\platform-service\Veritas.PlatformService.Application\Veritas.PlatformService.Application.csproj" />
+      <ProjectReference Include="..\..\..\services\platform-service\Veritas.PlatformService.Infrastructure\Veritas.PlatformService.Infrastructure.csproj" />
+      <ProjectReference Include="..\..\..\services\user-service\Veritas.UserService.Application\Veritas.UserService.Application.csproj" />
+      <ProjectReference Include="..\..\..\services\user-service\Veritas.UserService.Infrastructure\Veritas.UserService.Infrastructure.csproj" />
     </ItemGroup>
 
 </Project>

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
@@ -8,6 +9,8 @@ using OpenTelemetry;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
+using Serilog;
+using Serilog.Events;
 
 namespace Microsoft.Extensions.Hosting;
 
@@ -18,9 +21,13 @@ public static class Extensions
 {
     private const string HealthEndpointPath = "/health";
     private const string AlivenessEndpointPath = "/alive";
+    private const string FileLogOutputTemplate =
+        "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Application} {SourceContext} {Message:lj}{NewLine}{Exception}";
 
     public static TBuilder AddServiceDefaults<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
     {
+        builder.ConfigureSerilog();
+
         builder.ConfigureOpenTelemetry();
 
         builder.AddDefaultHealthChecks();
@@ -41,6 +48,28 @@ public static class Extensions
         // {
         //     options.AllowedSchemes = ["https"];
         // });
+
+        return builder;
+    }
+
+    public static TBuilder ConfigureSerilog<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
+    {
+        builder.Services.AddSerilog((services, loggerConfiguration) =>
+        {
+            loggerConfiguration
+                .ReadFrom.Configuration(builder.Configuration)
+                .ReadFrom.Services(services)
+                .Enrich.FromLogContext()
+                .Enrich.WithProperty("Application", builder.Environment.ApplicationName)
+                .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
+                .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Database.Command", LogEventLevel.Warning)
+                .WriteTo.File(
+                    GetSerilogFilePath(builder),
+                    rollingInterval: RollingInterval.Day,
+                    retainedFileCountLimit: GetRetainedFileCountLimit(builder),
+                    shared: true,
+                    outputTemplate: FileLogOutputTemplate);
+        }, preserveStaticLogger: true, writeToProviders: true);
 
         return builder;
     }
@@ -69,8 +98,6 @@ public static class Extensions
                             !context.Request.Path.StartsWithSegments(HealthEndpointPath)
                             && !context.Request.Path.StartsWithSegments(AlivenessEndpointPath)
                     )
-                    // Uncomment the following line to enable gRPC instrumentation (requires the OpenTelemetry.Instrumentation.GrpcNetClient package)
-                    //.AddGrpcClientInstrumentation()
                     .AddHttpClientInstrumentation();
             });
 
@@ -124,5 +151,58 @@ public static class Extensions
         }
 
         return app;
+    }
+
+    public static WebApplication UseDefaultSerilogRequestLogging(this WebApplication app)
+    {
+        app.UseSerilogRequestLogging(options =>
+        {
+            options.GetLevel = (httpContext, _, exception) =>
+            {
+                if (exception is not null || httpContext.Response.StatusCode >= StatusCodes.Status500InternalServerError)
+                {
+                    return LogEventLevel.Error;
+                }
+
+                if (httpContext.Request.Path.StartsWithSegments(HealthEndpointPath)
+                    || httpContext.Request.Path.StartsWithSegments(AlivenessEndpointPath))
+                {
+                    return LogEventLevel.Verbose;
+                }
+
+                return LogEventLevel.Information;
+            };
+
+            options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
+            {
+                diagnosticContext.Set("RequestHost", httpContext.Request.Host.ToString());
+                diagnosticContext.Set("RequestScheme", httpContext.Request.Scheme);
+                diagnosticContext.Set("RemoteIpAddress", httpContext.Connection.RemoteIpAddress?.ToString() ?? string.Empty);
+            };
+        });
+
+        return app;
+    }
+
+    private static string GetSerilogFilePath<TBuilder>(TBuilder builder) where TBuilder : IHostApplicationBuilder
+    {
+        var configuredPath = builder.Configuration["Serilog:File:Path"];
+        if (!string.IsNullOrWhiteSpace(configuredPath))
+        {
+            return configuredPath;
+        }
+
+        var applicationName = string.Join(
+            "_",
+            builder.Environment.ApplicationName.Split(Path.GetInvalidFileNameChars(), StringSplitOptions.RemoveEmptyEntries));
+
+        return Path.Combine("logs", $"{applicationName}-.log");
+    }
+
+    private static int GetRetainedFileCountLimit<TBuilder>(TBuilder builder) where TBuilder : IHostApplicationBuilder
+    {
+        return int.TryParse(builder.Configuration["Serilog:File:RetainedFileCountLimit"], out var retainedFileCountLimit)
+            ? retainedFileCountLimit
+            : 14;
     }
 }
