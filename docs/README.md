@@ -4,7 +4,7 @@ This folder contains project documentation while the full docs site is being bui
 
 ## Available docs
 
-- [Setup token (Aspire + deployment)](./setup-token.md)
+- [Bootstrap secret (Aspire + deployment)](./setup-token.md)
 
 ## Scope
 

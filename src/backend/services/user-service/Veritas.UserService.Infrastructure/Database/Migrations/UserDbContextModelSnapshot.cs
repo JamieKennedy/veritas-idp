@@ -36,6 +36,9 @@ namespace Veritas.UserService.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int?>("InitialAdminSlot")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Name")
                         .HasColumnType("text");
 
@@ -50,6 +53,10 @@ namespace Veritas.UserService.Infrastructure.Database.Migrations
 
                     b.HasIndex("Email")
                         .IsUnique();
+
+                    b.HasIndex("InitialAdminSlot")
+                        .IsUnique()
+                        .HasFilter("\"InitialAdminSlot\" IS NOT NULL");
 
                     b.ToTable("AdminUsers", "users");
                 });

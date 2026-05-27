@@ -1,13 +1,15 @@
-﻿using Veritas.PlatformService.Domain.Types;
+using Veritas.Shared.Errors;
 
 namespace Veritas.PlatformService.Domain.Errors.Base;
 
 /// <summary>
 /// Result error from calling calling an external service.
 /// </summary>
-public class ExternalError : BaseError
+public class ExternalError : UnexpectedError
 {
-    public ExternalError(string message) : base(EErrorCode.Unexpected, message)
+    public const string ErrorCode = "PLATFORM_EXTERNAL_ERROR";
+
+    public ExternalError(string message) : base(ErrorCode, message)
     {
     }
 }

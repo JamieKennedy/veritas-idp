@@ -6,6 +6,7 @@
   </Folder>
   <Folder Name="/Backend/Edge/">
     <Project Path="src\backend\edge\admin-api\Veritas.Admin.API\Veritas.Admin.API.csproj" Type="Classic C#" />
+    <Project Path="src\backend\edge\admin-api\Veritas.Admin.API.Tests\Veritas.Admin.API.Tests.csproj" Type="Classic C#" />
   </Folder>
   <Folder Name="/Backend/Services/PlatformService/">
     <Project Path="src\backend\services\platform-service\Veritas.PlatformService.Application\Veritas.PlatformService.Application.csproj" Type="Classic C#" />

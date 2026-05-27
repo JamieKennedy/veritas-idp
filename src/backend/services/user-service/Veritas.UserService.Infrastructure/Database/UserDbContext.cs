@@ -22,5 +22,10 @@ public class UserDbContext : DbContext, IUserDbContext
         modelBuilder.Entity<AdminUser>()
             .HasIndex(u => u.Email)
             .IsUnique();
+
+        modelBuilder.Entity<AdminUser>()
+            .HasIndex(u => u.InitialAdminSlot)
+            .IsUnique()
+            .HasFilter("\"InitialAdminSlot\" IS NOT NULL");
     }
 }

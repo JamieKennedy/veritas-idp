@@ -22,7 +22,7 @@ The Aspire AppHost is the local development orchestrator for Veritas. It is not 
 - Keep the migrator waiting for Postgres and API hosts waiting for the migrator when persistence is required.
 - Add new persisted infrastructure here only when a module or API host actually needs it locally.
 - Add secret values as Aspire parameters, not literals in `AppHost.cs`.
-- The `setup-token` parameter is secret and is injected into Admin API as `SETUP_TOKEN`.
+- The `bootstrap-secret` parameter is secret and is injected into Admin API as `BOOTSTRAP_SECRET`.
 - Do not re-add Platform/User service API resources for normal modular-monolith development. Internal module calls should be in-process through the API host.
 - When adding a new API host, wire service defaults, required infrastructure references, explicit wait relationships, and useful dashboard endpoint links.
 - Keep RabbitMQ referenced by API hosts that configure Wolverine with `UseRabbitMqUsingNamedConnection("messaging")`.
@@ -35,4 +35,4 @@ From the repo root:
 dotnet run --project src\orchestration\aspire\Veritas.AppHost\Veritas.AppHost.csproj
 ```
 
-If AppHost fails because `setup-token` is missing, configure it via user secrets or environment variable as documented in `docs/setup-token.md`.
+If AppHost fails because `bootstrap-secret` is missing, configure it via user secrets or environment variable as documented in `docs/setup-token.md`.

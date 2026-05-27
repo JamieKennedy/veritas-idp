@@ -29,18 +29,21 @@ namespace Veritas.PlatformService.Infrastructure.Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<int>("AttemptCount")
+                    b.Property<int?>("ActiveBootstrapSlot")
                         .HasColumnType("integer");
 
                     b.Property<string>("BootstrapSecretHash")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("CompletedAtUtc")
+                    b.Property<DateTime?>("CompletedAtUtc")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedFromIp")
+                        .HasColumnType("text");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -49,9 +52,8 @@ namespace Veritas.PlatformService.Infrastructure.Database.Migrations
                     b.Property<DateTime>("ExpiresAtUtc")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("OtpHash")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<DateTime?>("LastSeenAtUtc")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("SessionTokenHash")
                         .IsRequired()
@@ -63,10 +65,14 @@ namespace Veritas.PlatformService.Infrastructure.Database.Migrations
                     b.Property<DateTime>("UpdatedAtUtc")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime>("VerifiedAtUtc")
+                    b.Property<DateTime?>("VerifiedAtUtc")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ActiveBootstrapSlot")
+                        .IsUnique()
+                        .HasFilter("\"ActiveBootstrapSlot\" IS NOT NULL");
 
                     b.ToTable("BootstrapSessions", "platform");
                 });

@@ -18,6 +18,7 @@ Current domain/application concepts:
 
 - `AdminUser` stores admin identity fields and a password hash.
 - `IAdminUserService` / `AdminUserService` wraps admin-user use cases in `FluentResults` and uses `IUserDbContext`.
+- Users Application creates the first admin for bootstrap through `CreateInitialAdminUserAsync` and validates post-bootstrap admin login through `ValidateAdminCredentialsAsync`.
 - API hosts expose Users behavior by calling Users Application services in-process.
 
 ## Ownership
@@ -41,6 +42,7 @@ Users module does not own:
 
 - Never return `PasswordHash` or secret-bearing fields through HTTP or message contracts.
 - Store password hashes only, never raw passwords.
+- Verify password hashes inside Users Application; API hosts should not duplicate password-hash parsing or comparison.
 - Add password/MFA/recovery-code flows behind Application services, not controllers directly.
 - Avoid account enumeration in external errors.
 - Keep credential validation responses deliberately generic at service boundaries.

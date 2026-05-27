@@ -1,0 +1,17 @@
+.git
+.gitignore
+.idea
+.aspire
+.worktrees
+bin
+obj
+logs
+**/bin
+**/obj
+**/logs
+**/.vs
+**/.idea
+**/node_modules
+secrets
+*.user
+*.suo

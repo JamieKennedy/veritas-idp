@@ -28,8 +28,11 @@ public static class ServiceExtensions
 
         services.AddScoped<ISystemFlagService, SystemFlagService>();
         services.AddScoped<IBootstrapService, BootstrapService>();
+        services.AddSingleton<IBootstrapSecretValidator>(_ =>
+            new ConfiguredBootstrapSecretValidator(ResolveBootstrapSecret(configuration)));
         services.AddScoped<IAdminUserService, AdminUserService>();
         services.AddScoped<IAdminUserDirectory, InProcessAdminUserDirectory>();
+        services.AddScoped<IInitialAdminCreator, InProcessInitialAdminCreator>();
     }
 
     /// <summary>
@@ -91,5 +94,50 @@ public static class ServiceExtensions
                 ? Result.Ok(count.Value > 0)
                 : count.ToResult<bool>();
         }
+    }
+
+    private sealed class InProcessInitialAdminCreator(IAdminUserService adminUserService) : IInitialAdminCreator
+    {
+        /// <inheritdoc />
+        public Task<Result> CreateInitialAdminUserAsync(
+            string email,
+            string password,
+            string? displayName,
+            CancellationToken cancellationToken = default)
+        {
+            return adminUserService.CreateInitialAdminUserAsync(email, password, displayName, cancellationToken);
+        }
+    }
+
+    /// <summary>
+    /// Resolves the deployment bootstrap secret from a file path first, then an environment/config value.
+    /// </summary>
+    /// <param name="configuration">The configuration source containing bootstrap secret settings.</param>
+    /// <returns>The configured bootstrap secret.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when no bootstrap secret source is configured.</exception>
+    private static string ResolveBootstrapSecret(IConfiguration configuration)
+    {
+        var secretFile = configuration["BOOTSTRAP_SECRET_FILE"];
+
+        if (!string.IsNullOrWhiteSpace(secretFile))
+        {
+            var fileSecret = File.ReadAllText(secretFile).Trim();
+
+            if (string.IsNullOrWhiteSpace(fileSecret))
+            {
+                throw new InvalidOperationException("BOOTSTRAP_SECRET_FILE must point to a non-empty secret file.");
+            }
+
+            return fileSecret;
+        }
+
+        var secret = configuration["BOOTSTRAP_SECRET"];
+
+        if (!string.IsNullOrWhiteSpace(secret))
+        {
+            return secret.Trim();
+        }
+
+        throw new InvalidOperationException("BOOTSTRAP_SECRET_FILE or BOOTSTRAP_SECRET must be configured.");
     }
 }

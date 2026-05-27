@@ -16,11 +16,13 @@ The Admin API is the admin-facing HTTP API host for Veritas. It should stay thin
 
 Current behavior:
 
-- `BootstrapController` exposes bootstrap status and completion endpoints.
-- Bootstrap requests require `SETUP_TOKEN`, injected by Aspire as an environment variable.
+- `BootstrapController` exposes staged bootstrap status/start/complete endpoints.
+- Bootstrap start requests require `BOOTSTRAP_SECRET_FILE` or `BOOTSTRAP_SECRET`; Aspire injects `BOOTSTRAP_SECRET`.
+- Bootstrap does not require outbound email. First-admin email is captured at start, and the password is set at completion through the short-lived bootstrap cookie.
+- `AdminAuthController` exposes minimal post-bootstrap admin login/logout with secure cookie authentication.
 - Admin API composes Platform and Users modules in-process. Bootstrap calls Platform Application services directly.
 - `ServiceExtensions.AddVeritasModules` registers module DbContexts, module Application services, and in-process cross-module adapters.
-- `AdminUserController` currently contains placeholder create behavior and should not become the owner of admin-user business logic.
+- First-admin creation belongs to the bootstrap flow and Users Application services. Do not reintroduce an unauthenticated admin-user create endpoint.
 - Wolverine is configured for RabbitMQ-backed async messages such as `SendEmailRequestedV1`.
 - Scalar/OpenAPI is enabled in development.
 
@@ -32,10 +34,11 @@ Current behavior:
 - Use API versioning conventions already configured: URL segment, `api-version` query parameter, and `X-Api-Version` header.
 - Keep route shape consistent with `api/v{version:apiVersion}/[controller]`.
 - Map `FluentResults` and module failures intentionally. Avoid returning internal exception details directly to callers.
-- Never log setup tokens, passwords, bootstrap secrets, OTPs, or raw session/client secrets.
+- Never log setup tokens, passwords, bootstrap secrets, bootstrap cookies, OTPs, or raw session/client secrets.
 - Keep request/response models specific to the Admin API. Do not reuse EF entities as HTTP contracts.
 - Keep module composition in extension methods or small adapter classes; controllers should not manually assemble cross-module dependencies.
 - Async side effects should be published through Wolverine/RabbitMQ rather than performed inline in request handlers.
+- Do not add SMTP/Mailgun checks to bootstrap. Email delivery is a post-bootstrap Messaging/Notification concern.
 
 ## Dependencies
 

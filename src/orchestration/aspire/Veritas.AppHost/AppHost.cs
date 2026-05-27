@@ -21,7 +21,7 @@ var migrator = builder.AddProject<Veritas_Tooling_DbMigrator>("migrator")
     .WaitFor(veritasDb);
 
 // Deployment provides this secret (user-secrets locally, secret store/env in deployed environments).
-var setupToken = builder.AddParameter("setup-token", secret: true);
+var bootstrapSecret = builder.AddParameter("bootstrap-secret", secret: true);
 
 builder.AddProject<Veritas_Admin_API>("veritas-admin-api")
     .WithReference(veritasDb)
@@ -31,7 +31,7 @@ builder.AddProject<Veritas_Admin_API>("veritas-admin-api")
     .WaitFor(seq)
     .WaitFor(rabbitmq)
     .WaitFor(migrator)
-    .WithEnvironment("SETUP_TOKEN", setupToken)
+    .WithEnvironment("BOOTSTRAP_SECRET", bootstrapSecret)
     .WithUrlForEndpoint("http", url =>
     {
         url.DisplayText = "Scalar";

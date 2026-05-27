@@ -4,6 +4,7 @@
         <TargetFramework>net10.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
+        <UserSecretsId>c58ac9b6-48de-40d1-9436-4cb483aad5f6</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>
@@ -24,6 +25,7 @@
     <ItemGroup>
       <ProjectReference Include="..\..\..\building-blocks\contracts\Veritas.Contracts.Messages\Veritas.Contracts.Messages.csproj" />
       <ProjectReference Include="..\..\..\building-blocks\service-defaults\Veritas.ServiceDefaults\Veritas.ServiceDefaults.csproj" />
+      <ProjectReference Include="..\..\..\building-blocks\shared\Veritas.Shared\Veritas.Shared.csproj" />
       <ProjectReference Include="..\..\..\services\platform-service\Veritas.PlatformService.Application\Veritas.PlatformService.Application.csproj" />
       <ProjectReference Include="..\..\..\services\platform-service\Veritas.PlatformService.Infrastructure\Veritas.PlatformService.Infrastructure.csproj" />
       <ProjectReference Include="..\..\..\services\user-service\Veritas.UserService.Application\Veritas.UserService.Application.csproj" />

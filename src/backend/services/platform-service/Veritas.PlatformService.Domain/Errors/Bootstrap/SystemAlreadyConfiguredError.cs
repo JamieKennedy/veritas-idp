@@ -1,12 +1,12 @@
-﻿using FluentResults;
-using Veritas.PlatformService.Domain.Errors.Base;
-using Veritas.PlatformService.Domain.Types;
+using Veritas.Shared.Errors;
 
 namespace Veritas.PlatformService.Domain.Errors.Bootstrap;
 
-public class SystemAlreadyConfiguredError : ValidationError
+public class SystemAlreadyConfiguredError : ConflictError
 {
-    public SystemAlreadyConfiguredError() : base("The system has already been configured.")
+    public const string ErrorCode = "PLATFORM_SYSTEM_ALREADY_CONFIGURED";
+
+    public SystemAlreadyConfiguredError() : base(ErrorCode, "The system has already been configured.")
     {
     }
 }

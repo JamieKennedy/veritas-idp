@@ -25,11 +25,6 @@ public class BootstrapSession
     public string BootstrapSecretHash { get; set; } = null!;
 
     /// <summary>
-    /// Gets or sets the hash of the one-time password used to verify the session.
-    /// </summary>
-    public string OtpHash { get; set; } = null!;
-
-    /// <summary>
     /// Gets or sets the hash of the session token used for subsequent bootstrap requests.
     /// </summary>
     public string SessionTokenHash { get; set; } = null!;
@@ -42,22 +37,33 @@ public class BootstrapSession
     /// <summary>
     /// Gets or sets the UTC timestamp when the bootstrap session was verified.
     /// </summary>
-    public DateTime VerifiedAtUtc { get; set; }
+    public DateTime? VerifiedAtUtc { get; set; }
 
     /// <summary>
     /// Gets or sets the UTC timestamp when bootstrap completed.
     /// </summary>
-    public DateTime CompletedAtUtc { get; set; }
+    public DateTime? CompletedAtUtc { get; set; }
 
     /// <summary>
-    /// Gets or sets the number of verification attempts made for the session.
+    /// Gets or sets the singleton active-bootstrap slot.
+    /// This is <see langword="null" /> after the session is completed, expired, or cancelled.
     /// </summary>
-    public int AttemptCount { get; set; }
+    public int? ActiveBootstrapSlot { get; set; }
 
     /// <summary>
     /// Gets or sets the UTC timestamp when the bootstrap session was created.
     /// </summary>
     public DateTime CreatedAtUtc { get; set; }
+
+    /// <summary>
+    /// Gets or sets the remote IP address that created the bootstrap session, when available.
+    /// </summary>
+    public string? CreatedFromIp { get; set; }
+
+    /// <summary>
+    /// Gets or sets the UTC timestamp when the bootstrap session was last used.
+    /// </summary>
+    public DateTime? LastSeenAtUtc { get; set; }
 
     /// <summary>
     /// Gets or sets the UTC timestamp when the bootstrap session was last updated.

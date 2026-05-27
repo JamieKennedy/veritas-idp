@@ -6,4 +6,8 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\building-blocks\shared\Veritas.Shared\Veritas.Shared.csproj" />
+    </ItemGroup>
+
 </Project>

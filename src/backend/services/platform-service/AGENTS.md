@@ -21,8 +21,9 @@ Current domain/application concepts:
 - `BootstrapSession` models bootstrap session state.
 - `EBootstrapSessionStatus` defines bootstrap session lifecycle states.
 - `ISystemFlagService` / `SystemFlagService` manage system flags.
-- `IBootstrapService` / `BootstrapService` orchestrate bootstrap status/start logic.
+- `IBootstrapService` / `BootstrapService` orchestrate no-email bootstrap status/start/complete logic.
 - Platform Application calls `IAdminUserDirectory` to inspect admin-user state during bootstrap. API hosts provide an in-process adapter to Users Application.
+- Platform Application calls `IInitialAdminCreator` to create the first admin through Users Application during bootstrap completion.
 
 ## Ownership
 
@@ -52,11 +53,12 @@ Platform module does not own:
 
 Bootstrap is security-sensitive.
 
-- Store bootstrap secrets, OTPs, and session tokens only as hashes.
+- Store bootstrap secrets and session tokens only as hashes.
 - Use UTC expiry and completion timestamps.
-- Keep the state machine explicit: pending verification, verified, completed, expired, cancelled.
+- Keep the state machine explicit: verified, completed, expired, cancelled. `PendingVerification` may exist historically but first-admin bootstrap should not depend on email verification.
 - Do not leak whether a particular email exists or which part of bootstrap failed through public-facing errors.
 - Once User Service creates the initial admin user, Platform Service should mark bootstrap complete by durable platform state, not only by transient cache.
+- Do not add SMTP/Mailgun checks or OTP sending to bootstrap. Email delivery is configured after first-admin setup.
 
 ## Data Guidance
 

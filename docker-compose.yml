@@ -1,0 +1,114 @@
+name: veritas
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: VeritasDb
+      POSTGRES_USER: veritas
+      POSTGRES_PASSWORD: ${VERITAS_POSTGRES_PASSWORD:?Set VERITAS_POSTGRES_PASSWORD before starting Veritas.}
+    volumes:
+      - veritas-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U veritas -d VeritasDb"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+
+  redis:
+    image: redis:8-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - veritas-redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+
+  rabbitmq:
+    image: rabbitmq:4-management
+    environment:
+      RABBITMQ_DEFAULT_USER: veritas
+      RABBITMQ_DEFAULT_PASS: ${VERITAS_RABBITMQ_PASSWORD:?Set VERITAS_RABBITMQ_PASSWORD before starting Veritas.}
+    volumes:
+      - veritas-rabbitmq-data:/var/lib/rabbitmq
+    ports:
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_running"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    restart: unless-stopped
+
+  seq:
+    image: datalust/seq:2025.2
+    environment:
+      ACCEPT_EULA: "Y"
+    volumes:
+      - veritas-seq-data:/data
+    ports:
+      - "5341:80"
+    restart: unless-stopped
+
+  migrator:
+    image: veritas/db-migrator:local
+    build:
+      context: .
+      dockerfile: src/backend/tooling/db-migrator/Veritas.Tooling.DbMigrator/Dockerfile
+    environment:
+      ConnectionStrings__VeritasDb: Host=postgres;Port=5432;Database=VeritasDb;Username=veritas;Password=${VERITAS_POSTGRES_PASSWORD}
+      Migration__MaxConnectAttempts: 60
+      Migration__ConnectRetryDelay: 00:00:02
+      Serilog__File__Path: /var/log/veritas/db-migrator-.log
+    volumes:
+      - veritas-logs:/var/log/veritas
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  admin-api:
+    image: veritas/admin-api:local
+    build:
+      context: .
+      dockerfile: src/backend/edge/admin-api/Veritas.Admin.API/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__VeritasDb: Host=postgres;Port=5432;Database=VeritasDb;Username=veritas;Password=${VERITAS_POSTGRES_PASSWORD}
+      ConnectionStrings__messaging: amqp://veritas:${VERITAS_RABBITMQ_PASSWORD}@rabbitmq:5672/
+      BOOTSTRAP_SECRET_FILE: /run/secrets/bootstrap_secret
+      Serilog__File__Path: /var/log/veritas/admin-api-.log
+    secrets:
+      - bootstrap_secret
+    volumes:
+      - veritas-logs:/var/log/veritas
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrator:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+secrets:
+  bootstrap_secret:
+    file: ./secrets/bootstrap-secret.txt
+
+volumes:
+  veritas-postgres-data:
+  veritas-redis-data:
+  veritas-rabbitmq-data:
+  veritas-seq-data:
+  veritas-logs:

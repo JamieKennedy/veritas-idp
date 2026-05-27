@@ -105,7 +105,7 @@ dotnet build Veritas.slnx
 dotnet run --project src\orchestration\aspire\Veritas.AppHost\Veritas.AppHost.csproj
 ```
 
-The AppHost requires the secret parameter `setup-token`, which is injected into Admin API as `SETUP_TOKEN`. See `docs/setup-token.md`.
+The AppHost requires the secret parameter `bootstrap-secret`, which is injected into Admin API as `BOOTSTRAP_SECRET`. See `docs/setup-token.md`.
 
 Current Aspire resources:
 

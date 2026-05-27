@@ -19,5 +19,10 @@ public class PlatformDbContext : DbContext, IPlatformDbContext
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.HasDefaultSchema("platform");
+
+        modelBuilder.Entity<BootstrapSession>()
+            .HasIndex(session => session.ActiveBootstrapSlot)
+            .IsUnique()
+            .HasFilter("\"ActiveBootstrapSlot\" IS NOT NULL");
     }
 }
