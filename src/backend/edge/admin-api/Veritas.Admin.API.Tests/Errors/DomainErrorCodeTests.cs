@@ -1,4 +1,5 @@
 using System.Reflection;
+using Veritas.MessagingService.Domain.Errors;
 using Veritas.PlatformService.Domain.Errors.Bootstrap;
 using Veritas.PlatformService.Domain.Errors.Base;
 using Veritas.Shared.Errors;
@@ -15,6 +16,7 @@ public sealed class DomainErrorCodeTests
         var errorTypes = new[]
             {
                 typeof(ActiveBootstrapSessionError).Assembly,
+                typeof(SmtpNotConfiguredError).Assembly,
                 typeof(InvalidAdminCredentialsError).Assembly
             }
             .Distinct()

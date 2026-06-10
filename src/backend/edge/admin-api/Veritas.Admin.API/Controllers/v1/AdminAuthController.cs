@@ -76,6 +76,7 @@ public sealed class AdminAuthController : BaseController<AdminAuthController>
     /// </summary>
     /// <returns>An empty success response.</returns>
     [HttpPost("logout")]
+    [Microsoft.AspNetCore.Authorization.Authorize]
     public async Task<IActionResult> Logout()
     {
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);

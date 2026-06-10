@@ -23,7 +23,7 @@ Current behavior:
 - Admin API composes Platform and Users modules in-process. Bootstrap calls Platform Application services directly.
 - `ServiceExtensions.AddVeritasModules` registers module DbContexts, module Application services, and in-process cross-module adapters.
 - First-admin creation belongs to the bootstrap flow and Users Application services. Do not reintroduce an unauthenticated admin-user create endpoint.
-- Wolverine is configured for RabbitMQ-backed async messages such as `SendEmailRequestedV1`.
+- Wolverine is configured for RabbitMQ-backed async messages such as `SendTemplatedEmailRequestedV1`.
 - Scalar/OpenAPI is enabled in development.
 
 ## Rules

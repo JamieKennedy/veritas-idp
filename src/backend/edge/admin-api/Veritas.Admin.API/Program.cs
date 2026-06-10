@@ -2,6 +2,7 @@ using Scalar.AspNetCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Threading.RateLimiting;
 using Veritas.Admin.API.Extensions;
+using Veritas.Admin.API.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -99,6 +100,8 @@ app.UseRateLimiter();
 app.UseAuthentication();
 
 app.UseAuthorization();
+
+app.UseMiddleware<SmtpSetupGateMiddleware>();
 
 app.MapControllers();
 

@@ -25,6 +25,7 @@
     <ItemGroup>
       <ProjectReference Include="..\..\..\services\platform-service\Veritas.PlatformService.Infrastructure\Veritas.PlatformService.Infrastructure.csproj" />
       <ProjectReference Include="..\..\..\building-blocks\service-defaults\Veritas.ServiceDefaults\Veritas.ServiceDefaults.csproj" />
+      <ProjectReference Include="..\..\..\services\messaging-service\Veritas.MessagingService.Infrastructure\Veritas.MessagingService.Infrastructure.csproj" />
       <ProjectReference Include="..\..\..\services\user-service\Veritas.UserService.Infrastructure\Veritas.UserService.Infrastructure.csproj" />
     </ItemGroup>
 

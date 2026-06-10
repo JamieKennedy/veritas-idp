@@ -28,9 +28,10 @@
       <ProjectReference Include="..\..\..\building-blocks\shared\Veritas.Shared\Veritas.Shared.csproj" />
       <ProjectReference Include="..\..\..\services\platform-service\Veritas.PlatformService.Application\Veritas.PlatformService.Application.csproj" />
       <ProjectReference Include="..\..\..\services\platform-service\Veritas.PlatformService.Infrastructure\Veritas.PlatformService.Infrastructure.csproj" />
+      <ProjectReference Include="..\..\..\services\messaging-service\Veritas.MessagingService.Application\Veritas.MessagingService.Application.csproj" />
+      <ProjectReference Include="..\..\..\services\messaging-service\Veritas.MessagingService.Infrastructure\Veritas.MessagingService.Infrastructure.csproj" />
       <ProjectReference Include="..\..\..\services\user-service\Veritas.UserService.Application\Veritas.UserService.Application.csproj" />
       <ProjectReference Include="..\..\..\services\user-service\Veritas.UserService.Infrastructure\Veritas.UserService.Infrastructure.csproj" />
     </ItemGroup>
 
 </Project>
-

@@ -22,6 +22,10 @@ var migrator = builder.AddProject<Veritas_Tooling_DbMigrator>("migrator")
 
 // Deployment provides this secret (user-secrets locally, secret store/env in deployed environments).
 var bootstrapSecret = builder.AddParameter("bootstrap-secret", secret: true);
+var dataProtectionKeysPath = Path.Combine(
+    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+    "Veritas",
+    "DataProtectionKeys");
 
 builder.AddProject<Veritas_Admin_API>("veritas-admin-api")
     .WithReference(veritasDb)
@@ -32,6 +36,7 @@ builder.AddProject<Veritas_Admin_API>("veritas-admin-api")
     .WaitFor(rabbitmq)
     .WaitFor(migrator)
     .WithEnvironment("BOOTSTRAP_SECRET", bootstrapSecret)
+    .WithEnvironment("DataProtection__KeysPath", dataProtectionKeysPath)
     .WithUrlForEndpoint("http", url =>
     {
         url.DisplayText = "Scalar";

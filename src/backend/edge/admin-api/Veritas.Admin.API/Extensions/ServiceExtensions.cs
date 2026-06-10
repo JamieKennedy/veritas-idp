@@ -2,7 +2,11 @@ using System.Text.Json.Nodes;
 using Asp.Versioning;
 using FluentResults;
 using Microsoft.OpenApi;
+using Microsoft.AspNetCore.DataProtection;
 using Veritas.Admin.API.Helpers;
+using Veritas.MessagingService.Application.Services;
+using Veritas.MessagingService.Infrastructure.Email;
+using Veritas.MessagingService.Infrastructure.Extensions;
 using Veritas.PlatformService.Application.Dependencies;
 using Veritas.PlatformService.Application.Interfaces;
 using Veritas.PlatformService.Application.Services;
@@ -10,6 +14,7 @@ using Veritas.PlatformService.Infrastructure.Extensions;
 using Veritas.UserService.Application.Interfaces;
 using Veritas.UserService.Application.Services;
 using Veritas.UserService.Infrastructure.Extensions;
+using Veritas.Shared.Security;
 
 namespace Veritas.Admin.API.Extensions;
 
@@ -25,6 +30,15 @@ public static class ServiceExtensions
         var connectionString = configuration.GetConnectionString("VeritasDb");
         services.AddPlatformPersistence(connectionString);
         services.AddUserPersistence(connectionString);
+        services.AddMessagingPersistence(connectionString);
+
+        var dataProtectionKeysPath = configuration["DataProtection:KeysPath"];
+        var dataProtectionBuilder = services.AddDataProtection()
+            .SetApplicationName("Veritas");
+        if (!string.IsNullOrWhiteSpace(dataProtectionKeysPath))
+        {
+            dataProtectionBuilder.PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeysPath));
+        }
 
         services.AddScoped<ISystemFlagService, SystemFlagService>();
         services.AddScoped<IBootstrapService, BootstrapService>();
@@ -33,6 +47,14 @@ public static class ServiceExtensions
         services.AddScoped<IAdminUserService, AdminUserService>();
         services.AddScoped<IAdminUserDirectory, InProcessAdminUserDirectory>();
         services.AddScoped<IInitialAdminCreator, InProcessInitialAdminCreator>();
+        services.AddScoped<ISecretProtector, DataProtectionSecretProtector>();
+        services.AddScoped<ISmtpConnectivityTester, SmtpConnectivityTester>();
+        services.AddScoped<IEmailSender, SmtpEmailSender>();
+        services.AddScoped<SmtpSettingsService>();
+        services.AddScoped<ISmtpSetupStatus>(provider => provider.GetRequiredService<SmtpSettingsService>());
+        services.AddScoped<TemplateService>();
+        services.AddScoped<TemplateRenderer>();
+        services.AddScoped<EmailDeliveryService>();
     }
 
     /// <summary>

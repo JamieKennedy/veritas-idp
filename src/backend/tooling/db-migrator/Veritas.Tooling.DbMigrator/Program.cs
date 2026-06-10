@@ -3,6 +3,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using Veritas.MessagingService.Infrastructure.Database;
+using Veritas.MessagingService.Infrastructure.Extensions;
 using Veritas.PlatformService.Infrastructure.Database;
 using Veritas.PlatformService.Infrastructure.Extensions;
 using Veritas.Tooling.DbMigrator;
@@ -22,6 +24,7 @@ if (string.IsNullOrWhiteSpace(connectionString))
 
 builder.Services.AddPlatformPersistence(connectionString);
 builder.Services.AddUserPersistence(connectionString);
+builder.Services.AddMessagingPersistence(connectionString);
 builder.Services.Configure<MigrationOptions>(builder.Configuration.GetSection(MigrationOptions.SectionName));
 
 using var host = builder.Build();
@@ -42,7 +45,8 @@ try
     var migrations = new MigrationStep[]
     {
         new("Platform", services => Utilities.MigrateAsync<PlatformDbContext>(services, cancellationTokenSource.Token)),
-        new("Users", services => Utilities.MigrateAsync<UserDbContext>(services, cancellationTokenSource.Token))
+        new("Users", services => Utilities.MigrateAsync<UserDbContext>(services, cancellationTokenSource.Token)),
+        new("Messaging", services => Utilities.MigrateAsync<MessagingDbContext>(services, cancellationTokenSource.Token))
     };
 
     foreach (var migration in migrations)

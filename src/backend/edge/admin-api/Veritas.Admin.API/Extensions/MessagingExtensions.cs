@@ -24,9 +24,11 @@ public static class MessagingExtensions
             }
 
             options.UseRabbitMqUsingNamedConnection("messaging")
+                .DisableSystemRequestReplyQueueDeclaration()
                 .AutoProvision();
-            options.PublishMessage<SendEmailRequestedV1>().ToRabbitExchange("veritas.messaging.email");
-            options.ListenToRabbitQueue("veritas.messaging.email");
+            options.PublishMessage<SendTemplatedEmailRequestedV1>().ToRabbitExchange("veritas.messaging.email");
+            options.ListenToRabbitQueue("veritas.messaging.email")
+                .DefaultIncomingMessage<SendTemplatedEmailRequestedV1>();
             options.UseEntityFrameworkCoreTransactions();
         });
     }

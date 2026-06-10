@@ -14,6 +14,12 @@
     <Project Path="src\backend\services\platform-service\Veritas.PlatformService.Domain\Veritas.PlatformService.Domain.csproj" Type="Classic C#" />
     <Project Path="src\backend\services\platform-service\Veritas.PlatformService.Infrastructure\Veritas.PlatformService.Infrastructure.csproj" Type="Classic C#" />
   </Folder>
+  <Folder Name="/Backend/Services/MessagingService/">
+    <Project Path="src\backend\services\messaging-service\Veritas.MessagingService.Application\Veritas.MessagingService.Application.csproj" Type="Classic C#" />
+    <Project Path="src\backend\services\messaging-service\Veritas.MessagingService.Application.Tests\Veritas.MessagingService.Application.Tests.csproj" Type="Classic C#" />
+    <Project Path="src\backend\services\messaging-service\Veritas.MessagingService.Domain\Veritas.MessagingService.Domain.csproj" Type="Classic C#" />
+    <Project Path="src\backend\services\messaging-service\Veritas.MessagingService.Infrastructure\Veritas.MessagingService.Infrastructure.csproj" Type="Classic C#" />
+  </Folder>
   <Folder Name="/Backend/Tooling/">
     <Project Path="src\backend\tooling\db-migrator\Veritas.Tooling.DbMigrator\Veritas.Tooling.DbMigrator.csproj" Type="Classic C#" />
   </Folder>

@@ -19,6 +19,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\..\building-blocks\shared\Veritas.Shared\Veritas.Shared.csproj" />
+        <ProjectReference Include="..\..\..\services\messaging-service\Veritas.MessagingService.Application\Veritas.MessagingService.Application.csproj" />
         <ProjectReference Include="..\Veritas.Admin.API\Veritas.Admin.API.csproj" />
     </ItemGroup>
 
