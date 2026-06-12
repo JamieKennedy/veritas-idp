@@ -1,6 +1,8 @@
 using Scalar.AspNetCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Mvc;
 using System.Threading.RateLimiting;
+using Veritas.Admin.API.Authentication;
 using Veritas.Admin.API.Extensions;
 using Veritas.Admin.API.Middleware;
 
@@ -15,7 +17,20 @@ builder.ConfigureVeritasMessaging();
 
 builder.Services.ConfigureVersioning();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
+});
+builder.Services.AddAntiforgery(options =>
+{
+    options.HeaderName = "X-CSRF-TOKEN";
+    options.Cookie.Name = "__Host-veritas-admin-csrf";
+    options.Cookie.HttpOnly = false;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.SameSite = SameSiteMode.Strict;
+    options.Cookie.Path = "/";
+});
+builder.Services.AddScoped<AdminCookieAuthenticationEvents>();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
@@ -25,9 +40,14 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.Cookie.SameSite = SameSiteMode.Strict;
         options.Cookie.Path = "/";
         options.SlidingExpiration = true;
-        options.ExpireTimeSpan = TimeSpan.FromHours(8);
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
         options.LoginPath = "/api/v1/admin-auth/login";
         options.AccessDeniedPath = "/api/v1/admin-auth/login";
+        options.Events.OnValidatePrincipal = async context =>
+        {
+            var events = context.HttpContext.RequestServices.GetRequiredService<AdminCookieAuthenticationEvents>();
+            await events.ValidatePrincipal(context);
+        };
         options.Events.OnRedirectToLogin = context =>
         {
             context.Response.StatusCode = StatusCodes.Status401Unauthorized;

@@ -1,11 +1,14 @@
 using System.Security.Claims;
 using Asp.Versioning;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Veritas.Admin.API.Models.AdminAuth;
 using Veritas.Shared.Http;
+using Veritas.UserService.Application.DataTransferObjects;
 using Veritas.UserService.Application.Interfaces;
 
 namespace Veritas.Admin.API.Controllers.v1;
@@ -15,21 +18,45 @@ namespace Veritas.Admin.API.Controllers.v1;
 [ApiController]
 public sealed class AdminAuthController : BaseController<AdminAuthController>
 {
+    /// <summary>
+    /// Identifies the server-side admin session id claim in the admin auth cookie.
+    /// </summary>
+    public const string SessionIdClaimType = "veritas_admin_session_id";
+
+    /// <summary>
+    /// Identifies the admin security stamp claim in the admin auth cookie.
+    /// </summary>
+    public const string SecurityStampClaimType = "veritas_admin_security_stamp";
+
     private readonly IAdminUserService _adminUserService;
+    private readonly IAntiforgery _antiforgery;
 
     public AdminAuthController(
         ILogger<AdminAuthController> logger,
-        IAdminUserService adminUserService) : base(logger)
+        IAdminUserService adminUserService,
+        IAntiforgery antiforgery) : base(logger)
     {
         _adminUserService = adminUserService;
+        _antiforgery = antiforgery;
     }
 
     /// <summary>
-    /// Signs in an administrator with email and password credentials.
+    /// Creates and stores an antiforgery token for cookie-authenticated Admin API requests.
+    /// </summary>
+    /// <returns>The antiforgery request token clients must send in the X-CSRF-TOKEN header.</returns>
+    [HttpGet("csrf")]
+    public IActionResult GetCsrfToken()
+    {
+        var tokens = _antiforgery.GetAndStoreTokens(HttpContext);
+        return Ok(new AdminCsrfTokenResponse(tokens.RequestToken ?? string.Empty));
+    }
+
+    /// <summary>
+    /// Validates administrator credentials and returns the MFA challenge required to complete login.
     /// </summary>
     /// <param name="request">The login request containing administrator credentials.</param>
     /// <param name="cancellationToken">A token that cancels credential validation.</param>
-    /// <returns>A safe administrator identity when authentication succeeds.</returns>
+    /// <returns>A short-lived MFA challenge when password validation succeeds.</returns>
     [HttpPost("login")]
     [EnableRateLimiting("admin-login")]
     public async Task<IActionResult> Login([FromBody] AdminLoginRequest request, CancellationToken cancellationToken)
@@ -39,7 +66,7 @@ public sealed class AdminAuthController : BaseController<AdminAuthController>
             return FailureResultMapper.UnauthorizedProblem("Invalid administrator credentials.");
         }
 
-        var result = await _adminUserService.ValidateAdminCredentialsAsync(
+        var result = await _adminUserService.StartAdminLoginAsync(
             request.Email,
             request.Password,
             cancellationToken);
@@ -50,11 +77,127 @@ public sealed class AdminAuthController : BaseController<AdminAuthController>
             return FailureResultMapper.ToProblemDetails(result);
         }
 
+        return StatusCode(
+            StatusCodes.Status202Accepted,
+            new AdminLoginChallengeResponse(
+                result.Value.ChallengeId,
+                result.Value.ChallengeToken,
+                result.Value.Purpose,
+                result.Value.ExpiresAtUtc,
+                result.Value.TotpSecretBase32,
+                result.Value.TotpProvisioningUri));
+    }
+
+    /// <summary>
+    /// Confirms first-login administrator TOTP enrollment and signs in the administrator.
+    /// </summary>
+    /// <param name="request">The MFA enrollment confirmation request.</param>
+    /// <param name="cancellationToken">A token that cancels enrollment completion.</param>
+    /// <returns>The authenticated administrator and one-time recovery codes.</returns>
+    [HttpPost("mfa/enroll/confirm")]
+    [EnableRateLimiting("admin-login")]
+    public async Task<IActionResult> CompleteMfaEnrollment(
+        [FromBody] AdminMfaEnrollmentRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await _adminUserService.CompleteAdminMfaEnrollmentAsync(
+            request.ChallengeId,
+            request.ChallengeToken,
+            request.TotpCode,
+            cancellationToken);
+
+        if (result.IsFailed)
+        {
+            Logger.LogWarning("Rejected administrator MFA enrollment attempt.");
+            return FailureResultMapper.ToProblemDetails(result);
+        }
+
+        await SignInAdminSessionAsync(result.Value, cancellationToken);
+
+        return Ok(new AdminMfaEnrollmentResponse(
+            ToLoginResponse(result.Value.Admin),
+            result.Value.RecoveryCodes));
+    }
+
+    /// <summary>
+    /// Verifies administrator MFA and signs in the administrator.
+    /// </summary>
+    /// <param name="request">The MFA verification request.</param>
+    /// <param name="cancellationToken">A token that cancels MFA verification.</param>
+    /// <returns>The authenticated administrator identity.</returns>
+    [HttpPost("mfa/verify")]
+    [EnableRateLimiting("admin-login")]
+    public async Task<IActionResult> CompleteMfaVerification(
+        [FromBody] AdminMfaVerificationRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await _adminUserService.CompleteAdminMfaVerificationAsync(
+            request.ChallengeId,
+            request.ChallengeToken,
+            request.Code,
+            cancellationToken);
+
+        if (result.IsFailed)
+        {
+            Logger.LogWarning("Rejected administrator MFA verification attempt.");
+            return FailureResultMapper.ToProblemDetails(result);
+        }
+
+        await SignInAdminSessionAsync(result.Value, cancellationToken);
+
+        return Ok(ToLoginResponse(result.Value.Admin));
+    }
+
+    /// <summary>
+    /// Signs out the current administrator by revoking the server-side admin session and clearing the cookie.
+    /// </summary>
+    /// <param name="cancellationToken">A token that cancels session revocation.</param>
+    /// <returns>An empty success response.</returns>
+    [HttpPost("logout")]
+    [Authorize]
+    public async Task<IActionResult> Logout(CancellationToken cancellationToken)
+    {
+        var adminUserIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var sessionIdClaim = User.FindFirstValue(SessionIdClaimType);
+
+        if (Guid.TryParse(adminUserIdClaim, out var adminUserId) &&
+            Guid.TryParse(sessionIdClaim, out var sessionId))
+        {
+            var revokeResult = await _adminUserService.RevokeAdminSessionAsync(
+                adminUserId,
+                sessionId,
+                "logout",
+                cancellationToken);
+            if (revokeResult.IsFailed)
+            {
+                Logger.LogWarning("Failed to revoke administrator session during logout.");
+                return FailureResultMapper.ToProblemDetails(revokeResult);
+            }
+        }
+
+        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        return Ok();
+    }
+
+    /// <summary>
+    /// Issues the browser auth cookie for a fully authenticated administrator session.
+    /// </summary>
+    /// <param name="session">The authenticated administrator session.</param>
+    /// <param name="cancellationToken">A token that cancels cookie issuance.</param>
+    /// <returns>A task that completes when the cookie has been issued.</returns>
+    private async Task SignInAdminSessionAsync(
+        AdminSessionAuthenticationDto session,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var claims = new List<Claim>
         {
-            new(ClaimTypes.NameIdentifier, result.Value.Id.ToString()),
-            new(ClaimTypes.Email, result.Value.Email),
-            new(ClaimTypes.Name, result.Value.Name ?? result.Value.Email)
+            new(ClaimTypes.NameIdentifier, session.Admin.Id.ToString()),
+            new(ClaimTypes.Email, session.Admin.Email),
+            new(ClaimTypes.Name, session.Admin.Name ?? session.Admin.Email),
+            new(SessionIdClaimType, session.SessionId.ToString()),
+            new(SecurityStampClaimType, session.SecurityStamp.ToString())
         };
         var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
         var principal = new ClaimsPrincipal(identity);
@@ -65,21 +208,18 @@ public sealed class AdminAuthController : BaseController<AdminAuthController>
             new AuthenticationProperties
             {
                 IsPersistent = false,
-                IssuedUtc = DateTimeOffset.UtcNow
+                IssuedUtc = DateTimeOffset.UtcNow,
+                ExpiresUtc = new DateTimeOffset(session.IdleExpiresAtUtc, TimeSpan.Zero)
             });
-
-        return Ok(new AdminLoginResponse(result.Value.Id, result.Value.Email, result.Value.Name));
     }
 
     /// <summary>
-    /// Signs out the current administrator by clearing the admin authentication cookie.
+    /// Maps a Users Application administrator DTO to the Admin API login response.
     /// </summary>
-    /// <returns>An empty success response.</returns>
-    [HttpPost("logout")]
-    [Microsoft.AspNetCore.Authorization.Authorize]
-    public async Task<IActionResult> Logout()
+    /// <param name="admin">The safe administrator identity.</param>
+    /// <returns>The Admin API login response.</returns>
+    private static AdminLoginResponse ToLoginResponse(AdminUserAuthenticationDto admin)
     {
-        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-        return Ok();
+        return new AdminLoginResponse(admin.Id, admin.Email, admin.Name);
     }
 }
