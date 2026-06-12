@@ -9,7 +9,6 @@ The Aspire AppHost is the local development orchestrator for Veritas. It is not 
 - AppHost project: `Veritas.AppHost`
 - Main file: `Veritas.AppHost/AppHost.cs`
 - Local resources:
-  - Seq, with persisted volume `veritas-seq-data`
   - Redis
   - Postgres on port `5432`, with persisted volume `veritas-postgres-data`
   - RabbitMQ with management plugin on port `15672`, with persisted volume `veritas-rabbitmq-data`
@@ -18,7 +17,7 @@ The Aspire AppHost is the local development orchestrator for Veritas. It is not 
 
 ## Rules
 
-- Keep resource names stable, especially `VeritasDb`, `seq`, and `messaging`, because API hosts and Wolverine use those connection/resource names.
+- Keep resource names stable, especially `VeritasDb` and `messaging`, because API hosts and Wolverine use those connection/resource names.
 - Keep the migrator waiting for Postgres and API hosts waiting for the migrator when persistence is required.
 - Add new persisted infrastructure here only when a module or API host actually needs it locally.
 - Add secret values as Aspire parameters, not literals in `AppHost.cs`.

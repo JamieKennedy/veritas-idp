@@ -26,7 +26,7 @@ Veritas is security-sensitive infrastructure. Robustness, observability, and def
 - `src/backend/services/user-service` is the Users module. It owns user identity data and admin-user state.
 - `src/backend/tooling/db-migrator` runs EF Core migrations for module DbContexts during Aspire startup.
 - `src/frontend/admin-ui` and `src/frontend/public-ui` are reserved pnpm workspace packages for future React apps.
-- `src/orchestration/aspire/Veritas.AppHost` defines local dev orchestration for Seq, Redis, Postgres, RabbitMQ, the migrator, and Admin API.
+- `src/orchestration/aspire/Veritas.AppHost` defines local dev orchestration for Redis, Postgres, RabbitMQ, the migrator, and Admin API.
 
 ## Architecture Rules
 
@@ -109,7 +109,8 @@ The AppHost requires the secret parameter `bootstrap-secret`, which is injected 
 
 Current Aspire resources:
 
-- Seq on port `5341`
+- Aspire dashboard on ports `15000` (HTTP) and `17000` (HTTPS)
+- Admin API on ports `5100` (HTTP) and `7100` (HTTPS)
 - Postgres on port `5432`
 - RabbitMQ management on port `15672`
 - Admin API with Scalar linked from the Aspire dashboard

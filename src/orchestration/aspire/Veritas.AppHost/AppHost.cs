@@ -2,9 +2,6 @@ using Projects;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
-var seq = builder.AddSeq("seq", port: 5341)
-    .WithDataVolume("veritas-seq-data");
-
 var redis = builder.AddRedis("redis");
 
 var postgres = builder.AddPostgres("postgres", port: 5432)
@@ -28,11 +25,11 @@ var dataProtectionKeysPath = Path.Combine(
     "DataProtectionKeys");
 
 builder.AddProject<Veritas_Admin_API>("veritas-admin-api")
+    .WithHttpEndpoint(targetPort: 5100, port: 5100)
+    .WithHttpsEndpoint(targetPort: 7100, port: 7100)
     .WithReference(veritasDb)
-    .WithReference(seq)
     .WithReference(rabbitmq)
     .WaitFor(veritasDb)
-    .WaitFor(seq)
     .WaitFor(rabbitmq)
     .WaitFor(migrator)
     .WithEnvironment("BOOTSTRAP_SECRET", bootstrapSecret)

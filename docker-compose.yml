@@ -47,17 +47,6 @@ services:
       start_period: 20s
     restart: unless-stopped
 
-  seq:
-    image: datalust/seq:2025.2
-    environment:
-      ACCEPT_EULA: "Y"
-      SEQ_FIRSTRUN_ADMINPASSWORD: ${VERITAS_SEQ_ADMIN_PASSWORD:?Set VERITAS_SEQ_ADMIN_PASSWORD before starting Veritas.}
-    volumes:
-      - veritas-seq-data:/data
-    ports:
-      - "5341:80"
-    restart: unless-stopped
-
   migrator:
     image: veritas/db-migrator:local
     build:
@@ -84,7 +73,6 @@ services:
       ASPNETCORE_ENVIRONMENT: Production
       ConnectionStrings__VeritasDb: Host=postgres;Port=5432;Database=VeritasDb;Username=veritas;Password=${VERITAS_POSTGRES_PASSWORD}
       ConnectionStrings__messaging: amqp://veritas:${VERITAS_RABBITMQ_PASSWORD}@rabbitmq:5672/
-      ConnectionStrings__seq: http://seq:80
       BOOTSTRAP_SECRET_FILE: /run/secrets/bootstrap_secret
       DataProtection__KeysPath: /var/lib/veritas/data-protection
       Serilog__File__Path: /var/log/veritas/admin-api-.log
@@ -102,8 +90,6 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-      seq:
-        condition: service_started
       migrator:
         condition: service_completed_successfully
     restart: unless-stopped
@@ -116,6 +102,5 @@ volumes:
   veritas-postgres-data:
   veritas-redis-data:
   veritas-rabbitmq-data:
-  veritas-seq-data:
   veritas-logs:
   veritas-data-protection:
