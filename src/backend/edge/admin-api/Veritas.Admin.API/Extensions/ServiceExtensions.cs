@@ -45,6 +45,7 @@ public static class ServiceExtensions
         services.AddSingleton<IBootstrapSecretValidator>(_ =>
             new ConfiguredBootstrapSecretValidator(ResolveBootstrapSecret(configuration)));
         services.AddScoped<IAdminUserService, AdminUserService>();
+        services.AddSingleton(TimeProvider.System);
         services.AddScoped<IAdminUserDirectory, InProcessAdminUserDirectory>();
         services.AddScoped<IInitialAdminCreator, InProcessInitialAdminCreator>();
         services.AddScoped<ISecretProtector, DataProtectionSecretProtector>();

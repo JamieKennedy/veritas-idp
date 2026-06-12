@@ -14,6 +14,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Veritas.UserService.Domain\Veritas.UserService.Domain.csproj" />
+      <ProjectReference Include="..\..\..\building-blocks\shared\Veritas.Shared\Veritas.Shared.csproj" />
     </ItemGroup>
 
 </Project>

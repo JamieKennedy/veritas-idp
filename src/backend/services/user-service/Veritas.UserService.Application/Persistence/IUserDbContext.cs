@@ -14,6 +14,21 @@ public interface IUserDbContext
     DbSet<AdminUser> AdminUsers { get; }
 
     /// <summary>
+    /// Gets short-lived admin login challenges that gate MFA completion before cookie issuance.
+    /// </summary>
+    DbSet<AdminLoginChallenge> AdminLoginChallenges { get; }
+
+    /// <summary>
+    /// Gets server-side administrator sessions that back browser authentication cookies.
+    /// </summary>
+    DbSet<AdminSession> AdminSessions { get; }
+
+    /// <summary>
+    /// Gets hashed one-time administrator MFA recovery codes.
+    /// </summary>
+    DbSet<AdminRecoveryCode> AdminRecoveryCodes { get; }
+
+    /// <summary>
     /// Persists pending Users module changes as one atomic unit of work.
     /// </summary>
     /// <param name="cancellationToken">A token that cancels the save operation.</param>

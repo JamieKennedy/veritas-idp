@@ -10,7 +10,25 @@ public class UserDbContext : DbContext, IUserDbContext
     {
     }
 
+    /// <summary>
+    /// Gets or sets admin identity records, including credential hashes and MFA state.
+    /// </summary>
     public DbSet<AdminUser> AdminUsers { get; set; }
+
+    /// <summary>
+    /// Gets or sets short-lived admin login challenges that gate MFA completion.
+    /// </summary>
+    public DbSet<AdminLoginChallenge> AdminLoginChallenges { get; set; }
+
+    /// <summary>
+    /// Gets or sets server-side administrator sessions that back browser authentication cookies.
+    /// </summary>
+    public DbSet<AdminSession> AdminSessions { get; set; }
+
+    /// <summary>
+    /// Gets or sets hashed one-time administrator MFA recovery codes.
+    /// </summary>
+    public DbSet<AdminRecoveryCode> AdminRecoveryCodes { get; set; }
 
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -27,5 +45,17 @@ public class UserDbContext : DbContext, IUserDbContext
             .HasIndex(u => u.InitialAdminSlot)
             .IsUnique()
             .HasFilter("\"InitialAdminSlot\" IS NOT NULL");
+
+        modelBuilder.Entity<AdminLoginChallenge>()
+            .HasIndex(challenge => challenge.AdminUserId);
+
+        modelBuilder.Entity<AdminLoginChallenge>()
+            .HasIndex(challenge => challenge.ExpiresAtUtc);
+
+        modelBuilder.Entity<AdminSession>()
+            .HasIndex(session => new { session.AdminUserId, session.RevokedAtUtc });
+
+        modelBuilder.Entity<AdminRecoveryCode>()
+            .HasIndex(code => code.AdminUserId);
     }
 }
