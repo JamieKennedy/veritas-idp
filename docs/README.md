@@ -5,6 +5,9 @@ This folder contains project documentation while the full docs site is being bui
 ## Available docs
 
 - [Bootstrap secret (Aspire + deployment)](./setup-token.md)
+- [Bootstrap flow](../src/docs/bootstrap.md)
+- [SMTP and messaging setup](../src/docs/smtp-messaging.md)
+- [Admin authentication flow](../src/docs/admin-auth-flow.md)
 
 ## Scope
 
