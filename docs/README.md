@@ -1,15 +1,13 @@
-﻿# Veritas Docs
+# Veritas Source Docs
 
-This folder contains project documentation while the full docs site is being built.
+This folder contains practical API and setup notes for developers building against the current source tree.
 
-## Available docs
+## Available Docs
 
-- [Bootstrap secret (Aspire + deployment)](./setup-token.md)
-- [Bootstrap flow](../src/docs/bootstrap.md)
-- [SMTP and messaging setup](../src/docs/smtp-messaging.md)
-- [Admin authentication flow](../src/docs/admin-auth-flow.md)
+- [Bootstrap flow](./bootstrap.md)
+- [SMTP and messaging setup](./smtp-messaging.md)
+- [Admin authentication flow](./admin-auth-flow.md)
 
-## Scope
+## Notes
 
-These docs focus on practical setup and operations guidance for local development and deployment.
-
+These docs describe the Admin API behavior in the current implementation. They intentionally avoid raw secret values and use placeholders in request examples.
