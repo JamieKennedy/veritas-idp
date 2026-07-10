@@ -52,6 +52,28 @@ public sealed class AdminAuthController : BaseController<AdminAuthController>
     }
 
     /// <summary>
+    /// Gets the safe identity of the currently authenticated administrator.
+    /// </summary>
+    /// <returns>The authenticated administrator identity, or an unauthorized response when required claims are absent.</returns>
+    [HttpGet("me")]
+    [Authorize]
+    public IActionResult CurrentAdmin()
+    {
+        var adminUserIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var email = User.FindFirstValue(ClaimTypes.Email);
+
+        if (!Guid.TryParse(adminUserIdClaim, out var adminUserId) || string.IsNullOrWhiteSpace(email))
+        {
+            return Unauthorized();
+        }
+
+        return Ok(new AdminLoginResponse(
+            adminUserId,
+            email,
+            User.FindFirstValue(ClaimTypes.Name)));
+    }
+
+    /// <summary>
     /// Validates administrator credentials and returns the MFA challenge required to complete login.
     /// </summary>
     /// <param name="request">The login request containing administrator credentials.</param>
@@ -195,10 +217,13 @@ public sealed class AdminAuthController : BaseController<AdminAuthController>
         {
             new(ClaimTypes.NameIdentifier, session.Admin.Id.ToString()),
             new(ClaimTypes.Email, session.Admin.Email),
-            new(ClaimTypes.Name, session.Admin.Name ?? session.Admin.Email),
             new(SessionIdClaimType, session.SessionId.ToString()),
             new(SecurityStampClaimType, session.SecurityStamp.ToString())
         };
+        if (!string.IsNullOrWhiteSpace(session.Admin.Name))
+        {
+            claims.Add(new Claim(ClaimTypes.Name, session.Admin.Name));
+        }
         var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
         var principal = new ClaimsPrincipal(identity);
 

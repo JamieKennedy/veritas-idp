@@ -29,12 +29,10 @@ public sealed class SetupController(
             return FailureResultMapper.ToProblemDetails(bootstrap);
         }
 
-        return Ok(new
-        {
+        return Ok(new SetupStatusResponse(
             bootstrap.Value.IsConfigured,
             bootstrap.Value.HasActiveBootstrap,
             bootstrap.Value.ActiveBootstrapExpiresAtUtc,
-            IsSmtpConfigured = await smtpSetupStatus.IsSmtpConfiguredAsync(cancellationToken)
-        });
+            await smtpSetupStatus.IsSmtpConfiguredAsync(cancellationToken)));
     }
 }

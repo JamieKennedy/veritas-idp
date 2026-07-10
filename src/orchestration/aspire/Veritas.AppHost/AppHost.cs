@@ -1,6 +1,11 @@
+using Aspire.Hosting.JavaScript;
 using Projects;
 
 var builder = DistributedApplication.CreateBuilder(args);
+
+const int adminApiHttpPort = 5100;
+const int adminApiHttpsPort = 7100;
+const int adminUiHttpPort = 3000;
 
 var redis = builder.AddRedis("redis");
 
@@ -24,9 +29,9 @@ var dataProtectionKeysPath = Path.Combine(
     "Veritas",
     "DataProtectionKeys");
 
-builder.AddProject<Veritas_Admin_API>("veritas-admin-api")
-    .WithHttpEndpoint(targetPort: 5100, port: 5100)
-    .WithHttpsEndpoint(targetPort: 7100, port: 7100)
+var adminApi = builder.AddProject<Veritas_Admin_API>("veritas-admin-api")
+    .WithHttpEndpoint(targetPort: adminApiHttpPort, port: adminApiHttpPort)
+    .WithHttpsEndpoint(targetPort: adminApiHttpsPort, port: adminApiHttpsPort)
     .WithReference(veritasDb)
     .WithReference(rabbitmq)
     .WaitFor(veritasDb)
@@ -39,5 +44,16 @@ builder.AddProject<Veritas_Admin_API>("veritas-admin-api")
         url.DisplayText = "Scalar";
         url.Url = "/scalar";
     });
+
+var adminUI = builder.AddViteApp("veritas-admin-ui", "../../../frontend/admin-ui")
+    .WithPnpm()
+    .WithHttpEndpoint(port: adminUiHttpPort, targetPort: adminUiHttpPort)
+    .WithEnvironment("VITE_ADMIN_API_BASE_URL", adminApi.GetEndpoint("https"))
+    .WithUrlForEndpoint("http", url =>
+    {
+        url.DisplayText = "Admin UI";
+    });
+
+adminApi.WithEnvironment("Cors__AllowedOrigins__0", adminUI.GetEndpoint("http"));
 
 builder.Build().Run();

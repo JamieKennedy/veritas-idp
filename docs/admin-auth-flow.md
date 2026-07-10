@@ -182,6 +182,16 @@ The server validates the cookie against the Users-owned admin session. A cookie 
 - The backing admin account no longer has MFA enabled.
 - Data Protection keys cannot decrypt the cookie.
 
+The Admin UI checks the current session with:
+
+```http
+GET /api/v1/admin-auth/me
+```
+
+This endpoint returns the safe administrator identity (`id`, `email`, and nullable `name`) for a valid cookie and `401 Unauthorized` otherwise. It is deliberately available before the SMTP setup gate so the router can distinguish an unauthenticated administrator from an authenticated installation that still needs email configuration.
+
+The login `redirect` query parameter is restricted to known Admin UI destinations. Untrusted, absolute, and protocol-relative values fall back to `/dashboard`.
+
 ## Logout
 
 ```http

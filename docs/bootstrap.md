@@ -42,6 +42,15 @@ Example response:
 
 `isConfigured` becomes `true` once at least one admin account exists and bootstrap has completed.
 
+The Admin UI uses this state to select its first route:
+
+- Not configured, no active bootstrap: `/bootstrap/start`.
+- Not configured, active bootstrap: `/bootstrap/complete`.
+- Configured, no authenticated admin: `/login`.
+- Configured, authenticated admin: `/dashboard`.
+
+Bootstrap routes are unavailable after setup is configured. Authenticated routes redirect to login when the admin cookie is missing or invalid, and login redirects authenticated administrators to the dashboard.
+
 ## Start Bootstrap
 
 Start creates a short-lived bootstrap session after validating the deployment bootstrap secret.
@@ -98,6 +107,8 @@ Success returns `200 OK` and clears the bootstrap cookie.
 Bootstrap does not issue the normal admin auth cookie. After bootstrap completes, the frontend should move to the normal admin login flow.
 
 With the MFA-backed admin auth flow, the first password login for the new admin returns an MFA enrollment challenge. The admin must enroll TOTP before the admin auth cookie is issued.
+
+After the first authenticated login, the Admin UI opens `/bootstrap/smtp`. SMTP can be skipped after confirming a warning. Skipping does not mark SMTP as configured; `/dashboard` continues to show an email-delivery warning linked to `/bootstrap/smtp` until a connection test succeeds.
 
 ## Common Failures
 

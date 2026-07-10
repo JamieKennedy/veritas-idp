@@ -4,6 +4,7 @@ using FluentResults;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,6 +22,69 @@ namespace Veritas.Admin.API.Tests.AdminAuth;
 
 public sealed class AdminAuthHardeningTests
 {
+    [Fact]
+    public void CurrentAdmin_returns_safe_identity_from_the_authenticated_principal()
+    {
+        var adminId = Guid.NewGuid();
+        var controller = CreateController(new StubAdminUserService(), new RecordingAuthenticationService());
+        controller.ControllerContext.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity(
+            [
+                new Claim(ClaimTypes.NameIdentifier, adminId.ToString()),
+                new Claim(ClaimTypes.Email, "admin@example.com"),
+                new Claim(ClaimTypes.Name, "First Admin")
+            ],
+            CookieAuthenticationDefaults.AuthenticationScheme));
+
+        var response = controller.CurrentAdmin();
+
+        var ok = Assert.IsType<OkObjectResult>(response);
+        var body = Assert.IsType<AdminLoginResponse>(ok.Value);
+        Assert.Equal(adminId, body.Id);
+        Assert.Equal("admin@example.com", body.Email);
+        Assert.Equal("First Admin", body.Name);
+    }
+
+    [Fact]
+    public void CurrentAdmin_requires_authorization()
+    {
+        var action = typeof(AdminAuthController).GetMethod(nameof(AdminAuthController.CurrentAdmin));
+
+        Assert.NotNull(action);
+        Assert.NotEmpty(action.GetCustomAttributes(typeof(AuthorizeAttribute), inherit: true));
+    }
+
+    [Fact]
+    public void CurrentAdmin_returns_unauthorized_when_required_claims_are_absent()
+    {
+        var controller = CreateController(new StubAdminUserService(), new RecordingAuthenticationService());
+        controller.ControllerContext.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity(
+            [new Claim(ClaimTypes.Name, "Incomplete Admin")],
+            CookieAuthenticationDefaults.AuthenticationScheme));
+
+        var response = controller.CurrentAdmin();
+
+        Assert.IsType<UnauthorizedResult>(response);
+    }
+
+    [Fact]
+    public void CurrentAdmin_preserves_a_missing_optional_display_name()
+    {
+        var adminId = Guid.NewGuid();
+        var controller = CreateController(new StubAdminUserService(), new RecordingAuthenticationService());
+        controller.ControllerContext.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity(
+            [
+                new Claim(ClaimTypes.NameIdentifier, adminId.ToString()),
+                new Claim(ClaimTypes.Email, "admin@example.com")
+            ],
+            CookieAuthenticationDefaults.AuthenticationScheme));
+
+        var response = controller.CurrentAdmin();
+
+        var ok = Assert.IsType<OkObjectResult>(response);
+        var body = Assert.IsType<AdminLoginResponse>(ok.Value);
+        Assert.Null(body.Name);
+    }
+
     [Fact]
     public async Task Login_returns_mfa_challenge_without_signing_in()
     {
@@ -61,7 +125,7 @@ public sealed class AdminAuthHardeningTests
         var adminUserService = new StubAdminUserService
         {
             EnrollmentResult = Result.Ok(new AdminMfaEnrollmentResultDto(
-                new AdminUserAuthenticationDto(adminId, "admin@example.com", "First Admin"),
+                new AdminUserAuthenticationDto(adminId, "admin@example.com", null),
                 sessionId,
                 securityStamp,
                 DateTime.UtcNow.AddMinutes(30),
@@ -78,10 +142,12 @@ public sealed class AdminAuthHardeningTests
         var ok = Assert.IsType<OkObjectResult>(response);
         var body = Assert.IsType<AdminMfaEnrollmentResponse>(ok.Value);
         Assert.Equal(adminId, body.Admin.Id);
+        Assert.Null(body.Admin.Name);
         Assert.Equal("veritas-recovery-1", Assert.Single(body.RecoveryCodes));
         Assert.Equal(1, authService.SignInCount);
         Assert.Equal(sessionId.ToString(), authService.SignedInPrincipal?.FindFirstValue(AdminAuthController.SessionIdClaimType));
         Assert.Equal(securityStamp.ToString(), authService.SignedInPrincipal?.FindFirstValue(AdminAuthController.SecurityStampClaimType));
+        Assert.Null(authService.SignedInPrincipal?.FindFirstValue(ClaimTypes.Name));
     }
 
     [Fact]
