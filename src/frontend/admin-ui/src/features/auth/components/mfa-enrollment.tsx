@@ -1,3 +1,4 @@
+import { useMutation } from '@tanstack/react-query'
 import { useForm } from '@tanstack/react-form'
 import { QRCodeSVG } from 'qrcode.react'
 import { useState } from 'react'
@@ -6,9 +7,9 @@ import { FieldError } from '@/app/forms/field-error'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { getSafeErrorMessage } from '@/lib/api/error-message'
+import { getInlineRequestError } from '@/lib/api/request-errors'
 import { ApiProblem } from '@/lib/api/http-client'
-import { confirmMfaEnrollment } from '../api/auth.api'
+import { confirmMfaEnrollmentMutationOptions } from '../api/auth.api'
 import { mfaEnrollmentSchema } from '../model/auth.schemas'
 import { isLoginChallengeExpired, loginChallengeRestartNotice } from '../model/login-challenge'
 import type { LoginChallenge } from '../model/auth.schemas'
@@ -25,6 +26,7 @@ export function MfaEnrollment({
     onReset: () => void
 }) {
     const [serverError, setServerError] = useState<string>()
+    const mutation = useMutation(confirmMfaEnrollmentMutationOptions())
     const form = useForm({
         defaultValues: {
             code: '',
@@ -41,7 +43,7 @@ export function MfaEnrollment({
             }
 
             try {
-                const result = await confirmMfaEnrollment(challenge, value.code)
+                const result = await mutation.mutateAsync({ challenge, totpCode: value.code })
                 form.resetField('code')
                 onComplete(result.recoveryCodes)
             } catch (caught) {
@@ -51,7 +53,7 @@ export function MfaEnrollment({
                     return
                 }
 
-                setServerError(getSafeErrorMessage(caught))
+                setServerError(getInlineRequestError(caught))
             }
         },
     })

@@ -1,2 +1,4 @@
 packages:
-  - "src/frontend/*"
+  - 'src/frontend/*'
+allowBuilds:
+  unrs-resolver: true

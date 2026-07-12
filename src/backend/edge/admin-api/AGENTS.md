@@ -52,6 +52,13 @@ Current behavior:
 From the repo root:
 
 ```powershell
+pnpm build
+pnpm dev
+```
+
+Use backend-only commands for narrower verification or debugging:
+
+```powershell
 dotnet build Veritas.slnx
 dotnet run --project src\orchestration\aspire\Veritas.AppHost\Veritas.AppHost.csproj
 ```

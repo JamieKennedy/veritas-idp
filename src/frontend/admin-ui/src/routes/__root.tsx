@@ -7,6 +7,7 @@ import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
 import appCss from '../styles.css?url'
 import { RouteError, RoutePending } from '@/app/routing/route-status'
+import { Toaster } from '@/components/ui/sonner'
 
 interface RouterContext {
     queryClient: QueryClient
@@ -48,6 +49,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             </head>
             <body>
                 {children}
+                <Toaster />
                 {showDevtools && (
                     <TanStackDevtools
                         config={{

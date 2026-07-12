@@ -1,3 +1,5 @@
+import { mutationOptions } from '@tanstack/react-query'
+
 import { ApiProblem, apiRequest } from '@/lib/api/http-client'
 import { smtpSettingsSchema } from '../model/smtp.schemas'
 import type { ConfigureSmtpInput } from '../model/smtp.schemas'
@@ -39,3 +41,8 @@ export function configureSmtp(input: ConfigureSmtpInput) {
         schema: smtpSettingsSchema,
     })
 }
+
+export const configureSmtpMutationOptions = () =>
+    mutationOptions({
+        mutationFn: configureSmtp,
+    })

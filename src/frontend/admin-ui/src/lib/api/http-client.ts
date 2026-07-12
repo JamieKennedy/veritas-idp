@@ -40,6 +40,20 @@ export class ApiProblem extends Error {
     }
 }
 
+export class ApiTransportError extends Error {
+    public constructor(cause?: unknown) {
+        super('The request could not reach Veritas.', { cause })
+        this.name = 'ApiTransportError'
+    }
+}
+
+export class ApiContractError extends Error {
+    public constructor(cause?: unknown) {
+        super('Veritas returned an unexpected response.', { cause })
+        this.name = 'ApiContractError'
+    }
+}
+
 export async function apiRequest<T = void>(path: string, options: ApiRequestOptions<T> = {}): Promise<T> {
     const method = options.method ?? 'GET'
     const headers = new Headers(options.headers)
@@ -52,13 +66,22 @@ export async function apiRequest<T = void>(path: string, options: ApiRequestOpti
         headers.set('X-CSRF-TOKEN', await getCsrfToken())
     }
 
-    const response = await fetch(`${adminApiBaseUrl}${path}`, {
-        method,
-        credentials: 'include',
-        headers,
-        body: options.body === undefined ? undefined : JSON.stringify(options.body),
-        signal: options.signal,
-    })
+    let response: Response
+    try {
+        response = await fetch(`${adminApiBaseUrl}${path}`, {
+            method,
+            credentials: 'include',
+            headers,
+            body: options.body === undefined ? undefined : JSON.stringify(options.body),
+            signal: options.signal,
+        })
+    } catch (error) {
+        if (error instanceof DOMException && error.name === 'AbortError') {
+            throw error
+        }
+
+        throw new ApiTransportError(error)
+    }
 
     if (!response.ok) {
         throw await toApiProblem(response)
@@ -73,14 +96,25 @@ export async function apiRequest<T = void>(path: string, options: ApiRequestOpti
         return undefined as T
     }
 
-    const value: unknown = JSON.parse(text)
-    return options.schema === undefined ? (value as T) : options.schema.parse(value)
+    try {
+        const value: unknown = JSON.parse(text)
+        return options.schema === undefined ? (value as T) : options.schema.parse(value)
+    } catch (error) {
+        throw new ApiContractError(error)
+    }
 }
 
 async function getCsrfToken(): Promise<string> {
     csrfTokenPromise ??= fetch(`${adminApiBaseUrl}/api/v1/admin-auth/csrf`, {
         credentials: 'include',
     })
+        .catch((error: unknown) => {
+            if (error instanceof DOMException && error.name === 'AbortError') {
+                throw error
+            }
+
+            throw new ApiTransportError(error)
+        })
         .then(async (response) => {
             if (!response.ok) {
                 throw await toApiProblem(response)

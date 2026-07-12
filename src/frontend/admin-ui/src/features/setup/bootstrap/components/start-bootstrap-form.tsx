@@ -1,4 +1,4 @@
-import { useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useForm } from '@tanstack/react-form'
 import { useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
@@ -7,15 +7,16 @@ import { FieldError } from '@/app/forms/field-error'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { getSafeErrorMessage } from '@/lib/api/error-message'
+import { getInlineRequestError } from '@/lib/api/request-errors'
 import { setupStatusQueryOptions } from '../../api/setup-status.query'
-import { startBootstrap } from '../api/bootstrap.api'
+import { startBootstrapMutationOptions } from '../api/bootstrap.api'
 import { startBootstrapSchema } from '../model/bootstrap.schemas'
 
 export function StartBootstrapForm() {
     const navigate = useNavigate()
     const queryClient = useQueryClient()
     const [serverError, setServerError] = useState<string>()
+    const mutation = useMutation(startBootstrapMutationOptions())
     const form = useForm({
         defaultValues: {
             email: '',
@@ -27,13 +28,13 @@ export function StartBootstrapForm() {
         onSubmit: async ({ value }) => {
             setServerError(undefined)
             try {
-                await startBootstrap(value)
+                await mutation.mutateAsync(value)
                 form.resetField('bootstrapSecret')
                 await queryClient.invalidateQueries({ queryKey: setupStatusQueryOptions().queryKey })
                 await navigate({ to: '/bootstrap/complete' })
             } catch (caught) {
                 form.resetField('bootstrapSecret')
-                setServerError(getSafeErrorMessage(caught))
+                setServerError(getInlineRequestError(caught))
             }
         },
     })

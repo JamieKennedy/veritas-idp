@@ -1,15 +1,21 @@
 // @vitest-environment jsdom
 
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { configureSmtp } from '../api/smtp.api'
 import { SmtpForm } from './smtp-form'
 import type { SmtpSettings } from '../model/smtp.schemas'
 
-vi.mock('../api/smtp.api', () => ({
-    configureSmtp: vi.fn(),
-}))
+vi.mock('../api/smtp.api', () => {
+    const mockConfigureSmtp = vi.fn()
+
+    return {
+        configureSmtp: mockConfigureSmtp,
+        configureSmtpMutationOptions: () => ({ mutationFn: mockConfigureSmtp }),
+    }
+})
 
 vi.mock('@/lib/env/env', () => ({
     adminApiBaseUrl: 'https://localhost:7100',
@@ -36,7 +42,12 @@ describe('SmtpForm', () => {
     it('validates and submits SMTP settings through TanStack Form', async () => {
         const onConfigured = vi.fn()
         vi.mocked(configureSmtp).mockResolvedValue({ ...emptySettings, host: 'smtp.example.com', fromEmail: 'veritas@example.com', isConfigured: true })
-        render(<SmtpForm settings={emptySettings} onConfigured={onConfigured} />)
+        const queryClient = new QueryClient()
+        render(
+            <QueryClientProvider client={queryClient}>
+                <SmtpForm settings={emptySettings} onConfigured={onConfigured} />
+            </QueryClientProvider>,
+        )
 
         fireEvent.click(screen.getByRole('button', { name: 'Save and test connection' }))
 
@@ -51,7 +62,7 @@ describe('SmtpForm', () => {
         await waitFor(() => {
             expect(onConfigured).toHaveBeenCalledOnce()
         })
-        expect(configureSmtp).toHaveBeenCalledWith({
+        expect(vi.mocked(configureSmtp).mock.calls[0]?.[0]).toEqual({
             host: 'smtp.example.com',
             port: 587,
             tlsMode: 'StartTls',

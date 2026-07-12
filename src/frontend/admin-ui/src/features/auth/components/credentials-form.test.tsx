@@ -1,15 +1,21 @@
 // @vitest-environment jsdom
 
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { startAdminLogin } from '../api/auth.api'
 import { CredentialsForm } from './credentials-form'
 import type { LoginChallenge } from '../model/auth.schemas'
 
-vi.mock('../api/auth.api', () => ({
-    startAdminLogin: vi.fn(),
-}))
+vi.mock('../api/auth.api', () => {
+    const mockStartAdminLogin = vi.fn()
+
+    return {
+        startAdminLogin: mockStartAdminLogin,
+        startAdminLoginMutationOptions: () => ({ mutationFn: mockStartAdminLogin }),
+    }
+})
 
 vi.mock('@/lib/env/env', () => ({
     adminApiBaseUrl: 'https://localhost:7100',
@@ -32,7 +38,12 @@ describe('CredentialsForm', () => {
         }
         const onChallenge = vi.fn()
         vi.mocked(startAdminLogin).mockResolvedValue(challenge)
-        render(<CredentialsForm onChallenge={onChallenge} />)
+        const queryClient = new QueryClient()
+        render(
+            <QueryClientProvider client={queryClient}>
+                <CredentialsForm onChallenge={onChallenge} />
+            </QueryClientProvider>,
+        )
 
         fireEvent.click(screen.getByRole('button', { name: 'Continue' }))
 
@@ -51,7 +62,7 @@ describe('CredentialsForm', () => {
         await waitFor(() => {
             expect(onChallenge).toHaveBeenCalledWith(challenge)
         })
-        expect(startAdminLogin).toHaveBeenCalledWith({
+        expect(vi.mocked(startAdminLogin).mock.calls[0]?.[0]).toEqual({
             email: 'admin@example.com',
             password: 'correct horse battery staple',
         })

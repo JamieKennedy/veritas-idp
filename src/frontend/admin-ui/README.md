@@ -1,17 +1,29 @@
-Welcome to your new TanStack Start app! 
+# Veritas Admin UI
 
 # Getting Started
 
-To run this application:
+From the repository root, install dependencies and start the Admin UI package:
 
 ```bash
 pnpm install
+pnpm dev:admin-ui
+```
+
+When working from `src/frontend/admin-ui`, the package-local scripts still work:
+
+```bash
 pnpm dev
 ```
 
 # Building For Production
 
-To build this application for production:
+From the repository root, build all frontend workspace packages:
+
+```bash
+pnpm build:frontend
+```
+
+From this package directory:
 
 ```bash
 pnpm build
@@ -20,6 +32,12 @@ pnpm build
 ## Testing
 
 This project uses [Vitest](https://vitest.dev/) for testing. You can run the tests with:
+
+```bash
+pnpm test:frontend
+```
+
+From this package directory:
 
 ```bash
 pnpm test
@@ -40,15 +58,15 @@ If you prefer not to use Tailwind CSS:
 
 ## Linting & Formatting
 
-
 This project uses [eslint](https://eslint.org/) and [prettier](https://prettier.io/) for linting and formatting. Eslint is configured using [tanstack/eslint-config](https://tanstack.com/config/latest/docs/eslint). The following scripts are available:
 
 ```bash
+pnpm typecheck
 pnpm lint
 pnpm format
-pnpm check
 ```
 
+Use those commands from the repository root to check all frontend workspace packages. Package-local `pnpm lint`, `pnpm format`, `pnpm format:check`, and `pnpm typecheck` also work from `src/frontend/admin-ui`.
 
 ## Shadcn
 
@@ -58,11 +76,15 @@ Add components using the latest version of [Shadcn](https://ui.shadcn.com/).
 pnpm dlx shadcn@latest add button
 ```
 
-
-
 ## Routing
 
 This project uses [TanStack Router](https://tanstack.com/router) with file-based routing. Routes are managed as files in `src/routes`.
+
+Generate route files from the repository root with:
+
+```bash
+pnpm generate:routes
+```
 
 ### Adding A Route
 
@@ -77,7 +99,7 @@ Now that you have two routes you can use a `Link` component to navigate between 
 To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
 
 ```tsx
-import { Link } from "@tanstack/react-router";
+import { Link } from '@tanstack/react-router'
 ```
 
 Then anywhere in your JSX you can use it like so:
@@ -100,30 +122,26 @@ Here is an example layout that includes a header:
 import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
 
 export const Route = createRootRoute({
-  head: () => ({
-    meta: [
-      { charSet: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { title: 'My App' },
-    ],
-  }),
-  shellComponent: ({ children }) => (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        <header>
-          <nav>
-            <Link to="/">Home</Link>
-            <Link to="/about">About</Link>
-          </nav>
-        </header>
-        {children}
-        <Scripts />
-      </body>
-    </html>
-  ),
+    head: () => ({
+        meta: [{ charSet: 'utf-8' }, { name: 'viewport', content: 'width=device-width, initial-scale=1' }, { title: 'My App' }],
+    }),
+    shellComponent: ({ children }) => (
+        <html lang="en">
+            <head>
+                <HeadContent />
+            </head>
+            <body>
+                <header>
+                    <nav>
+                        <Link to="/">Home</Link>
+                        <Link to="/about">About</Link>
+                    </nav>
+                </header>
+                {children}
+                <Scripts />
+            </body>
+        </html>
+    ),
 })
 ```
 
@@ -137,20 +155,20 @@ TanStack Start provides server functions that allow you to write server-side cod
 import { createServerFn } from '@tanstack/react-start'
 
 const getServerTime = createServerFn({
-  method: 'GET',
+    method: 'GET',
 }).handler(async () => {
-  return new Date().toISOString()
+    return new Date().toISOString()
 })
 
 // Use in a component
 function MyComponent() {
-  const [time, setTime] = useState('')
-  
-  useEffect(() => {
-    getServerTime().then(setTime)
-  }, [])
-  
-  return <div>Server time: {time}</div>
+    const [time, setTime] = useState('')
+
+    useEffect(() => {
+        getServerTime().then(setTime)
+    }, [])
+
+    return <div>Server time: {time}</div>
 }
 ```
 
@@ -163,11 +181,11 @@ import { createFileRoute } from '@tanstack/react-router'
 import { json } from '@tanstack/react-start'
 
 export const Route = createFileRoute('/api/hello')({
-  server: {
-    handlers: {
-      GET: () => json({ message: 'Hello, World!' }),
+    server: {
+        handlers: {
+            GET: () => json({ message: 'Hello, World!' }),
+        },
     },
-  },
 })
 ```
 
@@ -181,22 +199,22 @@ For example:
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/people')({
-  loader: async () => {
-    const response = await fetch('https://swapi.dev/api/people')
-    return response.json()
-  },
-  component: PeopleComponent,
+    loader: async () => {
+        const response = await fetch('https://swapi.dev/api/people')
+        return response.json()
+    },
+    component: PeopleComponent,
 })
 
 function PeopleComponent() {
-  const data = Route.useLoaderData()
-  return (
-    <ul>
-      {data.results.map((person) => (
-        <li key={person.name}>{person.name}</li>
-      ))}
-    </ul>
-  )
+    const data = Route.useLoaderData()
+    return (
+        <ul>
+            {data.results.map((person) => (
+                <li key={person.name}>{person.name}</li>
+            ))}
+        </ul>
+    )
 }
 ```
 

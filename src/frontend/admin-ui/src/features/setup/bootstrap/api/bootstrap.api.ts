@@ -1,3 +1,5 @@
+import { mutationOptions } from '@tanstack/react-query'
+
 import { apiRequest } from '@/lib/api/http-client'
 import type { CompleteBootstrapInput, StartBootstrapInput } from '../model/bootstrap.schemas'
 
@@ -14,3 +16,13 @@ export function completeBootstrap(input: CompleteBootstrapInput) {
         body: { password: input.password, displayName: input.displayName === '' ? null : input.displayName },
     })
 }
+
+export const startBootstrapMutationOptions = () =>
+    mutationOptions({
+        mutationFn: startBootstrap,
+    })
+
+export const completeBootstrapMutationOptions = () =>
+    mutationOptions({
+        mutationFn: completeBootstrap,
+    })

@@ -1,3 +1,4 @@
+import { useMutation } from '@tanstack/react-query'
 import { useForm } from '@tanstack/react-form'
 import { useState } from 'react'
 
@@ -5,9 +6,9 @@ import { FieldError } from '@/app/forms/field-error'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { getSafeErrorMessage } from '@/lib/api/error-message'
+import { getInlineRequestError } from '@/lib/api/request-errors'
 import { ApiProblem } from '@/lib/api/http-client'
-import { verifyMfa } from '../api/auth.api'
+import { verifyMfaMutationOptions } from '../api/auth.api'
 import { mfaVerificationSchema } from '../model/auth.schemas'
 import { isLoginChallengeExpired, loginChallengeRestartNotice } from '../model/login-challenge'
 import type { LoginChallenge } from '../model/auth.schemas'
@@ -24,6 +25,7 @@ export function MfaVerification({
     onReset: () => void
 }) {
     const [serverError, setServerError] = useState<string>()
+    const mutation = useMutation(verifyMfaMutationOptions())
     const form = useForm({
         defaultValues: {
             code: '',
@@ -40,7 +42,7 @@ export function MfaVerification({
             }
 
             try {
-                await verifyMfa(challenge, value.code.trim())
+                await mutation.mutateAsync({ challenge, code: value.code.trim() })
                 form.resetField('code')
                 onComplete()
             } catch (caught) {
@@ -50,7 +52,7 @@ export function MfaVerification({
                     return
                 }
 
-                setServerError(getSafeErrorMessage(caught))
+                setServerError(getInlineRequestError(caught))
             }
         },
     })

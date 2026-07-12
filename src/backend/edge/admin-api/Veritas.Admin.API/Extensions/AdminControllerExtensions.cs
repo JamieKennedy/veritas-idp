@@ -16,7 +16,7 @@ public static class AdminControllerExtensions
     public static IMvcBuilder AddAdminControllers(this IServiceCollection services)
     {
         return services
-            .AddControllers(options =>
+            .AddControllersWithViews(options =>
             {
                 options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
             })

@@ -78,4 +78,18 @@ describe('admin API client', () => {
 
         await expect(apiRequest('/api/v1/example')).rejects.toEqual(expect.objectContaining({ name: 'ApiProblem', status: 409, message: 'Safe detail.' }))
     })
+
+    it('wraps fetch failures as transport errors', async () => {
+        vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('fetch failed')))
+        const { ApiTransportError, apiRequest } = await import('./http-client')
+
+        await expect(apiRequest('/api/v1/example')).rejects.toBeInstanceOf(ApiTransportError)
+    })
+
+    it('wraps invalid successful responses as contract errors', async () => {
+        vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('{not-json', { status: 200 })))
+        const { ApiContractError, apiRequest } = await import('./http-client')
+
+        await expect(apiRequest('/api/v1/example')).rejects.toBeInstanceOf(ApiContractError)
+    })
 })

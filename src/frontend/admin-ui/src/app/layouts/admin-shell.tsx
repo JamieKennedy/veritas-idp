@@ -1,29 +1,27 @@
 import { Link, Outlet, useNavigate } from '@tanstack/react-router'
-import { useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { LayoutDashboard, LogOut, Mail, ShieldCheck } from 'lucide-react'
 import { useState } from 'react'
 
-import { logoutAdmin } from '@/features/auth/api/auth.api'
+import { logoutAdminMutationOptions } from '@/features/auth/api/auth.api'
+import { getInlineRequestError } from '@/lib/api/request-errors'
 import type { AdminIdentity } from '@/features/auth/model/auth.schemas'
 import { Button } from '@/components/ui/button'
 
 export function AdminShell({ admin }: { admin: AdminIdentity }) {
     const navigate = useNavigate()
     const queryClient = useQueryClient()
-    const [isLoggingOut, setIsLoggingOut] = useState(false)
     const [logoutError, setLogoutError] = useState(false)
+    const logoutMutation = useMutation(logoutAdminMutationOptions())
 
     async function handleLogout() {
-        setIsLoggingOut(true)
         setLogoutError(false)
         try {
-            await logoutAdmin()
+            await logoutMutation.mutateAsync()
             queryClient.clear()
             await navigate({ to: '/login', search: { redirect: '/dashboard' } })
-        } catch {
-            setLogoutError(true)
-        } finally {
-            setIsLoggingOut(false)
+        } catch (error) {
+            setLogoutError(getInlineRequestError(error) !== undefined)
         }
     }
 
@@ -55,12 +53,12 @@ export function AdminShell({ admin }: { admin: AdminIdentity }) {
                     <Button
                         variant="outline"
                         size="sm"
-                        disabled={isLoggingOut}
+                        disabled={logoutMutation.isPending}
                         onClick={() => {
                             void handleLogout()
                         }}
                     >
-                        <LogOut /> {isLoggingOut ? 'Signing out...' : 'Sign out'}
+                        <LogOut /> {logoutMutation.isPending ? 'Signing out...' : 'Sign out'}
                     </Button>
                 </header>
                 {logoutError && (

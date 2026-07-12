@@ -1,3 +1,4 @@
+import { useMutation } from '@tanstack/react-query'
 import { useForm } from '@tanstack/react-form'
 import { useState } from 'react'
 
@@ -6,13 +7,14 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { getSafeErrorMessage } from '@/lib/api/error-message'
-import { configureSmtp } from '../api/smtp.api'
+import { getInlineRequestError } from '@/lib/api/request-errors'
+import { configureSmtpMutationOptions } from '../api/smtp.api'
 import { configureSmtpSchema } from '../model/smtp.schemas'
 import type { SmtpSettings } from '../model/smtp.schemas'
 
 export function SmtpForm({ settings, onConfigured }: { settings: SmtpSettings; onConfigured: () => void }) {
     const [serverError, setServerError] = useState<string>()
+    const mutation = useMutation(configureSmtpMutationOptions())
     const form = useForm({
         defaultValues: {
             host: settings.host,
@@ -29,12 +31,12 @@ export function SmtpForm({ settings, onConfigured }: { settings: SmtpSettings; o
         onSubmit: async ({ value }) => {
             setServerError(undefined)
             try {
-                await configureSmtp(value)
+                await mutation.mutateAsync(value)
                 form.resetField('secret')
                 onConfigured()
             } catch (caught) {
                 form.resetField('secret')
-                setServerError(getSafeErrorMessage(caught))
+                setServerError(getInlineRequestError(caught))
             }
         },
     })

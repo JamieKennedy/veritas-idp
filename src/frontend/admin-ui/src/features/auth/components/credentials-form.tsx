@@ -1,3 +1,4 @@
+import { useMutation } from '@tanstack/react-query'
 import { useForm } from '@tanstack/react-form'
 import { useState } from 'react'
 
@@ -5,13 +6,14 @@ import { FieldError } from '@/app/forms/field-error'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { getSafeErrorMessage } from '@/lib/api/error-message'
-import { startAdminLogin } from '../api/auth.api'
+import { getInlineRequestError } from '@/lib/api/request-errors'
+import { startAdminLoginMutationOptions } from '../api/auth.api'
 import { credentialsSchema } from '../model/auth.schemas'
 import type { LoginChallenge } from '../model/auth.schemas'
 
 export function CredentialsForm({ notice, onChallenge }: { notice?: string; onChallenge: (challenge: LoginChallenge) => void }) {
     const [serverError, setServerError] = useState<string>()
+    const mutation = useMutation(startAdminLoginMutationOptions())
     const form = useForm({
         defaultValues: {
             email: '',
@@ -23,12 +25,12 @@ export function CredentialsForm({ notice, onChallenge }: { notice?: string; onCh
         onSubmit: async ({ value }) => {
             setServerError(undefined)
             try {
-                const challenge = await startAdminLogin(value)
+                const challenge = await mutation.mutateAsync(value)
                 form.resetField('password')
                 onChallenge(challenge)
             } catch (caught) {
                 form.resetField('password')
-                setServerError(getSafeErrorMessage(caught))
+                setServerError(getInlineRequestError(caught))
             }
         },
     })

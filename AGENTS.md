@@ -101,9 +101,14 @@ Allowed project references should flow inward plus composition at the API:
 Useful commands from the repository root:
 
 ```powershell
-dotnet build Veritas.slnx
-dotnet run --project src\orchestration\aspire\Veritas.AppHost\Veritas.AppHost.csproj
+pnpm dev
+pnpm dev:admin-ui
+pnpm build
+pnpm test
+pnpm check
 ```
+
+Use `pnpm dev` to launch the Aspire AppHost for the full local stack. Use `pnpm dev:admin-ui` when working on only the Admin UI package.
 
 The AppHost requires the secret parameter `bootstrap-secret`, which is injected into Admin API as `BOOTSTRAP_SECRET`. See `docs/setup-token.md`.
 
@@ -118,8 +123,10 @@ Current Aspire resources:
 ## Testing And Verification
 
 - Focused backend test projects live beside the module project they test, for example `Veritas.PlatformService.Application.Tests` beside `Veritas.PlatformService.Application`. When adding meaningful behavior, prefer Application-level tests around module use cases and ports.
-- At minimum, run `dotnet build Veritas.slnx` after backend edits when dependencies are available.
-- Run `dotnet test Veritas.slnx` after behavior changes when dependencies are available.
+- At minimum, run `pnpm build` after backend or frontend edits when dependencies are available. It wraps `dotnet build Veritas.slnx` and frontend workspace builds.
+- Run `pnpm test` after behavior changes when dependencies are available. It wraps `dotnet test Veritas.slnx` and frontend workspace tests.
+- Run `pnpm check` before handing off broad changes; it checks formatting, linting, typechecking, build, and tests.
+- Backend-focused agents may still use `dotnet build Veritas.slnx` and `dotnet test Veritas.slnx` for narrower verification.
 - For message contract changes, build the solution and exercise the publishing/handler path if possible.
 - For EF model changes, add a migration in the owning service Infrastructure project and confirm the migrator still builds.
 - For startup, migration, messaging, and security-sensitive changes, verify at least one failure path as well as the happy path when feasible.

@@ -31,6 +31,12 @@ The Aspire AppHost is the local development orchestrator for Veritas. It is not 
 From the repo root:
 
 ```powershell
+pnpm dev
+```
+
+Use the direct AppHost command when debugging Aspire startup or when pnpm is unavailable:
+
+```powershell
 dotnet run --project src\orchestration\aspire\Veritas.AppHost\Veritas.AppHost.csproj
 ```
 

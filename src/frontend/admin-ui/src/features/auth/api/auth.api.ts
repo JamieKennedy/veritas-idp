@@ -1,3 +1,5 @@
+import { mutationOptions } from '@tanstack/react-query'
+
 import { adminIdentitySchema, loginChallengeSchema, mfaEnrollmentResponseSchema } from '../model/auth.schemas'
 import { ApiProblem, apiRequest, resetCsrfToken } from '@/lib/api/http-client'
 import type { CredentialsInput, LoginChallenge } from '../model/auth.schemas'
@@ -54,3 +56,23 @@ export async function logoutAdmin() {
     await apiRequest('/api/v1/admin-auth/logout', { method: 'POST' })
     resetCsrfToken()
 }
+
+export const startAdminLoginMutationOptions = () =>
+    mutationOptions({
+        mutationFn: startAdminLogin,
+    })
+
+export const confirmMfaEnrollmentMutationOptions = () =>
+    mutationOptions({
+        mutationFn: ({ challenge, totpCode }: { challenge: LoginChallenge; totpCode: string }) => confirmMfaEnrollment(challenge, totpCode),
+    })
+
+export const verifyMfaMutationOptions = () =>
+    mutationOptions({
+        mutationFn: ({ challenge, code }: { challenge: LoginChallenge; code: string }) => verifyMfa(challenge, code),
+    })
+
+export const logoutAdminMutationOptions = () =>
+    mutationOptions({
+        mutationFn: logoutAdmin,
+    })
