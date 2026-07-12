@@ -1,6 +1,7 @@
 using System.Security.Claims;
-using System.Text.Encodings.Web;
+
 using FluentResults;
+
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -10,12 +11,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
+
 using Veritas.Admin.API.Authentication;
 using Veritas.Admin.API.Controllers.v1;
 using Veritas.Admin.API.Models.AdminAuth;
 using Veritas.UserService.Application.DataTransferObjects;
 using Veritas.UserService.Application.Interfaces;
 using Veritas.UserService.Domain.Entities;
+
 using Xunit;
 
 namespace Veritas.Admin.API.Tests.AdminAuth;
@@ -94,7 +97,7 @@ public sealed class AdminAuthHardeningTests
             LoginChallenge = Result.Ok(new AdminLoginChallengeDto(
                 Guid.NewGuid(),
                 "challenge-token",
-                EAdminLoginChallengePurpose.MfaEnrollment,
+                AdminLoginChallengePurpose.MfaEnrollment,
                 DateTime.UtcNow.AddMinutes(5),
                 "JBSWY3DPEHPK3PXP",
                 "otpauth://totp/Veritas"))
@@ -110,7 +113,7 @@ public sealed class AdminAuthHardeningTests
         var accepted = Assert.IsType<ObjectResult>(response);
         Assert.Equal(StatusCodes.Status202Accepted, accepted.StatusCode);
         var body = Assert.IsType<AdminLoginChallengeResponse>(accepted.Value);
-        Assert.Equal(EAdminLoginChallengePurpose.MfaEnrollment, body.Purpose);
+        Assert.Equal(AdminLoginChallengePurpose.MfaEnrollment, body.Purpose);
         Assert.Equal("challenge-token", body.ChallengeToken);
         Assert.Equal(0, authService.SignInCount);
     }
@@ -202,11 +205,11 @@ public sealed class AdminAuthHardeningTests
                     new Claim(AdminAuthController.SessionIdClaimType, Guid.NewGuid().ToString()),
                     new Claim(AdminAuthController.SecurityStampClaimType, Guid.NewGuid().ToString())
                 ],
-                CookieAuthenticationDefaults.AuthenticationScheme))
+                CookieAuthenticationDefaults.AuthenticationScheme)),
+            RequestServices = new ServiceCollection()
+                .AddSingleton<IAdminUserService>(adminUserService)
+                .BuildServiceProvider()
         };
-        context.RequestServices = new ServiceCollection()
-            .AddSingleton<IAdminUserService>(adminUserService)
-            .BuildServiceProvider();
         var ticket = new AuthenticationTicket(
             context.User,
             new AuthenticationProperties(),
@@ -251,11 +254,20 @@ public sealed class AdminAuthHardeningTests
 
     private sealed class RecordingAuthenticationService : IAuthenticationService
     {
-        public int SignInCount { get; private set; }
+        public int SignInCount
+        {
+            get; private set;
+        }
 
-        public int SignOutCount { get; private set; }
+        public int SignOutCount
+        {
+            get; private set;
+        }
 
-        public ClaimsPrincipal? SignedInPrincipal { get; private set; }
+        public ClaimsPrincipal? SignedInPrincipal
+        {
+            get; private set;
+        }
 
         public Task<AuthenticateResult> AuthenticateAsync(HttpContext context, string? scheme)
         {
@@ -292,7 +304,10 @@ public sealed class AdminAuthHardeningTests
 
     private sealed class StubAntiforgery(string token) : IAntiforgery
     {
-        public bool GetAndStoreTokensCalled { get; private set; }
+        public bool GetAndStoreTokensCalled
+        {
+            get; private set;
+        }
 
         public AntiforgeryTokenSet GetAndStoreTokens(HttpContext httpContext)
         {
@@ -322,13 +337,22 @@ public sealed class AdminAuthHardeningTests
 
     private sealed class StubAdminUserService : IAdminUserService
     {
-        public Result<AdminLoginChallengeDto> LoginChallenge { get; init; } =
+        public Result<AdminLoginChallengeDto> LoginChallenge
+        {
+            get; init;
+        } =
             Result.Fail<AdminLoginChallengeDto>("not configured");
 
-        public Result<AdminMfaEnrollmentResultDto> EnrollmentResult { get; init; } =
+        public Result<AdminMfaEnrollmentResultDto> EnrollmentResult
+        {
+            get; init;
+        } =
             Result.Fail<AdminMfaEnrollmentResultDto>("not configured");
 
-        public Result<AdminSessionAuthenticationDto> SessionValidation { get; init; } =
+        public Result<AdminSessionAuthenticationDto> SessionValidation
+        {
+            get; init;
+        } =
             Result.Ok(new AdminSessionAuthenticationDto(
                 new AdminUserAuthenticationDto(Guid.NewGuid(), "admin@example.com", "First Admin"),
                 Guid.NewGuid(),
@@ -336,9 +360,15 @@ public sealed class AdminAuthHardeningTests
                 DateTime.UtcNow.AddMinutes(30),
                 DateTime.UtcNow.AddHours(8)));
 
-        public Guid? RevokedAdminUserId { get; private set; }
+        public Guid? RevokedAdminUserId
+        {
+            get; private set;
+        }
 
-        public Guid? RevokedSessionId { get; private set; }
+        public Guid? RevokedSessionId
+        {
+            get; private set;
+        }
 
         public Task<Result> CreateInitialAdminUserAsync(
             string email,

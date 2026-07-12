@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+
 using Veritas.UserService.Domain.Entities;
 
 namespace Veritas.UserService.Application.Persistence;
@@ -11,22 +12,34 @@ public interface IUserDbContext
     /// <summary>
     /// Gets admin identity records, including credential hashes.
     /// </summary>
-    DbSet<AdminUser> AdminUsers { get; }
+    DbSet<AdminUser> AdminUsers
+    {
+        get;
+    }
 
     /// <summary>
     /// Gets short-lived admin login challenges that gate MFA completion before cookie issuance.
     /// </summary>
-    DbSet<AdminLoginChallenge> AdminLoginChallenges { get; }
+    DbSet<AdminLoginChallenge> AdminLoginChallenges
+    {
+        get;
+    }
 
     /// <summary>
     /// Gets server-side administrator sessions that back browser authentication cookies.
     /// </summary>
-    DbSet<AdminSession> AdminSessions { get; }
+    DbSet<AdminSession> AdminSessions
+    {
+        get;
+    }
 
     /// <summary>
     /// Gets hashed one-time administrator MFA recovery codes.
     /// </summary>
-    DbSet<AdminRecoveryCode> AdminRecoveryCodes { get; }
+    DbSet<AdminRecoveryCode> AdminRecoveryCodes
+    {
+        get;
+    }
 
     /// <summary>
     /// Persists pending Users module changes as one atomic unit of work.

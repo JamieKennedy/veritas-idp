@@ -1,7 +1,9 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+
 using Veritas.Admin.API.Extensions;
+
 using Xunit;
 
 namespace Veritas.Admin.API.Tests.Configuration;

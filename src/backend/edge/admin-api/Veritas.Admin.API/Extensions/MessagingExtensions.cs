@@ -1,4 +1,5 @@
 using Veritas.Contracts.Messages.Messaging;
+
 using Wolverine;
 using Wolverine.EntityFrameworkCore;
 using Wolverine.Postgresql;

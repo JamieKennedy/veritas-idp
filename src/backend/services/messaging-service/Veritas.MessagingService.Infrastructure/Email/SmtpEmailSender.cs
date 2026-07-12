@@ -2,8 +2,11 @@ using System.Net;
 using System.Net.Mail;
 using System.Net.Mime;
 using System.Text;
+
 using FluentResults;
+
 using Microsoft.Extensions.Logging;
+
 using Veritas.MessagingService.Application.Services;
 using Veritas.MessagingService.Domain.Errors;
 using Veritas.MessagingService.Domain.Types;

@@ -1,12 +1,15 @@
 using FluentResults;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
+
 using Veritas.PlatformService.Application.Dependencies;
 using Veritas.PlatformService.Application.Interfaces;
 using Veritas.PlatformService.Application.Services;
 using Veritas.PlatformService.Domain.Entities;
 using Veritas.PlatformService.Domain.Types;
 using Veritas.PlatformService.Infrastructure.Database;
+
 using Xunit;
 
 namespace Veritas.PlatformService.Application.Tests;
@@ -97,7 +100,7 @@ public sealed class BootstrapServiceTests
         Assert.False(string.IsNullOrWhiteSpace(result.Value));
         var session = Assert.Single(context.BootstrapSessions);
         Assert.Equal("admin@example.com", session.Email);
-        Assert.Equal(EBootstrapSessionStatus.Verified, session.Status);
+        Assert.Equal(BootstrapSessionStatus.Verified, session.Status);
         Assert.NotEqual(result.Value, session.SessionTokenHash);
         Assert.StartsWith("sha256.", session.SessionTokenHash, StringComparison.Ordinal);
         Assert.NotNull(session.VerifiedAtUtc);
@@ -216,7 +219,7 @@ public sealed class BootstrapServiceTests
         Assert.Equal("Correct Horse Battery Staple 42!", adminCreator.Password);
         Assert.Equal("First Admin", adminCreator.DisplayName);
         var session = Assert.Single(context.BootstrapSessions);
-        Assert.Equal(EBootstrapSessionStatus.Completed, session.Status);
+        Assert.Equal(BootstrapSessionStatus.Completed, session.Status);
         Assert.Null(session.ActiveBootstrapSlot);
         Assert.NotNull(session.CompletedAtUtc);
         Assert.NotNull(session.LastSeenAtUtc);
@@ -253,7 +256,7 @@ public sealed class BootstrapServiceTests
 
         Assert.True(result.IsFailed);
         Assert.Null(adminCreator.Email);
-        Assert.Equal(EBootstrapSessionStatus.Expired, session.Status);
+        Assert.Equal(BootstrapSessionStatus.Expired, session.Status);
         Assert.Null(session.ActiveBootstrapSlot);
     }
 
@@ -282,7 +285,7 @@ public sealed class BootstrapServiceTests
 
         Assert.True(result.IsFailed);
         var session = Assert.Single(context.BootstrapSessions);
-        Assert.Equal(EBootstrapSessionStatus.Verified, session.Status);
+        Assert.Equal(BootstrapSessionStatus.Verified, session.Status);
         Assert.Empty(context.SystemFlags);
     }
 
@@ -297,7 +300,10 @@ public sealed class BootstrapServiceTests
 
     private sealed class StubAdminUserDirectory(bool hasAnyAdminUser) : IAdminUserDirectory
     {
-        public int CallCount { get; private set; }
+        public int CallCount
+        {
+            get; private set;
+        }
 
         public Task<Result<bool>> HasAnyAdminUserAsync(CancellationToken cancellationToken = default)
         {
@@ -308,9 +314,18 @@ public sealed class BootstrapServiceTests
 
     private sealed class StubInitialAdminCreator(Result? result = null) : IInitialAdminCreator
     {
-        public string? Email { get; private set; }
-        public string? Password { get; private set; }
-        public string? DisplayName { get; private set; }
+        public string? Email
+        {
+            get; private set;
+        }
+        public string? Password
+        {
+            get; private set;
+        }
+        public string? DisplayName
+        {
+            get; private set;
+        }
 
         public Task<Result> CreateInitialAdminUserAsync(
             string email,

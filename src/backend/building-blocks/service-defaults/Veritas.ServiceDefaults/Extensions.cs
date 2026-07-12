@@ -1,14 +1,16 @@
+using System.Globalization;
+
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.ServiceDiscovery;
+
 using OpenTelemetry;
-using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
+
 using Serilog;
 using Serilog.Events;
 
@@ -65,6 +67,7 @@ public static class Extensions
                 .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Database.Command", LogEventLevel.Warning)
                 .WriteTo.File(
                     GetSerilogFilePath(builder),
+                    formatProvider: CultureInfo.InvariantCulture,
                     rollingInterval: RollingInterval.Day,
                     retainedFileCountLimit: GetRetainedFileCountLimit(builder),
                     shared: true,

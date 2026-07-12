@@ -25,22 +25,34 @@ public sealed class SmtpSettings
     /// <summary>
     /// SMTP TCP port in the range 1-65535.
     /// </summary>
-    public int Port { get; set; }
+    public int Port
+    {
+        get; set;
+    }
 
     /// <summary>
     /// TLS behavior used when connecting to the SMTP server.
     /// </summary>
-    public SmtpTlsMode TlsMode { get; set; }
+    public SmtpTlsMode TlsMode
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Optional SMTP username used for authenticated relays.
     /// </summary>
-    public string? Username { get; set; }
+    public string? Username
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Data Protection protected SMTP password or secret. Null means no SMTP secret is configured.
     /// </summary>
-    public string? ProtectedSecret { get; set; }
+    public string? ProtectedSecret
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Email address used as the sender address for Veritas-generated mail.
@@ -50,25 +62,40 @@ public sealed class SmtpSettings
     /// <summary>
     /// Optional display name used with <see cref="FromEmail" />.
     /// </summary>
-    public string? FromName { get; set; }
+    public string? FromName
+    {
+        get; set;
+    }
 
     /// <summary>
     /// True only after settings have passed a live SMTP test.
     /// </summary>
-    public bool IsConfigured { get; set; }
+    public bool IsConfigured
+    {
+        get; set;
+    }
 
     /// <summary>
     /// UTC instant when SMTP settings last passed a live test send.
     /// </summary>
-    public DateTime? LastSuccessfulTestAtUtc { get; set; }
+    public DateTime? LastSuccessfulTestAtUtc
+    {
+        get; set;
+    }
 
     /// <summary>
     /// UTC instant when this row was created.
     /// </summary>
-    public DateTime CreatedAtUtc { get; set; }
+    public DateTime CreatedAtUtc
+    {
+        get; set;
+    }
 
     /// <summary>
     /// UTC instant when this row was last updated.
     /// </summary>
-    public DateTime UpdatedAtUtc { get; set; }
+    public DateTime UpdatedAtUtc
+    {
+        get; set;
+    }
 }

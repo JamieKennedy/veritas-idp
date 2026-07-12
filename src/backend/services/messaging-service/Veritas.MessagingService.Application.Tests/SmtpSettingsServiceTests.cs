@@ -1,13 +1,15 @@
 using FluentResults;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
+
 using Veritas.MessagingService.Application.DataTransferObjects;
 using Veritas.MessagingService.Application.Services;
-using Veritas.MessagingService.Domain.Entities;
 using Veritas.MessagingService.Domain.Errors;
 using Veritas.MessagingService.Domain.Types;
 using Veritas.MessagingService.Infrastructure.Database;
 using Veritas.Shared.Security;
+
 using Xunit;
 
 namespace Veritas.MessagingService.Application.Tests;
@@ -125,7 +127,10 @@ public sealed class SmtpSettingsServiceTests
 
     private sealed class RecordingSecretProtector : ISecretProtector
     {
-        public string? LastProtectedPlaintext { get; private set; }
+        public string? LastProtectedPlaintext
+        {
+            get; private set;
+        }
 
         public string Protect(string plaintext)
         {
@@ -143,7 +148,10 @@ public sealed class SmtpSettingsServiceTests
 
     private sealed class StubSmtpConnectivityTester(Result result) : ISmtpConnectivityTester
     {
-        public SmtpConnectivityTestRequest? LastRequest { get; private set; }
+        public SmtpConnectivityTestRequest? LastRequest
+        {
+            get; private set;
+        }
 
         public Task<Result> TestAsync(SmtpConnectivityTestRequest request, CancellationToken cancellationToken)
         {

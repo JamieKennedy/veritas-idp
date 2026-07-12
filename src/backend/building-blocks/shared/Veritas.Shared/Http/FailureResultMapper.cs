@@ -1,6 +1,8 @@
 using FluentResults;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+
 using Veritas.Shared.Errors;
 
 namespace Veritas.Shared.Http;
@@ -21,7 +23,7 @@ public static class FailureResultMapper
     /// <returns>An action result containing ProblemDetails.</returns>
     public static IActionResult ToProblemDetails(ResultBase result)
     {
-        var firstError = result.Errors.FirstOrDefault();
+        var firstError = result.Errors.Count > 0 ? result.Errors[0] : null;
         var statusCode = ResolveStatusCode(firstError);
         var detail = statusCode >= StatusCodes.Status500InternalServerError
             ? GenericFailureDetail

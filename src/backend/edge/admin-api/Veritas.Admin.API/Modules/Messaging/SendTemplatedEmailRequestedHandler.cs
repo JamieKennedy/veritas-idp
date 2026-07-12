@@ -32,7 +32,8 @@ public sealed class SendTemplatedEmailRequestedHandler(
 
         if (result.IsFailed)
         {
-            var errorCode = result.Errors.FirstOrDefault()?.Metadata.TryGetValue("Code", out var code) == true
+            var firstError = result.Errors.Count > 0 ? result.Errors[0] : null;
+            var errorCode = firstError?.Metadata.TryGetValue("Code", out var code) == true
                 ? code?.ToString()
                 : "MESSAGING_DELIVERY_FAILED";
 

@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+
 using Microsoft.AspNetCore.Mvc;
 
 namespace Veritas.Admin.API.Extensions;

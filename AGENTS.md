@@ -74,11 +74,9 @@ Allowed project references should flow inward plus composition at the API:
 
 ## Code Style
 
-- All methods must have XML documentation comments (constructors can be ommited unless there is a reason).
-- Method XML docs should explain what the method does, describe parameters, document return values, and list known exceptions with `<exception>` tags.
-- Public properties and non-obvious internal properties should have XML documentation that explains what the value represents, including important type/format expectations such as UTC timestamps, hashed secrets, identifiers, and nullable meanings.
-- Keep XML docs accurate when changing behavior. Do not leave stale summaries, incorrect return descriptions, or missing exception notes after refactors.
-- Prefer concise documentation that captures contract and intent. Avoid restating the method name without adding useful meaning.
+The canonical code-level standards are in [`docs/engineering/coding-standards.md`](docs/engineering/coding-standards.md). They apply to every human and AI-authored change in this repository. Mechanical rules are enforced by the root formatting, analyzer, lint, and type-checking configuration; run `pnpm fix` while working and `pnpm check` before handoff.
+
+Public contracts and non-obvious internal behavior require accurate XML documentation. Straightforward implementations should use `<inheritdoc />`; private helpers do not need comments that merely restate their names.
 
 ## Contracts
 

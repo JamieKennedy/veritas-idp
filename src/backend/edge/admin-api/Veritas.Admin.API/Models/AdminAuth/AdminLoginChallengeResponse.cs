@@ -14,7 +14,7 @@ namespace Veritas.Admin.API.Models.AdminAuth;
 public sealed record AdminLoginChallengeResponse(
     Guid ChallengeId,
     string ChallengeToken,
-    EAdminLoginChallengePurpose Purpose,
+    AdminLoginChallengePurpose Purpose,
     DateTime ExpiresAtUtc,
     string? TotpSecretBase32,
     string? TotpProvisioningUri);

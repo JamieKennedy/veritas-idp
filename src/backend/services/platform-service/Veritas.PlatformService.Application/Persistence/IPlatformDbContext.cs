@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+
 using Veritas.PlatformService.Domain.Entities;
 
 namespace Veritas.PlatformService.Application.Persistence;
@@ -11,12 +12,18 @@ public interface IPlatformDbContext
     /// <summary>
     /// Gets the durable platform bootstrap sessions.
     /// </summary>
-    DbSet<BootstrapSession> BootstrapSessions { get; }
+    DbSet<BootstrapSession> BootstrapSessions
+    {
+        get;
+    }
 
     /// <summary>
     /// Gets platform-owned system flags.
     /// </summary>
-    DbSet<SystemFlag> SystemFlags { get; }
+    DbSet<SystemFlag> SystemFlags
+    {
+        get;
+    }
 
     /// <summary>
     /// Persists pending Platform module changes as one atomic unit of work.

@@ -1,6 +1,9 @@
-using Scalar.AspNetCore;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Threading.RateLimiting;
+
+using Microsoft.AspNetCore.Authentication.Cookies;
+
+using Scalar.AspNetCore;
+
 using Veritas.Admin.API.Authentication;
 using Veritas.Admin.API.Extensions;
 
@@ -101,7 +104,7 @@ app.UseDefaultSerilogRequestLogging();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    
+
     // Configure Scalar
     app.MapScalarApiReference(options =>
     {

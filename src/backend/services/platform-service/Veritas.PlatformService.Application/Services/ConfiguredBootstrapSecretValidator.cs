@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Text;
+
 using Veritas.PlatformService.Application.Interfaces;
 
 namespace Veritas.PlatformService.Application.Services;

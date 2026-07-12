@@ -1,4 +1,4 @@
-﻿using Veritas.PlatformService.Domain.Types;
+using Veritas.PlatformService.Domain.Types;
 
 namespace Veritas.PlatformService.Domain.Entities;
 
@@ -7,7 +7,10 @@ public class BootstrapSession
     /// <summary>
     /// Gets or sets the durable bootstrap session identifier.
     /// </summary>
-    public Guid Id { get; set; }
+    public Guid Id
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Gets or sets the normalized email address for the initial administrator candidate.
@@ -17,7 +20,10 @@ public class BootstrapSession
     /// <summary>
     /// Gets or sets the current bootstrap session lifecycle state.
     /// </summary>
-    public EBootstrapSessionStatus Status { get; set; }
+    public BootstrapSessionStatus Status
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Gets or sets the hash of the bootstrap secret used to start the session.
@@ -32,41 +38,65 @@ public class BootstrapSession
     /// <summary>
     /// Gets or sets the UTC timestamp when the bootstrap session expires.
     /// </summary>
-    public DateTime ExpiresAtUtc { get; set; }
+    public DateTime ExpiresAtUtc
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Gets or sets the UTC timestamp when the bootstrap session was verified.
     /// </summary>
-    public DateTime? VerifiedAtUtc { get; set; }
+    public DateTime? VerifiedAtUtc
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Gets or sets the UTC timestamp when bootstrap completed.
     /// </summary>
-    public DateTime? CompletedAtUtc { get; set; }
+    public DateTime? CompletedAtUtc
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Gets or sets the singleton active-bootstrap slot.
     /// This is <see langword="null" /> after the session is completed, expired, or cancelled.
     /// </summary>
-    public int? ActiveBootstrapSlot { get; set; }
+    public int? ActiveBootstrapSlot
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Gets or sets the UTC timestamp when the bootstrap session was created.
     /// </summary>
-    public DateTime CreatedAtUtc { get; set; }
+    public DateTime CreatedAtUtc
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Gets or sets the remote IP address that created the bootstrap session, when available.
     /// </summary>
-    public string? CreatedFromIp { get; set; }
+    public string? CreatedFromIp
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Gets or sets the UTC timestamp when the bootstrap session was last used.
     /// </summary>
-    public DateTime? LastSeenAtUtc { get; set; }
+    public DateTime? LastSeenAtUtc
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Gets or sets the UTC timestamp when the bootstrap session was last updated.
     /// </summary>
-    public DateTime UpdatedAtUtc { get; set; }
+    public DateTime UpdatedAtUtc
+    {
+        get; set;
+    }
 }

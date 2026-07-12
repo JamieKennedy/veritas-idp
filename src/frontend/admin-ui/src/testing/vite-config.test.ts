@@ -23,7 +23,5 @@ describe('Admin UI Vite configuration', () => {
 function flattenPlugins(options: Array<PluginOption>): Array<Plugin> {
     const flattened = (options as Array<unknown>).flat(Infinity)
 
-    return flattened.filter(
-        (option): option is Plugin => typeof option === 'object' && option !== null && 'name' in option,
-    )
+    return flattened.filter((option): option is Plugin => typeof option === 'object' && option !== null && 'name' in option)
 }

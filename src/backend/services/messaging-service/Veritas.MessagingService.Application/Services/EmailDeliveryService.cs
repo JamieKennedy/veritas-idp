@@ -1,8 +1,11 @@
 using System.Net.Mail;
 using System.Text.Json;
+
 using FluentResults;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+
 using Veritas.MessagingService.Application.Persistence;
 using Veritas.MessagingService.Domain.Entities;
 using Veritas.MessagingService.Domain.Errors;
@@ -101,7 +104,10 @@ public sealed class EmailDeliveryService(
             }
         }
 
-        logger.LogInformation("Templated email delivery accepted for template {TemplateKey}.", templateKey);
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation("Templated email delivery accepted for template {TemplateKey}.", templateKey);
+        }
         return Result.Ok();
     }
 

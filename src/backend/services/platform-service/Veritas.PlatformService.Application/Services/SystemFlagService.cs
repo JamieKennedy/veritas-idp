@@ -1,6 +1,8 @@
 using FluentResults;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+
 using Veritas.PlatformService.Application.Interfaces;
 using Veritas.PlatformService.Application.Persistence;
 using Veritas.PlatformService.Domain.Entities;

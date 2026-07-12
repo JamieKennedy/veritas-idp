@@ -2,6 +2,8 @@
 
 Scope: `src/backend/edge/admin-api`.
 
+Follow the repository-wide coding standards in [`../../../../docs/engineering/coding-standards.md`](../../../../docs/engineering/coding-standards.md) in addition to the host-specific rules below.
+
 The Admin API is the admin-facing HTTP API host for Veritas. It should stay thin: expose versioned HTTP endpoints, validate request shape, compose backend modules in-process, call module Application services, and map module failures into appropriate HTTP responses. Business rules belong in the owning backend module.
 
 ## Current Shape

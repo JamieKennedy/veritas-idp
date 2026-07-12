@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+
 using Veritas.MessagingService.Domain.Entities;
 
 namespace Veritas.MessagingService.Application.Persistence;
@@ -11,12 +12,18 @@ public interface IMessagingDbContext
     /// <summary>
     /// SMTP settings rows. The module stores one singleton row.
     /// </summary>
-    DbSet<SmtpSettings> SmtpSettings { get; }
+    DbSet<SmtpSettings> SmtpSettings
+    {
+        get;
+    }
 
     /// <summary>
     /// Email templates and future tenant overrides.
     /// </summary>
-    DbSet<EmailTemplate> EmailTemplates { get; }
+    DbSet<EmailTemplate> EmailTemplates
+    {
+        get;
+    }
 
     /// <summary>
     /// Persists pending changes as one atomic unit.

@@ -2,6 +2,8 @@
 
 Scope: `src/backend/services/user-service`.
 
+Follow the repository-wide coding standards in [`../../../../docs/engineering/coding-standards.md`](../../../../docs/engineering/coding-standards.md) in addition to the module-specific rules below.
+
 The Users module owns identities and credential-related user data. In the current implementation it is small, but it is the future home for public users, admin users, emails/usernames/phones, password hashes, MFA enrollment, recovery codes, verification state, account status, and user lifecycle events.
 
 ## Current Shape

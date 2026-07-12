@@ -2,6 +2,8 @@
 
 Scope: `src/orchestration/aspire`.
 
+Follow the repository-wide coding standards in [`../../../docs/engineering/coding-standards.md`](../../../docs/engineering/coding-standards.md) in addition to the orchestration-specific rules below.
+
 The Aspire AppHost is the local development orchestrator for Veritas. It is not the production architecture by itself; keep changes compatible with the intended Docker Compose self-hosting story.
 
 ## Current Shape

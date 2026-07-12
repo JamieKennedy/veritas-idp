@@ -1,9 +1,10 @@
 using System.Reflection;
+
 using Veritas.MessagingService.Domain.Errors;
 using Veritas.PlatformService.Domain.Errors.Bootstrap;
-using Veritas.PlatformService.Domain.Errors.Base;
 using Veritas.Shared.Errors;
 using Veritas.UserService.Domain.Errors.AdminUsers;
+
 using Xunit;
 
 namespace Veritas.Admin.API.Tests.Errors;
@@ -25,10 +26,10 @@ public sealed class DomainErrorCodeTests
             .ToList();
 
         var errorCodes = errorTypes.Select(type => new
-            {
-                Type = type,
-                Code = type.GetField("ErrorCode", BindingFlags.Public | BindingFlags.Static)?.GetRawConstantValue() as string
-            })
+        {
+            Type = type,
+            Code = type.GetField("ErrorCode", BindingFlags.Public | BindingFlags.Static)?.GetRawConstantValue() as string
+        })
             .ToList();
         var duplicateCodes = errorCodes
             .Where(item => !string.IsNullOrWhiteSpace(item.Code))

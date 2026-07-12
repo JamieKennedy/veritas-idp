@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+
 using Veritas.MessagingService.Application.Persistence;
 using Veritas.MessagingService.Domain.Entities;
-using Veritas.MessagingService.Domain.Types;
 
 namespace Veritas.MessagingService.Infrastructure.Database;
 

@@ -1,13 +1,15 @@
 using System.Globalization;
 using System.Security.Cryptography;
-using System.Text;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
+
 using Veritas.Shared.Security;
 using Veritas.UserService.Application.DataTransferObjects;
 using Veritas.UserService.Application.Services;
 using Veritas.UserService.Domain.Entities;
 using Veritas.UserService.Infrastructure.Database;
+
 using Xunit;
 
 namespace Veritas.UserService.Application.Tests;
@@ -31,7 +33,7 @@ public sealed class AdminAuthHardeningTests
             CancellationToken.None);
 
         Assert.True(result.IsSuccess);
-        Assert.Equal(EAdminLoginChallengePurpose.MfaEnrollment, result.Value.Purpose);
+        Assert.Equal(AdminLoginChallengePurpose.MfaEnrollment, result.Value.Purpose);
         Assert.False(string.IsNullOrWhiteSpace(result.Value.ChallengeToken));
         Assert.False(string.IsNullOrWhiteSpace(result.Value.TotpSecretBase32));
         Assert.False(string.IsNullOrWhiteSpace(result.Value.TotpProvisioningUri));
@@ -218,7 +220,9 @@ public sealed class AdminAuthHardeningTests
                 Array.Reverse(counterBytes);
             }
 
+#pragma warning disable CA5350 // The test must generate RFC 6238-compatible HMAC-SHA1 codes used by authenticator applications.
             using var hmac = new HMACSHA1(key);
+#pragma warning restore CA5350
             var hash = hmac.ComputeHash(counterBytes);
             var offset = hash[^1] & 0x0F;
             var binary =
@@ -258,7 +262,7 @@ public sealed class AdminAuthHardeningTests
                 bits -= 8;
             }
 
-            return bytes.ToArray();
+            return [.. bytes];
         }
     }
 }

@@ -1,4 +1,4 @@
-<Project Sdk="Aspire.AppHost.Sdk/13.1.2">
+<Project Sdk="Aspire.AppHost.Sdk/13.3.5">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -14,6 +14,8 @@
     <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="13.3.5" />
     <PackageReference Include="Aspire.Hosting.RabbitMQ" Version="13.3.5" />
     <PackageReference Include="Aspire.Hosting.Redis" Version="13.3.5" />
+    <!-- StreamJsonRpc currently permits an older vulnerable 2.5.x version. Keep this compatible patched pin until its owner updates. -->
+    <PackageReference Include="MessagePack" Version="2.5.302" />
   </ItemGroup>
 
   <ItemGroup>

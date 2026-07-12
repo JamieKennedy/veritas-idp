@@ -2,6 +2,8 @@
 
 Scope: `src/backend/services/platform-service`.
 
+Follow the repository-wide coding standards in [`../../../../docs/engineering/coding-standards.md`](../../../../docs/engineering/coding-standards.md) in addition to the module-specific rules below.
+
 The Platform module owns global platform and instance-level state for Veritas. It is the place for bootstrap/setup state, system flags, feature flags, instance metadata, and other configuration that is not owned by a tenant, user, client, session, or key module.
 
 ## Current Shape
