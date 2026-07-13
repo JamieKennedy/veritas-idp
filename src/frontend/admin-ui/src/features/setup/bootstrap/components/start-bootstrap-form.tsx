@@ -32,6 +32,7 @@ export function StartBootstrapForm() {
                 await mutation.mutateAsync(value)
                 form.resetField('bootstrapSecret')
                 await queryClient.invalidateQueries({ queryKey: setupStatusQueryOptions().queryKey })
+                await queryClient.fetchQuery(setupStatusQueryOptions())
                 await router.invalidate()
                 await navigate({ to: '/bootstrap/complete' })
             } catch (caught) {
