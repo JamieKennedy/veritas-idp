@@ -6,6 +6,9 @@ import type { QueryClient } from '@tanstack/react-query'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
 import appCss from '../styles.css?url'
+import appleTouchIconUrl from '@brand/apple-touch-icon.png?url'
+import faviconIcoUrl from '@brand/favicon.ico?url'
+import faviconSvgUrl from '@brand/favicon.svg?url&no-inline'
 import { RouteError, RoutePending } from '@/app/routing/route-status'
 import { Toaster } from '@/components/ui/sonner'
 
@@ -33,6 +36,22 @@ export const Route = createRootRouteWithContext<RouterContext>()({
             {
                 rel: 'stylesheet',
                 href: appCss,
+            },
+            {
+                rel: 'icon',
+                type: 'image/x-icon',
+                href: faviconIcoUrl,
+            },
+            {
+                rel: 'icon',
+                type: 'image/svg+xml',
+                href: faviconSvgUrl,
+            },
+            {
+                rel: 'apple-touch-icon',
+                type: 'image/png',
+                sizes: '180x180',
+                href: appleTouchIconUrl,
             },
         ],
     }),
