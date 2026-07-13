@@ -62,9 +62,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
     const showDevtools = import.meta.env.DEV && import.meta.env.MODE !== 'test'
 
     return (
-        <html lang="en">
+        <html lang="en" suppressHydrationWarning>
             <head>
                 <HeadContent />
+                <script dangerouslySetInnerHTML={{ __html: themeInitializationScript }} />
             </head>
             <body>
                 {children}
@@ -88,3 +89,16 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         </html>
     )
 }
+
+const themeInitializationScript = `
+    (() => {
+        try {
+            const preference = localStorage.getItem('veritas.admin.theme')
+            const resolvedTheme = preference === 'light' || preference === 'dark' ? preference : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+            document.documentElement.classList.toggle('dark', resolvedTheme === 'dark')
+            document.documentElement.style.colorScheme = resolvedTheme
+        } catch {
+            // Theme preferences are non-essential and must not prevent rendering when storage is unavailable.
+        }
+    })()
+`

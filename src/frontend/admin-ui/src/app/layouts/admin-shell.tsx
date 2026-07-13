@@ -1,11 +1,14 @@
 import { Link, Outlet, useNavigate } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { LayoutDashboard, LogOut, Mail, ShieldCheck } from 'lucide-react'
+import { LayoutDashboard, LogOut, Mail } from 'lucide-react'
 import { useState } from 'react'
+
+import veritasMarkUrl from '@brand/veritas-mark.svg?url'
 
 import { logoutAdminMutationOptions } from '@/features/auth/api/auth.api'
 import { getInlineRequestError } from '@/lib/api/request-errors'
 import type { AdminIdentity } from '@/features/auth/model/auth.schemas'
+import { ThemeControl } from '@/app/theme/theme-control'
 import { Button } from '@/components/ui/button'
 
 export function AdminShell({ admin }: { admin: AdminIdentity }) {
@@ -27,9 +30,9 @@ export function AdminShell({ admin }: { admin: AdminIdentity }) {
 
     return (
         <div className="bg-background grid min-h-screen md:grid-cols-[15rem_1fr]">
-            <aside className="border-b bg-[#173a40] px-4 py-5 text-white md:border-r md:border-b-0">
+            <aside className="admin-sidebar border-b px-4 py-5 text-white md:border-r md:border-b-0">
                 <div className="flex items-center gap-2 px-2 text-lg font-semibold">
-                    <ShieldCheck className="size-6 text-[#60d7cf]" /> Veritas
+                    <img src={veritasMarkUrl} alt="" className="size-6" /> Veritas
                 </div>
                 <nav className="mt-8 flex gap-2 md:flex-col">
                     <Button asChild variant="ghost" className="justify-start text-white hover:bg-white/10 hover:text-white">
@@ -50,16 +53,19 @@ export function AdminShell({ admin }: { admin: AdminIdentity }) {
                         <p className="text-sm font-medium">{admin.name ?? admin.email}</p>
                         <p className="text-muted-foreground text-xs">{admin.email}</p>
                     </div>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        disabled={logoutMutation.isPending}
-                        onClick={() => {
-                            void handleLogout()
-                        }}
-                    >
-                        <LogOut /> {logoutMutation.isPending ? 'Signing out...' : 'Sign out'}
-                    </Button>
+                    <div className="flex items-center gap-3">
+                        <ThemeControl />
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={logoutMutation.isPending}
+                            onClick={() => {
+                                void handleLogout()
+                            }}
+                        >
+                            <LogOut /> {logoutMutation.isPending ? 'Signing out...' : 'Sign out'}
+                        </Button>
+                    </div>
                 </header>
                 {logoutError && (
                     <p role="alert" className="bg-destructive/5 text-destructive border-b px-5 py-3 text-sm">

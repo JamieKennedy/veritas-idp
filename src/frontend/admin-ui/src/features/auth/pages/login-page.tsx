@@ -27,7 +27,7 @@ export function LoginPage({ redirectTo, setup }: { redirectTo: LoginRedirect; se
     }
 
     return (
-        <section className="bg-card rounded-lg border p-6 shadow-sm sm:p-8">
+        <section className="setup-card p-6 sm:p-8">
             <h1 className="text-2xl font-semibold">Administrator sign in</h1>
             <p className="text-muted-foreground mt-2 mb-7 text-sm">Password validation is followed by mandatory multi-factor authentication.</p>
             {state.step === 'credentials' && (
