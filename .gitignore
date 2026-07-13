@@ -1051,3 +1051,6 @@ plans/
 
 # Local Veritas secrets
 secrets/
+
+# Agent workflow artifacts
+docs/superpowers/
