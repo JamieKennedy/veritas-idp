@@ -1,4 +1,4 @@
-import veritasMarkUrl from '@brand/veritas-mark.svg?url'
+import veritasLockupUrl from '@brand/veritas-lockup.svg?url'
 
 import { ThemeControl } from '@/app/theme/theme-control'
 import { SetupProgress } from './setup-progress'
@@ -12,8 +12,7 @@ export function SetupJourneyShell({ children, currentStage }: { children: React.
                     <ThemeControl />
                 </div>
                 <div className="setup-journey__brand">
-                    <img src={veritasMarkUrl} alt="" className="setup-journey__mark" />
-                    <span>Veritas</span>
+                    <img src={veritasLockupUrl} alt="Veritas" className="setup-journey__lockup" />
                 </div>
                 <SetupProgress currentStage={currentStage} />
             </header>

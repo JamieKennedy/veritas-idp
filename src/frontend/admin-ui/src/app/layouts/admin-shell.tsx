@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { LayoutDashboard, LogOut, Mail } from 'lucide-react'
 import { useState } from 'react'
 
-import veritasMarkUrl from '@brand/veritas-mark.svg?url'
+import veritasLockupUrl from '@brand/veritas-lockup.svg?url'
 
 import { logoutAdminMutationOptions } from '@/features/auth/api/auth.api'
 import { getInlineRequestError } from '@/lib/api/request-errors'
@@ -32,7 +32,7 @@ export function AdminShell({ admin }: { admin: AdminIdentity }) {
         <div className="bg-background grid min-h-screen md:grid-cols-[15rem_1fr]">
             <aside className="admin-sidebar border-b px-4 py-5 text-white md:border-r md:border-b-0">
                 <div className="flex items-center gap-2 px-2 text-lg font-semibold">
-                    <img src={veritasMarkUrl} alt="" className="size-6" /> Veritas
+                    <img src={veritasLockupUrl} alt="Veritas" className="h-6 w-auto" />
                 </div>
                 <nav className="mt-8 flex gap-2 md:flex-col">
                     <Button asChild variant="ghost" className="justify-start text-white hover:bg-white/10 hover:text-white">
