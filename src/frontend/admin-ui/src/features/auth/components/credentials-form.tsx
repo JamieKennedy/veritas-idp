@@ -64,13 +64,15 @@ export function CredentialsForm({ notice, onChallenge }: { notice?: string; onCh
                                         name={field.name}
                                         type="email"
                                         autoComplete="email"
+                                        aria-invalid={field.state.meta.errors.length > 0}
+                                        aria-describedby={field.state.meta.errors.length > 0 ? `${field.name}-error` : undefined}
                                         value={field.state.value}
                                         onBlur={field.handleBlur}
                                         onChange={(event) => {
                                             field.handleChange(event.target.value)
                                         }}
                                     />
-                                    <FieldError errors={field.state.meta.errors} />
+                                    <FieldError id={`${field.name}-error`} errors={field.state.meta.errors} />
                                 </div>
                             )}
                         </form.Field>
@@ -83,13 +85,15 @@ export function CredentialsForm({ notice, onChallenge }: { notice?: string; onCh
                                         name={field.name}
                                         type="password"
                                         autoComplete="current-password"
+                                        aria-invalid={field.state.meta.errors.length > 0}
+                                        aria-describedby={field.state.meta.errors.length > 0 ? `${field.name}-error` : undefined}
                                         value={field.state.value}
                                         onBlur={field.handleBlur}
                                         onChange={(event) => {
                                             field.handleChange(event.target.value)
                                         }}
                                     />
-                                    <FieldError errors={field.state.meta.errors} />
+                                    <FieldError id={`${field.name}-error`} errors={field.state.meta.errors} />
                                 </div>
                             )}
                         </form.Field>

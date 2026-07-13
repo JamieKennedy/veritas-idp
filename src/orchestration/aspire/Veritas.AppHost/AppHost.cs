@@ -1,6 +1,7 @@
 #pragma warning disable ASPIRECERTIFICATES001
 
 using Aspire.Hosting.JavaScript;
+
 using Projects;
 
 var builder = DistributedApplication.CreateBuilder(args);

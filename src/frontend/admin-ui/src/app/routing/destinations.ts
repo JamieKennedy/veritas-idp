@@ -12,6 +12,10 @@ export function resolveEntryDestination(setup: SetupStatus, admin: AdminIdentity
     return admin === null ? '/login' : '/dashboard'
 }
 
+export function resolvePostLoginDestination(setup: SetupStatus, requestedDestination: LoginRedirect): LoginRedirect {
+    return !setup.isSmtpConfigured && !setup.isSmtpSetupDeferred ? '/bootstrap/smtp' : requestedDestination
+}
+
 export function sanitizeLoginRedirect(value: unknown): LoginRedirect {
     return value === '/bootstrap/smtp' ? value : '/dashboard'
 }

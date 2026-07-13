@@ -1,6 +1,7 @@
 import { useNavigate } from '@tanstack/react-router'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
+import { deferSmtpSetupMutationOptions } from '../../api/setup-status.api'
 import { setupStatusQueryOptions } from '../../api/setup-status.query'
 import { smtpSettingsQueryOptions } from '../api/smtp-settings.query'
 import { SmtpForm } from '../components/smtp-form'
@@ -10,12 +11,19 @@ export function SmtpSetupPage() {
     const navigate = useNavigate()
     const queryClient = useQueryClient()
     const settings = useQuery(smtpSettingsQueryOptions())
+    const deferSmtpSetup = useMutation(deferSmtpSetupMutationOptions())
 
     async function finish() {
         await Promise.all([
             queryClient.invalidateQueries({ queryKey: setupStatusQueryOptions().queryKey }),
             queryClient.invalidateQueries({ queryKey: smtpSettingsQueryOptions().queryKey }),
         ])
+        await navigate({ to: '/dashboard' })
+    }
+
+    async function skipSmtpSetup() {
+        await deferSmtpSetup.mutateAsync()
+        await queryClient.invalidateQueries({ queryKey: setupStatusQueryOptions().queryKey })
         await navigate({ to: '/dashboard' })
     }
 
@@ -48,8 +56,9 @@ export function SmtpSetupPage() {
             </section>
             <div className="flex justify-end">
                 <SmtpSkipDialog
+                    isPending={deferSmtpSetup.isPending}
                     onSkip={() => {
-                        void navigate({ to: '/dashboard' })
+                        void skipSmtpSetup()
                     }}
                 />
             </div>

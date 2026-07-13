@@ -3,6 +3,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useReducer } from 'react'
 
 import { setupStatusQueryOptions } from '@/features/setup/api/setup-status.query'
+import { resolvePostLoginDestination } from '@/app/routing/destinations'
 import { currentAdminQueryOptions } from '../api/current-admin.query'
 import { CredentialsForm } from '../components/credentials-form'
 import { MfaEnrollment } from '../components/mfa-enrollment'
@@ -10,8 +11,9 @@ import { MfaVerification } from '../components/mfa-verification'
 import { RecoveryCodes } from '../components/recovery-codes'
 import { initialLoginFlowState, loginFlowReducer } from '../model/login-flow.reducer'
 import type { LoginRedirect } from '@/app/routing/destinations'
+import type { SetupStatus } from '@/features/setup/model/setup-status.schema'
 
-export function LoginPage({ redirectTo }: { redirectTo: LoginRedirect }) {
+export function LoginPage({ redirectTo, setup }: { redirectTo: LoginRedirect; setup: SetupStatus }) {
     const navigate = useNavigate()
     const queryClient = useQueryClient()
     const [state, dispatch] = useReducer(loginFlowReducer, initialLoginFlowState)
@@ -21,7 +23,7 @@ export function LoginPage({ redirectTo }: { redirectTo: LoginRedirect }) {
             queryClient.invalidateQueries({ queryKey: currentAdminQueryOptions().queryKey }),
             queryClient.invalidateQueries({ queryKey: setupStatusQueryOptions().queryKey }),
         ])
-        await navigate({ to: redirectTo })
+        await navigate({ to: resolvePostLoginDestination(setup, redirectTo) })
     }
 
     return (

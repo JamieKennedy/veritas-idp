@@ -54,9 +54,15 @@ try
     foreach (var migration in migrations)
     {
         cancellationTokenSource.Token.ThrowIfCancellationRequested();
-        logger.LogInformation("Starting {ModuleName} module migrations.", migration.ModuleName);
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation("Starting {ModuleName} module migrations.", migration.ModuleName);
+        }
         await migration.RunAsync(host.Services);
-        logger.LogInformation("Completed {ModuleName} module migrations.", migration.ModuleName);
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation("Completed {ModuleName} module migrations.", migration.ModuleName);
+        }
     }
 
     logger.LogInformation("Database migrations completed.");

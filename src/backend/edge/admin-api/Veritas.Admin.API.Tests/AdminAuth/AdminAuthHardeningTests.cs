@@ -104,7 +104,7 @@ public sealed class AdminAuthHardeningTests
         };
         var controller = CreateController(adminUserService, authService);
 
-        var response = await controller.Login(new AdminLoginRequest
+        var response = await controller.LoginAsync(new AdminLoginRequest
         {
             Email = "admin@example.com",
             Password = "Correct Horse Battery Staple 42!"
@@ -137,7 +137,7 @@ public sealed class AdminAuthHardeningTests
         };
         var controller = CreateController(adminUserService, authService);
 
-        var response = await controller.CompleteMfaEnrollment(new AdminMfaEnrollmentRequest(
+        var response = await controller.CompleteMfaEnrollmentAsync(new AdminMfaEnrollmentRequest(
             Guid.NewGuid(),
             "challenge-token",
             "123456"), CancellationToken.None);
@@ -168,7 +168,7 @@ public sealed class AdminAuthHardeningTests
             ],
             CookieAuthenticationDefaults.AuthenticationScheme));
 
-        var response = await controller.Logout(CancellationToken.None);
+        var response = await controller.LogoutAsync(CancellationToken.None);
 
         Assert.IsType<OkResult>(response);
         Assert.Equal(adminId, adminUserService.RevokedAdminUserId);

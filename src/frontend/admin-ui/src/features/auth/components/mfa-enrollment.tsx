@@ -94,13 +94,15 @@ export function MfaEnrollment({
                                             inputMode="numeric"
                                             autoComplete="one-time-code"
                                             maxLength={6}
+                                            aria-invalid={field.state.meta.errors.length > 0}
+                                            aria-describedby={field.state.meta.errors.length > 0 ? `${field.name}-error` : undefined}
                                             value={field.state.value}
                                             onBlur={field.handleBlur}
                                             onChange={(event) => {
                                                 field.handleChange(event.target.value.replace(/\D/g, ''))
                                             }}
                                         />
-                                        <FieldError errors={field.state.meta.errors} />
+                                        <FieldError id={`${field.name}-error`} errors={field.state.meta.errors} />
                                     </div>
                                 )}
                             </form.Field>

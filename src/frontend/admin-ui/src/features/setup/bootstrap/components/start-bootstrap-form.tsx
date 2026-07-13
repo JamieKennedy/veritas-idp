@@ -63,13 +63,15 @@ export function StartBootstrapForm() {
                                         name={field.name}
                                         type="email"
                                         autoComplete="email"
+                                        aria-invalid={field.state.meta.errors.length > 0}
+                                        aria-describedby={field.state.meta.errors.length > 0 ? `${field.name}-error` : undefined}
                                         value={field.state.value}
                                         onBlur={field.handleBlur}
                                         onChange={(event) => {
                                             field.handleChange(event.target.value)
                                         }}
                                     />
-                                    <FieldError errors={field.state.meta.errors} />
+                                    <FieldError id={`${field.name}-error`} errors={field.state.meta.errors} />
                                 </div>
                             )}
                         </form.Field>
@@ -82,6 +84,8 @@ export function StartBootstrapForm() {
                                         name={field.name}
                                         type="password"
                                         autoComplete="off"
+                                        aria-invalid={field.state.meta.errors.length > 0}
+                                        aria-describedby={field.state.meta.errors.length > 0 ? `${field.name}-error` : undefined}
                                         value={field.state.value}
                                         onBlur={field.handleBlur}
                                         onChange={(event) => {
@@ -89,7 +93,7 @@ export function StartBootstrapForm() {
                                         }}
                                     />
                                     <p className="text-muted-foreground text-xs">The secret is submitted once and is not stored by this UI.</p>
-                                    <FieldError errors={field.state.meta.errors} />
+                                    <FieldError id={`${field.name}-error`} errors={field.state.meta.errors} />
                                 </div>
                             )}
                         </form.Field>

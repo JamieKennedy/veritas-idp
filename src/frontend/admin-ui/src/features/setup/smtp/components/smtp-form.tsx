@@ -65,13 +65,15 @@ export function SmtpForm({ settings, onConfigured }: { settings: SmtpSettings; o
                                         <Input
                                             id={field.name}
                                             name={field.name}
+                                            aria-invalid={field.state.meta.errors.length > 0}
+                                            aria-describedby={field.state.meta.errors.length > 0 ? `${field.name}-error` : undefined}
                                             value={field.state.value}
                                             onBlur={field.handleBlur}
                                             onChange={(event) => {
                                                 field.handleChange(event.target.value)
                                             }}
                                         />
-                                        <FieldError errors={field.state.meta.errors} />
+                                        <FieldError id={`${field.name}-error`} errors={field.state.meta.errors} />
                                     </div>
                                 )}
                             </form.Field>
@@ -85,13 +87,15 @@ export function SmtpForm({ settings, onConfigured }: { settings: SmtpSettings; o
                                             type="number"
                                             min={1}
                                             max={65535}
+                                            aria-invalid={field.state.meta.errors.length > 0}
+                                            aria-describedby={field.state.meta.errors.length > 0 ? `${field.name}-error` : undefined}
                                             value={field.state.value}
                                             onBlur={field.handleBlur}
                                             onChange={(event) => {
                                                 field.handleChange(event.target.valueAsNumber)
                                             }}
                                         />
-                                        <FieldError errors={field.state.meta.errors} />
+                                        <FieldError id={`${field.name}-error`} errors={field.state.meta.errors} />
                                     </div>
                                 )}
                             </form.Field>
@@ -105,7 +109,13 @@ export function SmtpForm({ settings, onConfigured }: { settings: SmtpSettings; o
                                                 field.handleChange(value as 'None' | 'StartTls')
                                             }}
                                         >
-                                            <SelectTrigger id={field.name} className="w-full" onBlur={field.handleBlur}>
+                                            <SelectTrigger
+                                                id={field.name}
+                                                className="w-full"
+                                                aria-invalid={field.state.meta.errors.length > 0}
+                                                aria-describedby={field.state.meta.errors.length > 0 ? `${field.name}-error` : undefined}
+                                                onBlur={field.handleBlur}
+                                            >
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -113,7 +123,7 @@ export function SmtpForm({ settings, onConfigured }: { settings: SmtpSettings; o
                                                 <SelectItem value="None">None (development only)</SelectItem>
                                             </SelectContent>
                                         </Select>
-                                        <FieldError errors={field.state.meta.errors} />
+                                        <FieldError id={`${field.name}-error`} errors={field.state.meta.errors} />
                                     </div>
                                 )}
                             </form.Field>
@@ -128,13 +138,15 @@ export function SmtpForm({ settings, onConfigured }: { settings: SmtpSettings; o
                                             id={field.name}
                                             name={field.name}
                                             autoComplete="username"
+                                            aria-invalid={field.state.meta.errors.length > 0}
+                                            aria-describedby={field.state.meta.errors.length > 0 ? `${field.name}-error` : undefined}
                                             value={field.state.value}
                                             onBlur={field.handleBlur}
                                             onChange={(event) => {
                                                 field.handleChange(event.target.value)
                                             }}
                                         />
-                                        <FieldError errors={field.state.meta.errors} />
+                                        <FieldError id={`${field.name}-error`} errors={field.state.meta.errors} />
                                     </div>
                                 )}
                             </form.Field>
@@ -147,13 +159,15 @@ export function SmtpForm({ settings, onConfigured }: { settings: SmtpSettings; o
                                             name={field.name}
                                             type="password"
                                             autoComplete="new-password"
+                                            aria-invalid={field.state.meta.errors.length > 0}
+                                            aria-describedby={field.state.meta.errors.length > 0 ? `${field.name}-error` : undefined}
                                             value={field.state.value}
                                             onBlur={field.handleBlur}
                                             onChange={(event) => {
                                                 field.handleChange(event.target.value)
                                             }}
                                         />
-                                        <FieldError errors={field.state.meta.errors} />
+                                        <FieldError id={`${field.name}-error`} errors={field.state.meta.errors} />
                                     </div>
                                 )}
                             </form.Field>
@@ -168,13 +182,15 @@ export function SmtpForm({ settings, onConfigured }: { settings: SmtpSettings; o
                                             id={field.name}
                                             name={field.name}
                                             type="email"
+                                            aria-invalid={field.state.meta.errors.length > 0}
+                                            aria-describedby={field.state.meta.errors.length > 0 ? `${field.name}-error` : undefined}
                                             value={field.state.value}
                                             onBlur={field.handleBlur}
                                             onChange={(event) => {
                                                 field.handleChange(event.target.value)
                                             }}
                                         />
-                                        <FieldError errors={field.state.meta.errors} />
+                                        <FieldError id={`${field.name}-error`} errors={field.state.meta.errors} />
                                     </div>
                                 )}
                             </form.Field>
@@ -185,13 +201,15 @@ export function SmtpForm({ settings, onConfigured }: { settings: SmtpSettings; o
                                         <Input
                                             id={field.name}
                                             name={field.name}
+                                            aria-invalid={field.state.meta.errors.length > 0}
+                                            aria-describedby={field.state.meta.errors.length > 0 ? `${field.name}-error` : undefined}
                                             value={field.state.value}
                                             onBlur={field.handleBlur}
                                             onChange={(event) => {
                                                 field.handleChange(event.target.value)
                                             }}
                                         />
-                                        <FieldError errors={field.state.meta.errors} />
+                                        <FieldError id={`${field.name}-error`} errors={field.state.meta.errors} />
                                     </div>
                                 )}
                             </form.Field>

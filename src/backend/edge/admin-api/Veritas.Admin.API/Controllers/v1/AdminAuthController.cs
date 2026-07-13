@@ -84,7 +84,7 @@ public sealed class AdminAuthController : BaseController<AdminAuthController>
     /// <returns>A short-lived MFA challenge when password validation succeeds.</returns>
     [HttpPost("login")]
     [EnableRateLimiting("admin-login")]
-    public async Task<IActionResult> Login([FromBody] AdminLoginRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> LoginAsync([FromBody] AdminLoginRequest request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
         {
@@ -121,7 +121,7 @@ public sealed class AdminAuthController : BaseController<AdminAuthController>
     /// <returns>The authenticated administrator and one-time recovery codes.</returns>
     [HttpPost("mfa/enroll/confirm")]
     [EnableRateLimiting("admin-login")]
-    public async Task<IActionResult> CompleteMfaEnrollment(
+    public async Task<IActionResult> CompleteMfaEnrollmentAsync(
         [FromBody] AdminMfaEnrollmentRequest request,
         CancellationToken cancellationToken)
     {
@@ -152,7 +152,7 @@ public sealed class AdminAuthController : BaseController<AdminAuthController>
     /// <returns>The authenticated administrator identity.</returns>
     [HttpPost("mfa/verify")]
     [EnableRateLimiting("admin-login")]
-    public async Task<IActionResult> CompleteMfaVerification(
+    public async Task<IActionResult> CompleteMfaVerificationAsync(
         [FromBody] AdminMfaVerificationRequest request,
         CancellationToken cancellationToken)
     {
@@ -180,7 +180,7 @@ public sealed class AdminAuthController : BaseController<AdminAuthController>
     /// <returns>An empty success response.</returns>
     [HttpPost("logout")]
     [Authorize]
-    public async Task<IActionResult> Logout(CancellationToken cancellationToken)
+    public async Task<IActionResult> LogoutAsync(CancellationToken cancellationToken)
     {
         var adminUserIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var sessionIdClaim = User.FindFirstValue(SessionIdClaimType);

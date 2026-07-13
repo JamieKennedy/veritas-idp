@@ -3,7 +3,7 @@ import { AlertDialog } from 'radix-ui'
 
 import { Button } from '@/components/ui/button'
 
-export function SmtpSkipDialog({ onSkip }: { onSkip: () => void }) {
+export function SmtpSkipDialog({ isPending, onSkip }: { isPending: boolean; onSkip: () => void }) {
     return (
         <AlertDialog.Root>
             <AlertDialog.Trigger asChild>
@@ -28,8 +28,8 @@ export function SmtpSkipDialog({ onSkip }: { onSkip: () => void }) {
                             <Button variant="outline">Return to setup</Button>
                         </AlertDialog.Cancel>
                         <AlertDialog.Action asChild>
-                            <Button variant="destructive" onClick={onSkip}>
-                                Skip email setup
+                            <Button variant="destructive" disabled={isPending} onClick={onSkip}>
+                                {isPending ? 'Saving...' : 'Skip email setup'}
                             </Button>
                         </AlertDialog.Action>
                     </div>

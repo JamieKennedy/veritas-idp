@@ -11,5 +11,6 @@ export const Route = createFileRoute('/_guest/login')({
 
 function LoginRoute() {
     const { redirect } = Route.useSearch()
-    return <LoginPage redirectTo={redirect} />
+    const { setup } = Route.useRouteContext()
+    return <LoginPage redirectTo={redirect} setup={setup} />
 }

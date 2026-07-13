@@ -80,13 +80,15 @@ export function MfaVerification({
                                         id={field.name}
                                         name={field.name}
                                         autoComplete="one-time-code"
+                                        aria-invalid={field.state.meta.errors.length > 0}
+                                        aria-describedby={field.state.meta.errors.length > 0 ? `${field.name}-error` : undefined}
                                         value={field.state.value}
                                         onBlur={field.handleBlur}
                                         onChange={(event) => {
                                             field.handleChange(event.target.value)
                                         }}
                                     />
-                                    <FieldError errors={field.state.meta.errors} />
+                                    <FieldError id={`${field.name}-error`} errors={field.state.meta.errors} />
                                 </div>
                             )}
                         </form.Field>

@@ -1,15 +1,20 @@
 interface FieldErrorProps {
+    id: string
     errors: ReadonlyArray<unknown>
 }
 
-export function FieldError({ errors }: FieldErrorProps) {
+export function FieldError({ id, errors }: FieldErrorProps) {
     const message = getErrorMessage(errors[0])
 
     if (message === undefined) {
         return null
     }
 
-    return <p className="text-destructive text-xs">{message}</p>
+    return (
+        <p id={id} role="alert" className="text-destructive text-xs">
+            {message}
+        </p>
+    )
 }
 
 function getErrorMessage(error: unknown) {

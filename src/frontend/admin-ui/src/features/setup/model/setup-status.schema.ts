@@ -5,6 +5,7 @@ export const setupStatusSchema = z.object({
     hasActiveBootstrap: z.boolean(),
     activeBootstrapExpiresAtUtc: z.iso.datetime({ offset: true }).nullable(),
     isSmtpConfigured: z.boolean(),
+    isSmtpSetupDeferred: z.boolean(),
 })
 
 export type SetupStatus = z.infer<typeof setupStatusSchema>

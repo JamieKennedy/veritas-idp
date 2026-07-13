@@ -29,6 +29,7 @@ describe('Admin UI root route', () => {
                             hasActiveBootstrap: false,
                             activeBootstrapExpiresAtUtc: null,
                             isSmtpConfigured: false,
+                            isSmtpSetupDeferred: false,
                         }),
                     )
                 }
@@ -77,6 +78,7 @@ describe('Admin UI root route', () => {
                             hasActiveBootstrap: false,
                             activeBootstrapExpiresAtUtc: null,
                             isSmtpConfigured: false,
+                            isSmtpSetupDeferred: false,
                         }),
                     )
                 }
@@ -114,6 +116,7 @@ describe('Admin UI root route', () => {
                             hasActiveBootstrap: true,
                             activeBootstrapExpiresAtUtc: '2026-07-10T11:00:00Z',
                             isSmtpConfigured: false,
+                            isSmtpSetupDeferred: false,
                         }),
                     )
                 }

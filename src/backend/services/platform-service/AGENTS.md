@@ -21,9 +21,9 @@ Current domain/application concepts:
 
 - `SystemFlag` stores boolean global flags.
 - `BootstrapSession` models bootstrap session state.
-- `EBootstrapSessionStatus` defines bootstrap session lifecycle states.
+- `BootstrapSessionStatus` defines bootstrap session lifecycle states.
 - `ISystemFlagService` / `SystemFlagService` manage system flags.
-- `IBootstrapService` / `BootstrapService` orchestrate no-email bootstrap status/start/complete logic.
+- `IBootstrapService` / `BootstrapService` orchestrate no-email bootstrap status/start/complete logic and durable SMTP setup deferral.
 - Platform Application calls `IAdminUserDirectory` to inspect admin-user state during bootstrap. API hosts provide an in-process adapter to Users Application.
 - Platform Application calls `IInitialAdminCreator` to create the first admin through Users Application during bootstrap completion.
 

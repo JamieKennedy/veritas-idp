@@ -31,9 +31,9 @@ public class BootstrapController : BaseController<BootstrapController>
     /// <param name="cancellationToken">A token that cancels the request.</param>
     /// <returns>The current bootstrap status for the installation.</returns>
     [HttpGet("status")]
-    public async Task<IActionResult> Status(CancellationToken cancellationToken)
+    public async Task<IActionResult> StatusAsync(CancellationToken cancellationToken)
     {
-        var result = await _bootstrapService.GetBootstrapStatus(cancellationToken);
+        var result = await _bootstrapService.GetBootstrapStatusAsync(cancellationToken);
 
         if (result.IsFailed)
         {
@@ -54,14 +54,14 @@ public class BootstrapController : BaseController<BootstrapController>
     /// <returns>An HTTP result describing whether bootstrap start was accepted.</returns>
     [HttpPost("start")]
     [EnableRateLimiting("bootstrap-start")]
-    public async Task<IActionResult> Start([FromBody] StartBootstrapRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> StartAsync([FromBody] StartBootstrapRequest request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.BootstrapSecret))
         {
             return FailureResultMapper.ValidationProblem("First administrator email and bootstrap secret are required.");
         }
 
-        var result = await _bootstrapService.StartBootstrap(
+        var result = await _bootstrapService.StartBootstrapAsync(
             request.Email,
             request.BootstrapSecret,
             HttpContext.Connection.RemoteIpAddress?.ToString(),
@@ -84,7 +84,7 @@ public class BootstrapController : BaseController<BootstrapController>
     /// <returns>An HTTP result describing whether bootstrap completion succeeded.</returns>
     [HttpPost("complete")]
     [EnableRateLimiting("bootstrap-complete")]
-    public async Task<IActionResult> Complete([FromBody] CompleteBootstrapRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> CompleteAsync([FromBody] CompleteBootstrapRequest request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(request.Password))
         {
@@ -92,7 +92,7 @@ public class BootstrapController : BaseController<BootstrapController>
         }
 
         Request.Cookies.TryGetValue(BootstrapCookieName, out var sessionToken);
-        var result = await _bootstrapService.CompleteBootstrap(
+        var result = await _bootstrapService.CompleteBootstrapAsync(
             sessionToken ?? string.Empty,
             request.Password,
             request.DisplayName,

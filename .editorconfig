@@ -76,6 +76,11 @@ dotnet_naming_rule.members_use_pascal_case.symbols = public_members
 dotnet_naming_rule.members_use_pascal_case.style = pascal_case
 dotnet_naming_rule.members_use_pascal_case.severity = warning
 
+dotnet_naming_rule.async_methods_end_with_async.symbols = async_methods
+dotnet_naming_rule.async_methods_end_with_async.style = pascal_case_async
+dotnet_naming_rule.async_methods_end_with_async.severity = warning
+dotnet_naming_rule.async_methods_end_with_async.priority = 3
+
 dotnet_naming_rule.private_fields_use_underscore.symbols = private_fields
 dotnet_naming_rule.private_fields_use_underscore.style = underscore_camel_case
 dotnet_naming_rule.private_fields_use_underscore.severity = warning
@@ -97,6 +102,9 @@ dotnet_naming_symbols.types.applicable_kinds = class, struct, interface, enum, d
 dotnet_naming_symbols.types.applicable_accessibilities = *
 dotnet_naming_symbols.public_members.applicable_kinds = property, event, method
 dotnet_naming_symbols.public_members.applicable_accessibilities = public, internal, protected, protected_internal, private_protected
+dotnet_naming_symbols.async_methods.applicable_kinds = method
+dotnet_naming_symbols.async_methods.applicable_accessibilities = *
+dotnet_naming_symbols.async_methods.required_modifiers = async
 dotnet_naming_symbols.private_fields.applicable_kinds = field
 dotnet_naming_symbols.private_fields.applicable_accessibilities = private
 dotnet_naming_symbols.private_fields.required_modifiers =
@@ -110,6 +118,8 @@ dotnet_naming_symbols.constants.required_modifiers = const
 dotnet_naming_style.prefix_i.required_prefix = I
 dotnet_naming_style.prefix_i.capitalization = pascal_case
 dotnet_naming_style.pascal_case.capitalization = pascal_case
+dotnet_naming_style.pascal_case_async.required_suffix = Async
+dotnet_naming_style.pascal_case_async.capitalization = pascal_case
 dotnet_naming_style.underscore_camel_case.required_prefix = _
 dotnet_naming_style.underscore_camel_case.capitalization = camel_case
 
@@ -127,9 +137,6 @@ dotnet_diagnostic.IDE1006.severity = warning
 dotnet_diagnostic.CA1848.severity = none
 # CA1859 conflicts with intentional interface and read-only collection boundaries.
 dotnet_diagnostic.CA1859.severity = none
-# CA1873 mostly reports value-type boxing in structured log calls. Requiring an
-# IsEnabled guard around every operational log obscures the state transition.
-dotnet_diagnostic.CA1873.severity = none
 
 [src/backend/building-blocks/shared/**/*.cs]
 # "Shared" is an established C#-only building-block namespace, not a public
@@ -146,3 +153,6 @@ generated_code = true
 # Behavior-oriented test names use underscores to separate action, condition,
 # and outcome. This is clearer in test-runner output than compressed PascalCase.
 dotnet_diagnostic.CA1707.severity = none
+# Test methods intentionally use behavior-oriented names instead of the Async
+# suffix required for production async methods.
+dotnet_naming_rule.async_methods_end_with_async.severity = none
