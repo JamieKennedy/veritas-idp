@@ -31,8 +31,8 @@ export function AdminShell({ admin }: { admin: AdminIdentity }) {
     return (
         <div className="bg-background grid min-h-screen md:grid-cols-[15rem_1fr]">
             <aside className="admin-sidebar border-b px-4 py-5 text-white md:border-r md:border-b-0">
-                <div className="flex items-center gap-2 px-2 text-lg font-semibold">
-                    <img src={veritasLockupUrl} alt="Veritas" className="h-6 w-auto" />
+                <div className="admin-sidebar__brand">
+                    <img src={veritasLockupUrl} alt="Veritas" className="admin-sidebar__lockup" />
                 </div>
                 <nav className="mt-8 flex gap-2 md:flex-col">
                     <Button asChild variant="ghost" className="justify-start text-white hover:bg-white/10 hover:text-white">

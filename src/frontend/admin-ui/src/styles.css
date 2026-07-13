@@ -368,22 +368,47 @@ a {
     right: 1.25rem;
 }
 
-.setup-journey__brand {
+.setup-journey__brand,
+.guest-shell__brand,
+.admin-sidebar__brand {
     display: flex;
+    width: fit-content;
     align-items: center;
     justify-content: center;
-    gap: 0.7rem;
-    margin-bottom: clamp(1.75rem, 4vw, 2.75rem);
-    color: var(--sea-ink);
-    font-family: 'Fraunces', Georgia, serif;
-    font-size: clamp(1.55rem, 4vw, 2rem);
-    font-weight: 700;
-    letter-spacing: -0.04em;
+    border: 1px solid #dbeafe;
+    border-radius: 0.75rem;
+    background: #f8fbff;
+    box-shadow: 0 1px 2px rgba(7, 26, 61, 0.08);
 }
 
-.setup-journey__mark {
-    width: 2.65rem;
-    height: 2.4rem;
+.setup-journey__brand {
+    margin-inline: auto;
+    margin-bottom: clamp(1.75rem, 4vw, 2.75rem);
+    padding: 0.6rem 0.85rem;
+}
+
+.guest-shell__brand {
+    margin-inline: auto;
+    padding: 0.5rem 0.75rem;
+}
+
+.admin-sidebar__brand {
+    padding: 0.45rem 0.65rem;
+}
+
+.setup-journey__lockup {
+    width: clamp(10rem, 22vw, 13rem);
+    height: auto;
+}
+
+.guest-shell__lockup {
+    width: auto;
+    height: 2rem;
+}
+
+.admin-sidebar__lockup {
+    width: auto;
+    height: 1.5rem;
 }
 
 .setup-journey__content {

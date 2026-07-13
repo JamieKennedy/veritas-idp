@@ -20,8 +20,8 @@ export function GuestShell({ isSetupJourney }: { isSetupJourney: boolean }) {
                 <ThemeControl />
             </div>
             <div className="w-full max-w-md">
-                <div className="mb-8 flex items-center justify-center gap-3 text-xl font-semibold">
-                    <img src={veritasLockupUrl} alt="Veritas" className="h-8 w-auto" />
+                <div className="guest-shell__brand mb-8">
+                    <img src={veritasLockupUrl} alt="Veritas" className="guest-shell__lockup" />
                 </div>
                 <Outlet />
             </div>
