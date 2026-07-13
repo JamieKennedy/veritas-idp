@@ -33,6 +33,7 @@ export function CompleteBootstrapForm() {
                 form.resetField('password')
                 form.resetField('confirmPassword')
                 await queryClient.invalidateQueries({ queryKey: setupStatusQueryOptions().queryKey })
+                await queryClient.fetchQuery(setupStatusQueryOptions())
                 await navigate({ to: '/login', search: { redirect: '/bootstrap/smtp' } })
             } catch (caught) {
                 form.resetField('password')

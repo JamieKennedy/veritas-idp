@@ -3,6 +3,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import type * as TanStackReactRouter from '@tanstack/react-router'
 
 import { StartBootstrapForm } from './start-bootstrap-form'
 
@@ -13,7 +14,8 @@ const { mockGetSetupStatus, mockInvalidate, mockNavigate, mockStartBootstrap } =
     mockStartBootstrap: vi.fn(),
 }))
 
-vi.mock('@tanstack/react-router', () => ({
+vi.mock('@tanstack/react-router', async (importOriginal) => ({
+    ...(await importOriginal<typeof TanStackReactRouter>()),
     useNavigate: () => mockNavigate,
     useRouter: () => ({ invalidate: mockInvalidate }),
 }))

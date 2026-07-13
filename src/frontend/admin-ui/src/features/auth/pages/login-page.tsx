@@ -11,9 +11,8 @@ import { MfaVerification } from '../components/mfa-verification'
 import { RecoveryCodes } from '../components/recovery-codes'
 import { initialLoginFlowState, loginFlowReducer } from '../model/login-flow.reducer'
 import type { LoginRedirect } from '@/app/routing/destinations'
-import type { SetupStatus } from '@/features/setup/model/setup-status.schema'
 
-export function LoginPage({ redirectTo, setup }: { redirectTo: LoginRedirect; setup: SetupStatus }) {
+export function LoginPage({ redirectTo }: { redirectTo: LoginRedirect }) {
     const navigate = useNavigate()
     const queryClient = useQueryClient()
     const [state, dispatch] = useReducer(loginFlowReducer, initialLoginFlowState)
@@ -23,7 +22,8 @@ export function LoginPage({ redirectTo, setup }: { redirectTo: LoginRedirect; se
             queryClient.invalidateQueries({ queryKey: currentAdminQueryOptions().queryKey }),
             queryClient.invalidateQueries({ queryKey: setupStatusQueryOptions().queryKey }),
         ])
-        await navigate({ to: resolvePostLoginDestination(setup, redirectTo) })
+        const [currentSetup] = await Promise.all([queryClient.fetchQuery(setupStatusQueryOptions()), queryClient.fetchQuery(currentAdminQueryOptions())])
+        await navigate({ to: resolvePostLoginDestination(currentSetup, redirectTo) })
     }
 
     return (
