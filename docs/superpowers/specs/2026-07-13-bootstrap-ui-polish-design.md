@@ -8,11 +8,11 @@ Improve the readability and visual hierarchy of the Admin UI's setup experience 
 
 ### Brand lockup
 
-Replace every Admin UI composition that renders the Veritas mark beside separately authored `Veritas` text with the shared `veritas-lockup.svg` asset. This applies to the setup journey header, guest/login shell, and admin sidebar. Each image uses `alt="Veritas"`; the redundant text nodes are removed.
+Replace every Admin UI composition that renders the Veritas mark beside separately authored `Veritas` text with the shared `veritas-lockup.svg` asset. This applies to the setup journey header, guest/login shell, and admin sidebar. Each image uses an accessible Veritas name; the redundant text nodes are removed. Light mode uses the supplied lockup unchanged. Dark mode uses a dedicated CSS-selected reversed presentation: a light wordmark derived from the supplied lockup and the original blue mark layered above it. This preserves the blue brand focal point without a white container.
 
 ### Validation contrast
 
-Keep the existing red validation treatment, but assign `--destructive-foreground` a color that is legible on the page and card backgrounds in both color schemes. Existing field error components and alert markup continue to consume this semantic token, so the correction is shared rather than page-specific.
+Keep the existing red validation treatment, but assign `--destructive` a color that is legible on the page and card backgrounds in both color schemes. Existing field error components and alert markup already consume this semantic token, so the correction is shared rather than page-specific.
 
 ### Progress hierarchy
 
@@ -22,7 +22,7 @@ Keep the three-stage progression and existing completion semantics. Make the cur
 - Complete: blue fill with a white checkmark.
 - Upcoming: muted outlined circle and label.
 
-This removes the low-contrast blue-on-dark current state while preserving accessibility labels and reduced-motion behavior.
+This removes the low-contrast blue-on-dark current state while preserving accessibility labels and reduced-motion behavior. The dark background uses a deeper, lower-saturation navy palette so the blue mark remains prominent.
 
 ## Tests
 

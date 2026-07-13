@@ -1,7 +1,6 @@
 import { Outlet } from '@tanstack/react-router'
 
-import veritasLockupUrl from '@brand/veritas-lockup.svg?url'
-
+import { BrandLockup } from '@/app/brand/brand-lockup'
 import { ThemeControl } from '@/app/theme/theme-control'
 import { SetupJourneyShell } from '@/features/setup/journey/components/setup-journey-shell'
 
@@ -21,7 +20,7 @@ export function GuestShell({ isSetupJourney }: { isSetupJourney: boolean }) {
             </div>
             <div className="w-full max-w-md">
                 <div className="guest-shell__brand mb-8">
-                    <img src={veritasLockupUrl} alt="Veritas" className="guest-shell__lockup" />
+                    <BrandLockup className="guest-shell__lockup" />
                 </div>
                 <Outlet />
             </div>

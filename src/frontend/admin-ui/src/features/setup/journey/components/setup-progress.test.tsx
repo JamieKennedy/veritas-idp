@@ -13,5 +13,6 @@ describe('SetupProgress', () => {
         expect(screen.getByText('Complete: Secure administrator')).not.toBeNull()
         expect(screen.getByText('Current step: Configure email')).not.toBeNull()
         expect(screen.getByText('Configure email').closest('li')?.getAttribute('aria-current')).toBe('step')
+        expect(screen.getByText('Configure email').closest('li')?.querySelector('.setup-progress__circle')?.classList.contains('is-current')).toBe(true)
     })
 })

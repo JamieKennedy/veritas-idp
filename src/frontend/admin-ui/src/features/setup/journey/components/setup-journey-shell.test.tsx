@@ -29,7 +29,7 @@ describe('SetupJourneyShell', () => {
         )
 
         const lockup = screen.getByRole('img', { name: 'Veritas' })
-        expect(lockup.getAttribute('src')).toContain('veritas-lockup.svg')
+        expect(lockup.querySelector('.brand-lockup__light')?.getAttribute('src')).toContain('veritas-lockup.svg')
         expect(screen.getByText('Current step: Secure administrator')).not.toBeNull()
         expect(screen.getByRole('combobox', { name: 'Color theme' })).not.toBeNull()
         expect(screen.getByRole('heading', { name: 'Secure the first administrator' })).not.toBeNull()
