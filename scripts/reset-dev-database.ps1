@@ -47,10 +47,16 @@ function Reset-DevDatabase {
     }
 
     foreach ($volumeName in $targetVolumes) {
-        $attachedContainers = @(Invoke-Docker -Arguments @('ps', '-a', '--filter', "volume=$volumeName", '--format', '{{.ID}}'))
+        $runningContainers = @(Invoke-Docker -Arguments @('ps', '--filter', "volume=$volumeName", '--format', '{{.ID}}'))
 
-        if ($attachedContainers.Count -gt 0) {
-            throw "Volume '$volumeName' is attached to a container. Stop pnpm dev or Docker Compose, then retry."
+        if ($runningContainers.Count -gt 0) {
+            throw "Volume '$volumeName' is used by a running container. Stop pnpm dev or Docker Compose, then retry."
+        }
+
+        $stoppedContainers = @(Invoke-Docker -Arguments @('ps', '-a', '--filter', "volume=$volumeName", '--format', '{{.ID}}'))
+        foreach ($containerId in $stoppedContainers) {
+            Invoke-Docker -Arguments @('rm', $containerId) | Out-Null
+            Write-Host "Removed stopped container '$containerId' that used local development database volume '$volumeName'."
         }
     }
 

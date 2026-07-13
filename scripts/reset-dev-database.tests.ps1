@@ -39,28 +39,31 @@ Describe 'Reset-DevDatabase' {
         Assert-MockCalled Invoke-Docker -Times 0 -Exactly -ParameterFilter { $Arguments[0] -eq 'volume' -and $Arguments[1] -eq 'rm' }
     }
 
-    It 'refuses to delete an attached database volume' {
+    It 'refuses to reset while a container is running against the database volume' {
         Mock Invoke-Docker { @('veritas-postgres-data') } -ParameterFilter { ($Arguments -join '|') -eq 'volume|ls|--format|{{.Name}}' }
-        Mock Invoke-Docker { @('container-id') } -ParameterFilter { ($Arguments -join '|') -eq 'ps|-a|--filter|volume=veritas-postgres-data|--format|{{.ID}}' }
+        Mock Invoke-Docker { @('container-id') } -ParameterFilter { ($Arguments -join '|') -eq 'ps|--filter|volume=veritas-postgres-data|--format|{{.ID}}' }
 
         try {
             Reset-DevDatabase -Confirm
-            throw 'Expected Reset-DevDatabase to reject an attached volume.'
+            throw 'Expected Reset-DevDatabase to reject a running volume consumer.'
         }
         catch {
-            $_.Exception.Message | Should BeLike '*Stop pnpm dev*'
+            $_.Exception.Message | Should BeLike '*running container*'
         }
 
         Assert-MockCalled Invoke-Docker -Times 0 -Exactly -ParameterFilter { ($Arguments -join '|') -eq 'volume|rm|veritas-postgres-data' }
     }
 
-    It 'removes only recognised unattached database volumes' {
+    It 'removes stopped consumers before deleting a recognised database volume' {
         Mock Invoke-Docker { @('veritas-postgres-data', 'unrelated-volume') } -ParameterFilter { ($Arguments -join '|') -eq 'volume|ls|--format|{{.Name}}' }
-        Mock Invoke-Docker { @() } -ParameterFilter { ($Arguments -join '|') -eq 'ps|-a|--filter|volume=veritas-postgres-data|--format|{{.ID}}' }
+        Mock Invoke-Docker { @() } -ParameterFilter { ($Arguments -join '|') -eq 'ps|--filter|volume=veritas-postgres-data|--format|{{.ID}}' }
+        Mock Invoke-Docker { @('container-id') } -ParameterFilter { ($Arguments -join '|') -eq 'ps|-a|--filter|volume=veritas-postgres-data|--format|{{.ID}}' }
+        Mock Invoke-Docker { @('container-id') } -ParameterFilter { ($Arguments -join '|') -eq 'rm|container-id' }
         Mock Invoke-Docker { @('veritas-postgres-data') } -ParameterFilter { ($Arguments -join '|') -eq 'volume|rm|veritas-postgres-data' }
 
         Reset-DevDatabase -Confirm
 
+        Assert-MockCalled Invoke-Docker -Times 1 -Exactly -ParameterFilter { ($Arguments -join '|') -eq 'rm|container-id' }
         Assert-MockCalled Invoke-Docker -Times 1 -Exactly -ParameterFilter { ($Arguments -join '|') -eq 'volume|rm|veritas-postgres-data' }
         Assert-MockCalled Invoke-Docker -Times 0 -Exactly -ParameterFilter { $Arguments -contains 'unrelated-volume' }
     }
