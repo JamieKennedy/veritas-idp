@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useForm } from '@tanstack/react-form'
-import { useNavigate } from '@tanstack/react-router'
+import { useNavigate, useRouter } from '@tanstack/react-router'
 import { useState } from 'react'
 
 import { FieldError } from '@/app/forms/field-error'
@@ -14,6 +14,7 @@ import { startBootstrapSchema } from '../model/bootstrap.schemas'
 
 export function StartBootstrapForm() {
     const navigate = useNavigate()
+    const router = useRouter()
     const queryClient = useQueryClient()
     const [serverError, setServerError] = useState<string>()
     const mutation = useMutation(startBootstrapMutationOptions())
@@ -31,6 +32,7 @@ export function StartBootstrapForm() {
                 await mutation.mutateAsync(value)
                 form.resetField('bootstrapSecret')
                 await queryClient.invalidateQueries({ queryKey: setupStatusQueryOptions().queryKey })
+                await router.invalidate()
                 await navigate({ to: '/bootstrap/complete' })
             } catch (caught) {
                 form.resetField('bootstrapSecret')
