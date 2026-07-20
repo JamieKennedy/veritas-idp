@@ -70,10 +70,7 @@ function createComposeBundle() {
     cpSync('docs/operations/docker-compose.md', path.join(bundleDirectory, 'README.md'))
     cpSync('docs/operations/secrets.md', path.join(bundleDirectory, 'secrets', 'README.md'))
 
-    const environmentExample = readFileSync('.env.example', 'utf8').replace(
-        'VERITAS_VERSION=0.0.0-development',
-        `VERITAS_VERSION=${version}`,
-    )
+    const environmentExample = readFileSync('.env.example', 'utf8').replace('VERITAS_VERSION=0.0.0-development', `VERITAS_VERSION=${version}`)
     writeFileSync(path.join(bundleDirectory, '.env.example'), environmentExample)
 
     run('tar', ['--create', '--gzip', '--file', archivePath, '--directory', artifactsDirectory, bundleName])
