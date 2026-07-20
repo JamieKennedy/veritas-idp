@@ -58,14 +58,6 @@ If another writer is added:
 
 Do not add a broad administrator bypass. Use a time-limited, audited exception only for repository recovery.
 
-## Transition from dev
+## Protected branches
 
-The pipeline temporarily listens to `dev` so the initial pipeline PR can validate itself. After it is merged:
-
-1. Create `staging` from the updated `dev`.
-2. Enable both rulesets after all five check names have appeared in GitHub.
-3. Change the workflow to remove `dev`.
-4. Update open PR bases to `staging`.
-5. Delete `dev`.
-
-Do not enable a required check before GitHub has recorded that check context, or the branch can become temporarily unmergeable.
+The active long-lived branches are `staging` and `main`. Both rulesets are active and require the five checks listed above. The former `dev` integration branch is retired; normal pull requests target `staging`.
