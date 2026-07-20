@@ -15,9 +15,9 @@
     "test": "vitest run --exclude \"server/**/*.test.mjs\" && node --test server/*.test.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "eslint --max-warnings 0 .",
-    "format": "prettier --write . && eslint --fix --max-warnings 0 .",
-    "format:check": "prettier --check . && eslint --max-warnings 0 .",
-    "check": "pnpm format:check && pnpm typecheck && pnpm test"
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test"
   },
   "dependencies": {
     "@faker-js/faker": "^10.3.0",
