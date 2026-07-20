@@ -3,12 +3,10 @@ name: Pipeline
 on:
   pull_request:
     branches:
-      - dev
       - main
       - staging
   push:
     branches:
-      - dev
       - main
       - staging
 
@@ -78,6 +76,9 @@ jobs:
 
       - name: Verify generated routes
         run: pnpm check:generated
+
+      - name: Verify release configuration
+        run: pnpm check:release
 
       - name: Check repository formatting
         run: pnpm format:check:repository
