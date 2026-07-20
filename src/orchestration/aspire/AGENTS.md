@@ -11,16 +11,17 @@ The Aspire AppHost is the local development orchestrator for Veritas. It is not 
 - AppHost project: `Veritas.AppHost`
 - Main file: `Veritas.AppHost/AppHost.cs`
 - Local resources:
-  - Redis
-  - Postgres on port `5432`, with persisted volume `veritas-postgres-data`
-  - RabbitMQ with management plugin on port `15672`, with persisted volume `veritas-rabbitmq-data`
-  - `Veritas.Tooling.DbMigrator`
-  - Admin API host (`Veritas.Admin.API`)
+    - Redis
+    - Postgres on port `5432`, with persisted volume `veritas-postgres-data`
+    - RabbitMQ with management plugin on port `15672`, with persisted volume `veritas-rabbitmq-data`
+    - `Veritas.Tooling.DbMigrator`
+    - Admin API host (`Veritas.Admin.API`)
 
 ## Rules
 
 - Keep resource names stable, especially `VeritasDb` and `messaging`, because API hosts and Wolverine use those connection/resource names.
 - Keep the migrator waiting for Postgres and API hosts waiting for the migrator when persistence is required.
+- Keep this ordering aligned with Docker Compose. Release packaging uses one shared backend image, but the migrator remains a distinct one-shot process and service.
 - Add new persisted infrastructure here only when a module or API host actually needs it locally.
 - Add secret values as Aspire parameters, not literals in `AppHost.cs`.
 - The `bootstrap-secret` parameter is secret and is injected into Admin API as `BOOTSTRAP_SECRET`.
@@ -42,4 +43,4 @@ Use the direct AppHost command when debugging Aspire startup or when pnpm is una
 dotnet run --project src\orchestration\aspire\Veritas.AppHost\Veritas.AppHost.csproj
 ```
 
-If AppHost fails because `bootstrap-secret` is missing, configure it via user secrets or environment variable as documented in `docs/setup-token.md`.
+If AppHost fails because `bootstrap-secret` is missing, configure it via user secrets or environment variable as documented in `docs/bootstrap.md`.

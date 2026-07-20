@@ -29,6 +29,10 @@ export const Route = createRootRouteWithContext<RouterContext>()({
                 content: 'width=device-width, initial-scale=1',
             },
             {
+                name: 'application-version',
+                content: import.meta.env.VITE_APP_VERSION ?? '0.0.0-development',
+            },
+            {
                 title: 'Veritas Admin',
             },
         ],

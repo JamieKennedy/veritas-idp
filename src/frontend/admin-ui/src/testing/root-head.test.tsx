@@ -66,6 +66,7 @@ describe('Admin UI document metadata', () => {
         expect(document.head.querySelector('link[rel="icon"][type="image/svg+xml"]')).not.toBeNull()
         expect(document.head.querySelector('link[rel="icon"][type="image/x-icon"]')).not.toBeNull()
         expect(document.head.querySelector('link[rel="apple-touch-icon"][sizes="180x180"][type="image/png"]')).not.toBeNull()
+        expect(document.head.querySelector('meta[name="application-version"]')?.getAttribute('content')).toBe('0.0.0-development')
     })
 })
 

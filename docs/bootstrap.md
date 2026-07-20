@@ -33,11 +33,11 @@ Example response:
 
 ```json
 {
-  "isConfigured": false,
-  "hasActiveBootstrap": false,
-  "activeBootstrapExpiresAtUtc": null,
-  "isSmtpConfigured": false,
-  "isSmtpSetupDeferred": false
+    "isConfigured": false,
+    "hasActiveBootstrap": false,
+    "activeBootstrapExpiresAtUtc": null,
+    "isSmtpConfigured": false,
+    "isSmtpSetupDeferred": false
 }
 ```
 
@@ -63,8 +63,8 @@ Content-Type: application/json
 
 ```json
 {
-  "email": "admin@example.com",
-  "bootstrapSecret": "<deployment-bootstrap-secret>"
+    "email": "admin@example.com",
+    "bootstrapSecret": "<deployment-bootstrap-secret>"
 }
 ```
 
@@ -96,8 +96,8 @@ Cookie: __Host-veritas-bootstrap=<cookie-value>
 
 ```json
 {
-  "password": "<first-admin-password>",
-  "displayName": "First Admin"
+    "password": "<first-admin-password>",
+    "displayName": "First Admin"
 }
 ```
 

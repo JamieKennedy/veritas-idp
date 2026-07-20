@@ -38,7 +38,7 @@ Example response:
 
 ```json
 {
-  "token": "<csrf-token>"
+    "token": "<csrf-token>"
 }
 ```
 
@@ -60,8 +60,8 @@ Content-Type: application/json
 
 ```json
 {
-  "email": "admin@example.com",
-  "password": "<admin-password>"
+    "email": "admin@example.com",
+    "password": "<admin-password>"
 }
 ```
 
@@ -71,12 +71,12 @@ First login after bootstrap:
 
 ```json
 {
-  "challengeId": "00000000-0000-0000-0000-000000000000",
-  "challengeToken": "<challenge-token>",
-  "purpose": "MfaEnrollment",
-  "expiresAtUtc": "2026-06-12T10:05:00Z",
-  "totpSecretBase32": "<base32-secret>",
-  "totpProvisioningUri": "otpauth://totp/..."
+    "challengeId": "00000000-0000-0000-0000-000000000000",
+    "challengeToken": "<challenge-token>",
+    "purpose": "MfaEnrollment",
+    "expiresAtUtc": "2026-06-12T10:05:00Z",
+    "totpSecretBase32": "<base32-secret>",
+    "totpProvisioningUri": "otpauth://totp/..."
 }
 ```
 
@@ -84,12 +84,12 @@ Future logins:
 
 ```json
 {
-  "challengeId": "00000000-0000-0000-0000-000000000000",
-  "challengeToken": "<challenge-token>",
-  "purpose": "MfaVerification",
-  "expiresAtUtc": "2026-06-12T10:05:00Z",
-  "totpSecretBase32": null,
-  "totpProvisioningUri": null
+    "challengeId": "00000000-0000-0000-0000-000000000000",
+    "challengeToken": "<challenge-token>",
+    "purpose": "MfaVerification",
+    "expiresAtUtc": "2026-06-12T10:05:00Z",
+    "totpSecretBase32": null,
+    "totpProvisioningUri": null
 }
 ```
 
@@ -113,9 +113,9 @@ Content-Type: application/json
 
 ```json
 {
-  "challengeId": "00000000-0000-0000-0000-000000000000",
-  "challengeToken": "<challenge-token>",
-  "totpCode": "123456"
+    "challengeId": "00000000-0000-0000-0000-000000000000",
+    "challengeToken": "<challenge-token>",
+    "totpCode": "123456"
 }
 ```
 
@@ -123,14 +123,12 @@ Success returns `200 OK`, sets `__Host-veritas-admin`, and returns one-time reco
 
 ```json
 {
-  "admin": {
-    "id": "00000000-0000-0000-0000-000000000000",
-    "email": "admin@example.com",
-    "name": "First Admin"
-  },
-  "recoveryCodes": [
-    "veritas-example-code"
-  ]
+    "admin": {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "email": "admin@example.com",
+        "name": "First Admin"
+    },
+    "recoveryCodes": ["veritas-example-code"]
 }
 ```
 
@@ -148,9 +146,9 @@ Content-Type: application/json
 
 ```json
 {
-  "challengeId": "00000000-0000-0000-0000-000000000000",
-  "challengeToken": "<challenge-token>",
-  "code": "123456"
+    "challengeId": "00000000-0000-0000-0000-000000000000",
+    "challengeToken": "<challenge-token>",
+    "code": "123456"
 }
 ```
 
@@ -158,9 +156,9 @@ Success returns `200 OK`, sets `__Host-veritas-admin`, and returns:
 
 ```json
 {
-  "id": "00000000-0000-0000-0000-000000000000",
-  "email": "admin@example.com",
-  "name": "First Admin"
+    "id": "00000000-0000-0000-0000-000000000000",
+    "email": "admin@example.com",
+    "name": "First Admin"
 }
 ```
 

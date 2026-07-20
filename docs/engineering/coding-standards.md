@@ -8,9 +8,45 @@ Mechanical rules belong in `.editorconfig`, `Directory.Build.props`, Prettier, E
 
 - Run `pnpm fix` after editing to apply safe C# and frontend formatting and lint fixes.
 - Run `pnpm check` before handoff. It must complete without warnings or errors.
+- Run `pnpm check:containers` after changing a Dockerfile, Compose, container runtime behavior, or release packaging.
 - Never edit generated files. Regenerate them through their owning tool.
 - Add or update tests for meaningful behavior changes and bug fixes.
 - Keep suppressions narrow, local, and justified as described below.
+
+## Pull request gates
+
+Every pull request to `staging` or `main` must pass these stable GitHub checks:
+
+| Check              | Enforced requirements                                                                                        |
+| ------------------ | ------------------------------------------------------------------------------------------------------------ |
+| `PR policy`        | Branch prefix, Conventional Commit PR title, permitted production source, and promotion evidence             |
+| `Repository lint`  | Project registration, generated routes, Prettier, Markdownlint, Actionlint, Hadolint, and Compose validation |
+| `Backend quality`  | Restore, C# formatting and style, analyzers, warnings-as-errors build, tests, and NuGet audit                |
+| `Frontend quality` | Frozen install, Prettier, ESLint without warnings, strict TypeScript, build, tests, and pnpm audit           |
+| `Container build`  | Shared backend and Admin UI image builds, entry-point verification, and high/critical vulnerability scanning |
+
+Mechanical requirements belong in repository configuration and scripts so local and CI behavior stay aligned. Architecture, threat modeling, appropriate test scope, operational safety, and documentation accuracy still require reviewer judgment and are recorded in the PR checklist.
+
+The canonical commands are:
+
+```powershell
+pnpm fix
+pnpm check
+pnpm check:containers
+pnpm lint:workflows
+```
+
+`pnpm check:containers` requires a running Docker daemon. The complete production-shaped stack remains a manual staging acceptance procedure documented in [`../operations/docker-compose.md`](../operations/docker-compose.md).
+
+## Project registration
+
+Quality checks cover projects by convention:
+
+- Every tracked `.csproj` under `src` must be registered in `Veritas.slnx`. Root .NET formatting, analyzers, build, test, and audit commands then cover it automatically.
+- Every frontend application must be a private package under `src/frontend`, be matched by `pnpm-workspace.yaml`, and define `build`, `format:check`, `lint`, `test`, and `typecheck` scripts.
+- `pnpm-lock.yaml` is the only JavaScript lockfile. Do not introduce npm or Yarn lockfiles.
+- New Dockerfiles must be added to Hadolint and container-build coverage.
+- New API or UI images must be added to the release script, Compose deployment, image scanner, and operational documentation in the same PR.
 
 ## Shared engineering standards
 

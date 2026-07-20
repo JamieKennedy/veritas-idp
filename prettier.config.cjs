@@ -18,6 +18,14 @@ const config = {
     trailingComma: 'all',
     tabWidth: 4,
     printWidth: 160,
+    overrides: [
+        {
+            files: ['*.json', '*.jsonc', '*.yaml', '*.yml'],
+            options: {
+                tabWidth: 2,
+            },
+        },
+    ],
 }
 
 module.exports = config

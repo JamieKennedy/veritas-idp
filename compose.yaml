@@ -1,0 +1,157 @@
+name: veritas
+
+x-backend-image: &backend-image 'ghcr.io/jamiekennedy/veritas-backend:${VERITAS_VERSION:?Set VERITAS_VERSION to an exact Veritas release.}'
+
+services:
+  postgres:
+    image: postgres:17-alpine@sha256:742f40ea20b9ff2ff31db5458d127452988a2164df9e17441e191f3b72252193
+    environment:
+      POSTGRES_DB: VeritasDb
+      POSTGRES_PASSWORD: ${VERITAS_POSTGRES_PASSWORD:?Set VERITAS_POSTGRES_PASSWORD.}
+      POSTGRES_USER: veritas
+    volumes:
+      - veritas-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U veritas -d VeritasDb']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - backend
+    restart: unless-stopped
+
+  redis:
+    image: redis:8-alpine@sha256:9d317178eceac8454a2284a9e6df2466b93c745529947f0cd42a0fa9609d7005
+    command: ['redis-server', '--appendonly', 'yes']
+    volumes:
+      - veritas-redis-data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - backend
+    restart: unless-stopped
+
+  rabbitmq:
+    image: rabbitmq:4-management@sha256:c1e33461287f4c53049ce525575f0df77b2a00a88e2593776afbb6c1489bdb81
+    environment:
+      RABBITMQ_DEFAULT_PASS: ${VERITAS_RABBITMQ_PASSWORD:?Set VERITAS_RABBITMQ_PASSWORD.}
+      RABBITMQ_DEFAULT_USER: veritas
+    volumes:
+      - veritas-rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ['CMD', 'rabbitmq-diagnostics', 'check_running']
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    networks:
+      - backend
+    restart: unless-stopped
+
+  migrator:
+    image: *backend-image
+    command: ['/app/migrator/Veritas.Tooling.DbMigrator.dll']
+    environment:
+      ConnectionStrings__VeritasDb: Host=postgres;Port=5432;Database=VeritasDb;Username=veritas;Password=${VERITAS_POSTGRES_PASSWORD}
+      Migration__ConnectRetryDelay: 00:00:02
+      Migration__MaxConnectAttempts: 60
+      Serilog__File__Path: /var/log/veritas/db-migrator-.log
+    volumes:
+      - veritas-logs:/var/log/veritas
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - backend
+    read_only: true
+    tmpfs:
+      - /tmp
+    restart: 'no'
+
+  admin-api:
+    image: *backend-image
+    command: ['/app/admin-api/Veritas.Admin.API.dll']
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: 'true'
+      BOOTSTRAP_SECRET_FILE: /run/secrets/bootstrap_secret
+      ConnectionStrings__messaging: amqp://veritas:${VERITAS_RABBITMQ_PASSWORD}@rabbitmq:5672/
+      ConnectionStrings__VeritasDb: Host=postgres;Port=5432;Database=VeritasDb;Username=veritas;Password=${VERITAS_POSTGRES_PASSWORD}
+      DataProtection__KeysPath: /var/lib/veritas/data-protection
+      HttpsRedirection__Enabled: 'false'
+      Serilog__File__Path: /var/log/veritas/admin-api-.log
+    secrets:
+      - bootstrap_secret
+    volumes:
+      - veritas-data-protection:/var/lib/veritas/data-protection
+      - veritas-logs:/var/log/veritas
+    expose:
+      - '8080'
+    healthcheck:
+      test: ['CMD', 'curl', '--fail', '--silent', '--show-error', 'http://127.0.0.1:8080/alive']
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 20s
+    depends_on:
+      migrator:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - backend
+      - edge
+    read_only: true
+    tmpfs:
+      - /tmp
+    restart: unless-stopped
+
+  admin-ui:
+    image: 'ghcr.io/jamiekennedy/veritas-admin-ui:${VERITAS_VERSION:?Set VERITAS_VERSION to an exact Veritas release.}'
+    environment:
+      ADMIN_API_ORIGIN: http://admin-api:8080
+      HOST: 0.0.0.0
+      NODE_ENV: production
+      PORT: 3000
+    ports:
+      - '${VERITAS_BIND_ADDRESS:-127.0.0.1}:${VERITAS_ADMIN_UI_PORT:-8080}:3000'
+    healthcheck:
+      test: ['CMD', 'wget', '--quiet', '--output-document=-', 'http://127.0.0.1:3000/healthz']
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 10s
+    depends_on:
+      admin-api:
+        condition: service_healthy
+    networks:
+      - edge
+    read_only: true
+    tmpfs:
+      - /tmp
+    restart: unless-stopped
+
+secrets:
+  bootstrap_secret:
+    file: ${VERITAS_BOOTSTRAP_SECRET_FILE:-./secrets/bootstrap-secret.txt}
+
+networks:
+  backend:
+    internal: true
+  edge:
+
+volumes:
+  veritas-data-protection:
+  veritas-logs:
+  veritas-postgres-data:
+  veritas-rabbitmq-data:
+  veritas-redis-data:

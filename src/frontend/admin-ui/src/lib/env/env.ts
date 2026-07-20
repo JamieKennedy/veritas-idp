@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 const adminUiEnvSchema = z.object({
-    VITE_ADMIN_API_BASE_URL: z.url(),
+    VITE_ADMIN_API_BASE_URL: z.union([z.literal(''), z.url()]).optional(),
 })
 
 export interface AdminUiRuntimeConfig {
@@ -12,7 +12,7 @@ export function parseAdminUiEnv(env: ImportMetaEnv): AdminUiRuntimeConfig {
     const parsed = adminUiEnvSchema.parse(env)
 
     return {
-        adminApiBaseUrl: parsed.VITE_ADMIN_API_BASE_URL.replace(/\/$/, ''),
+        adminApiBaseUrl: parsed.VITE_ADMIN_API_BASE_URL?.replace(/\/$/, '') ?? '',
     }
 }
 
