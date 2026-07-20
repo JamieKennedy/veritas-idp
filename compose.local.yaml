@@ -1,0 +1,18 @@
+services:
+  migrator:
+    image: veritas-backend:local
+    build:
+      context: .
+      dockerfile: src/backend/Dockerfile
+
+  admin-api:
+    image: veritas-backend:local
+    build:
+      context: .
+      dockerfile: src/backend/Dockerfile
+
+  admin-ui:
+    image: veritas-admin-ui:local
+    build:
+      context: .
+      dockerfile: src/frontend/admin-ui/Dockerfile

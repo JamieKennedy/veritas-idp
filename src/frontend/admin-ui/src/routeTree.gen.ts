@@ -9,47 +9,47 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as GuestRouteImport } from './routes/_guest'
-import { Route as BootstrapRouteImport } from './routes/_bootstrap'
-import { Route as AdminRouteImport } from './routes/_admin'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as GuestLoginRouteImport } from './routes/_guest/login'
+import { Route as AdminRouteImport } from './routes/_admin'
+import { Route as BootstrapRouteImport } from './routes/_bootstrap'
+import { Route as GuestRouteImport } from './routes/_guest'
 import { Route as AdminDashboardRouteImport } from './routes/_admin/dashboard'
-import { Route as BootstrapBootstrapStartRouteImport } from './routes/_bootstrap/bootstrap/start'
-import { Route as BootstrapBootstrapCompleteRouteImport } from './routes/_bootstrap/bootstrap/complete'
+import { Route as GuestLoginRouteImport } from './routes/_guest/login'
 import { Route as AdminBootstrapSmtpRouteImport } from './routes/_admin/bootstrap/smtp'
+import { Route as BootstrapBootstrapCompleteRouteImport } from './routes/_bootstrap/bootstrap/complete'
+import { Route as BootstrapBootstrapStartRouteImport } from './routes/_bootstrap/bootstrap/start'
 
-const GuestRoute = GuestRouteImport.update({
-  id: '/_guest',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BootstrapRoute = BootstrapRouteImport.update({
-  id: '/_bootstrap',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
   id: '/_admin',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const BootstrapRoute = BootstrapRouteImport.update({
+  id: '/_bootstrap',
   getParentRoute: () => rootRouteImport,
 } as any)
-const GuestLoginRoute = GuestLoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => GuestRoute,
+const GuestRoute = GuestRouteImport.update({
+  id: '/_guest',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AdminDashboardRoute = AdminDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
   getParentRoute: () => AdminRoute,
 } as any)
-const BootstrapBootstrapStartRoute = BootstrapBootstrapStartRouteImport.update({
-  id: '/bootstrap/start',
-  path: '/bootstrap/start',
-  getParentRoute: () => BootstrapRoute,
+const GuestLoginRoute = GuestLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => GuestRoute,
+} as any)
+const AdminBootstrapSmtpRoute = AdminBootstrapSmtpRouteImport.update({
+  id: '/bootstrap/smtp',
+  path: '/bootstrap/smtp',
+  getParentRoute: () => AdminRoute,
 } as any)
 const BootstrapBootstrapCompleteRoute =
   BootstrapBootstrapCompleteRouteImport.update({
@@ -57,10 +57,10 @@ const BootstrapBootstrapCompleteRoute =
     path: '/bootstrap/complete',
     getParentRoute: () => BootstrapRoute,
   } as any)
-const AdminBootstrapSmtpRoute = AdminBootstrapSmtpRouteImport.update({
-  id: '/bootstrap/smtp',
-  path: '/bootstrap/smtp',
-  getParentRoute: () => AdminRoute,
+const BootstrapBootstrapStartRoute = BootstrapBootstrapStartRouteImport.update({
+  id: '/bootstrap/start',
+  path: '/bootstrap/start',
+  getParentRoute: () => BootstrapRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -130,18 +130,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/_guest': {
-      id: '/_guest'
-      path: ''
+    '/': {
+      id: '/'
+      path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof GuestRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_bootstrap': {
-      id: '/_bootstrap'
-      path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof BootstrapRouteImport
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_admin': {
@@ -151,19 +144,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
+    '/_bootstrap': {
+      id: '/_bootstrap'
+      path: ''
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+      preLoaderRoute: typeof BootstrapRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_guest/login': {
-      id: '/_guest/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof GuestLoginRouteImport
-      parentRoute: typeof GuestRoute
+    '/_guest': {
+      id: '/_guest'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof GuestRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_admin/dashboard': {
       id: '/_admin/dashboard'
@@ -172,12 +165,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminDashboardRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/_bootstrap/bootstrap/start': {
-      id: '/_bootstrap/bootstrap/start'
-      path: '/bootstrap/start'
-      fullPath: '/bootstrap/start'
-      preLoaderRoute: typeof BootstrapBootstrapStartRouteImport
-      parentRoute: typeof BootstrapRoute
+    '/_guest/login': {
+      id: '/_guest/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof GuestLoginRouteImport
+      parentRoute: typeof GuestRoute
+    }
+    '/_admin/bootstrap/smtp': {
+      id: '/_admin/bootstrap/smtp'
+      path: '/bootstrap/smtp'
+      fullPath: '/bootstrap/smtp'
+      preLoaderRoute: typeof AdminBootstrapSmtpRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/_bootstrap/bootstrap/complete': {
       id: '/_bootstrap/bootstrap/complete'
@@ -186,12 +186,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BootstrapBootstrapCompleteRouteImport
       parentRoute: typeof BootstrapRoute
     }
-    '/_admin/bootstrap/smtp': {
-      id: '/_admin/bootstrap/smtp'
-      path: '/bootstrap/smtp'
-      fullPath: '/bootstrap/smtp'
-      preLoaderRoute: typeof AdminBootstrapSmtpRouteImport
-      parentRoute: typeof AdminRoute
+    '/_bootstrap/bootstrap/start': {
+      id: '/_bootstrap/bootstrap/start'
+      path: '/bootstrap/start'
+      fullPath: '/bootstrap/start'
+      preLoaderRoute: typeof BootstrapBootstrapStartRouteImport
+      parentRoute: typeof BootstrapRoute
     }
   }
 }

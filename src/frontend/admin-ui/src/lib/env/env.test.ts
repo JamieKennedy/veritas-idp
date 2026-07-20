@@ -27,4 +27,13 @@ describe('parseAdminUiEnv', () => {
             } as ImportMetaEnv),
         ).toThrow()
     })
+
+    it('uses the same origin when no Admin API base URL is configured', async () => {
+        vi.stubEnv('VITE_ADMIN_API_BASE_URL', 'https://localhost:7100')
+        const { parseAdminUiEnv } = await import('./env')
+
+        const config = parseAdminUiEnv({} as ImportMetaEnv)
+
+        expect(config.adminApiBaseUrl).toBe('')
+    })
 })

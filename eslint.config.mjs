@@ -23,6 +23,7 @@ const router = (await importWorkspacePackage('@tanstack/eslint-plugin-router')).
 const prettier = (await importWorkspacePackage('eslint-config-prettier')).default
 const reactHooks = (await importWorkspacePackage('eslint-plugin-react-hooks')).default
 const reactRefresh = (await importWorkspacePackage('eslint-plugin-react-refresh')).default
+const globals = (await importWorkspacePackage('globals')).default
 const tseslint = (await importWorkspacePackage('typescript-eslint')).default
 
 export default [
@@ -63,5 +64,13 @@ export default [
     js.configs.recommended,
     ...tseslint.configs.strictTypeChecked,
     ...tseslint.configs.stylisticTypeChecked,
+    {
+        ...tseslint.configs.disableTypeChecked,
+        files: ['src/frontend/**/server/**/*.mjs'],
+        languageOptions: {
+            ...tseslint.configs.disableTypeChecked.languageOptions,
+            globals: globals.node,
+        },
+    },
     prettier,
 ]

@@ -1,8 +1,9 @@
 packages:
-    - 'src/frontend/*'
-allowBuilds:
-    esbuild: true
-    lightningcss: true
-    unrs-resolver: true
+  - 'src/frontend/*'
+onlyBuiltDependencies:
+  - esbuild
+  - lightningcss
+  - unrs-resolver
 overrides:
-    undici: 7.28.0
+  js-yaml: 4.2.0
+  undici: 7.28.0

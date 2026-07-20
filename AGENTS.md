@@ -24,7 +24,7 @@ Veritas is security-sensitive infrastructure. Robustness, observability, and def
 - `src/backend/edge/public-api` is reserved for the future public/end-user HTTP API host. It should compose the same internal modules in-process without sharing admin-only controllers or HTTP models.
 - `src/backend/services/platform-service` is the Platform module. It owns global platform state, bootstrap/setup state, system flags, and instance-level configuration.
 - `src/backend/services/user-service` is the Users module. It owns user identity data and admin-user state.
-- `src/backend/tooling/db-migrator` runs EF Core migrations for module DbContexts during Aspire startup.
+- `src/backend/tooling/db-migrator` runs EF Core migrations for module DbContexts during Aspire and Docker Compose startup. Release deployments run it as a one-shot service from the shared backend image.
 - `src/frontend/admin-ui` and `src/frontend/public-ui` are reserved pnpm workspace packages for future React apps.
 - `src/orchestration/aspire/Veritas.AppHost` defines local dev orchestration for Redis, Postgres, RabbitMQ, the migrator, and Admin API.
 
@@ -104,11 +104,14 @@ pnpm dev:admin-ui
 pnpm build
 pnpm test
 pnpm check
+pnpm check:containers
 ```
 
 Use `pnpm dev` to launch the Aspire AppHost for the full local stack. Use `pnpm dev:admin-ui` when working on only the Admin UI package.
 
-The AppHost requires the secret parameter `bootstrap-secret`, which is injected into Admin API as `BOOTSTRAP_SECRET`. See `docs/setup-token.md`.
+Use `pnpm check:containers` when changing Dockerfiles, Compose, runtime packaging, or release infrastructure. It requires a running Docker daemon.
+
+The AppHost requires the secret parameter `bootstrap-secret`, which is injected into Admin API as `BOOTSTRAP_SECRET`. See `docs/bootstrap.md`.
 
 Current Aspire resources:
 

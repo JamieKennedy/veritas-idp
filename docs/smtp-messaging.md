@@ -14,10 +14,10 @@ Example:
 
 ```json
 {
-  "isConfigured": true,
-  "hasActiveBootstrap": false,
-  "activeBootstrapExpiresAtUtc": null,
-  "isSmtpConfigured": false
+    "isConfigured": true,
+    "hasActiveBootstrap": false,
+    "activeBootstrapExpiresAtUtc": null,
+    "isSmtpConfigured": false
 }
 ```
 
@@ -46,15 +46,15 @@ Example:
 
 ```json
 {
-  "host": "smtp.example.com",
-  "port": 587,
-  "tlsMode": "StartTls",
-  "username": "smtp-user",
-  "hasSecret": true,
-  "fromEmail": "no-reply@example.com",
-  "fromName": "Veritas",
-  "isConfigured": true,
-  "lastSuccessfulTestAtUtc": "2026-06-12T10:00:00Z"
+    "host": "smtp.example.com",
+    "port": 587,
+    "tlsMode": "StartTls",
+    "username": "smtp-user",
+    "hasSecret": true,
+    "fromEmail": "no-reply@example.com",
+    "fromName": "Veritas",
+    "isConfigured": true,
+    "lastSuccessfulTestAtUtc": "2026-06-12T10:00:00Z"
 }
 ```
 
@@ -73,13 +73,13 @@ Content-Type: application/json
 
 ```json
 {
-  "host": "smtp.example.com",
-  "port": 587,
-  "tlsMode": "StartTls",
-  "username": "smtp-user",
-  "secret": "<smtp-password-or-token>",
-  "fromEmail": "no-reply@example.com",
-  "fromName": "Veritas"
+    "host": "smtp.example.com",
+    "port": 587,
+    "tlsMode": "StartTls",
+    "username": "smtp-user",
+    "secret": "<smtp-password-or-token>",
+    "fromEmail": "no-reply@example.com",
+    "fromName": "Veritas"
 }
 ```
 
@@ -118,10 +118,10 @@ Content-Type: application/json
 
 ```json
 {
-  "subject": "Subject text",
-  "htmlBody": "<p>Hello {{User.DisplayName}}</p>",
-  "textBody": "Hello {{User.DisplayName}}",
-  "isEnabled": true
+    "subject": "Subject text",
+    "htmlBody": "<p>Hello {{User.DisplayName}}</p>",
+    "textBody": "Hello {{User.DisplayName}}",
+    "isEnabled": true
 }
 ```
 
