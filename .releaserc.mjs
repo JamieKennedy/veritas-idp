@@ -38,6 +38,8 @@ export default {
         [
             '@semantic-release/github',
             {
+                failCommentCondition: false,
+                successCommentCondition: false,
                 assets: [
                     {
                         path: 'artifacts/veritas-compose-*.tar.gz',
