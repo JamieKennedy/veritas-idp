@@ -2,6 +2,8 @@
 
 Scope: `src/orchestration/aspire`.
 
+Follow the repository-wide coding standards in [`../../../docs/engineering/coding-standards.md`](../../../docs/engineering/coding-standards.md) in addition to the orchestration-specific rules below.
+
 The Aspire AppHost is the local development orchestrator for Veritas. It is not the production architecture by itself; keep changes compatible with the intended Docker Compose self-hosting story.
 
 ## Current Shape
@@ -29,6 +31,12 @@ The Aspire AppHost is the local development orchestrator for Veritas. It is not 
 ## Verification
 
 From the repo root:
+
+```powershell
+pnpm dev
+```
+
+Use the direct AppHost command when debugging Aspire startup or when pnpm is unavailable:
 
 ```powershell
 dotnet run --project src\orchestration\aspire\Veritas.AppHost\Veritas.AppHost.csproj

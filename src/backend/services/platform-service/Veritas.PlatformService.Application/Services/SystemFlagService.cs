@@ -1,6 +1,8 @@
 using FluentResults;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+
 using Veritas.PlatformService.Application.Interfaces;
 using Veritas.PlatformService.Application.Persistence;
 using Veritas.PlatformService.Domain.Entities;
@@ -17,7 +19,7 @@ public class SystemFlagService : BaseService<SystemFlagService>, ISystemFlagServ
     }
 
     /// <inheritdoc />
-    public async Task<Result<bool>> GetFlagValue(string key)
+    public async Task<Result<bool>> GetFlagValueAsync(string key)
     {
         // TODO: get from redis cache
         var val = await _dbContext.SystemFlags
@@ -30,7 +32,7 @@ public class SystemFlagService : BaseService<SystemFlagService>, ISystemFlagServ
     }
 
     /// <inheritdoc />
-    public async Task<Result> SetFlagValue(string key, bool value)
+    public async Task<Result> SetFlagValueAsync(string key, bool value)
     {
         var flag = await _dbContext.SystemFlags.FirstOrDefaultAsync(systemFlag => systemFlag.Key == key);
 

@@ -36,11 +36,21 @@ Example response:
   "isConfigured": false,
   "hasActiveBootstrap": false,
   "activeBootstrapExpiresAtUtc": null,
-  "isSmtpConfigured": false
+  "isSmtpConfigured": false,
+  "isSmtpSetupDeferred": false
 }
 ```
 
 `isConfigured` becomes `true` once at least one admin account exists and bootstrap has completed.
+
+The Admin UI uses this state to select its first route:
+
+- Not configured, no active bootstrap: `/bootstrap/start`.
+- Not configured, active bootstrap: `/bootstrap/complete`.
+- Configured, no authenticated admin: `/login`.
+- Configured, authenticated admin: `/dashboard`.
+
+Bootstrap routes are unavailable after setup is configured. Authenticated routes redirect to login when the admin cookie is missing or invalid, and login redirects authenticated administrators to the dashboard.
 
 ## Start Bootstrap
 
@@ -98,6 +108,14 @@ Success returns `200 OK` and clears the bootstrap cookie.
 Bootstrap does not issue the normal admin auth cookie. After bootstrap completes, the frontend should move to the normal admin login flow.
 
 With the MFA-backed admin auth flow, the first password login for the new admin returns an MFA enrollment challenge. The admin must enroll TOTP before the admin auth cookie is issued.
+
+After the first authenticated login, the Admin UI opens `/bootstrap/smtp` unless SMTP setup was previously deferred. Choosing **Set up later** persists the decision through the authenticated endpoint below, then allows later logins to use their requested destination. It does not mark SMTP as configured; `/dashboard` continues to show an email-delivery warning linked to `/bootstrap/smtp` until a connection test succeeds.
+
+```http
+POST /api/v1/setup/smtp/defer
+```
+
+The endpoint requires an authenticated administrator and is protected by the Admin API's antiforgery policy. Its durable state is exposed as `isSmtpSetupDeferred` by the setup status endpoint.
 
 ## Common Failures
 

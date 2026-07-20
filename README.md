@@ -7,3 +7,13 @@
 - Project docs index: [`docs/README.md`](docs/README.md)
 - Setup token guide: [`docs/setup-token.md`](docs/setup-token.md)
 
+## Reset the development database
+
+Stop the local stack, then remove only Veritas's PostgreSQL development volume:
+
+```powershell
+./scripts/reset-dev-database.ps1 -Confirm
+```
+
+Start `pnpm dev` afterwards. Aspire recreates the database and applies migrations. This command does not clear Redis, RabbitMQ, logs, or data-protection keys.
+

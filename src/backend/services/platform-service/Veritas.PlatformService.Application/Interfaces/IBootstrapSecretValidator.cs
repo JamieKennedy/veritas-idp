@@ -8,7 +8,10 @@ public interface IBootstrapSecretValidator
     /// <summary>
     /// Gets a value indicating whether bootstrap secret material is configured.
     /// </summary>
-    bool IsConfigured { get; }
+    bool IsConfigured
+    {
+        get;
+    }
 
     /// <summary>
     /// Determines whether a supplied bootstrap secret matches the configured secret.

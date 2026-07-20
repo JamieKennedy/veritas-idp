@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+
 using Veritas.PlatformService.Application.Persistence;
 using Veritas.PlatformService.Infrastructure.Database;
 

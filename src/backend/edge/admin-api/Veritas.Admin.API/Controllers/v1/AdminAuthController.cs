@@ -1,11 +1,14 @@
 using System.Security.Claims;
+
 using Asp.Versioning;
+
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+
 using Veritas.Admin.API.Models.AdminAuth;
 using Veritas.Shared.Http;
 using Veritas.UserService.Application.DataTransferObjects;
@@ -52,6 +55,28 @@ public sealed class AdminAuthController : BaseController<AdminAuthController>
     }
 
     /// <summary>
+    /// Gets the safe identity of the currently authenticated administrator.
+    /// </summary>
+    /// <returns>The authenticated administrator identity, or an unauthorized response when required claims are absent.</returns>
+    [HttpGet("me")]
+    [Authorize]
+    public IActionResult CurrentAdmin()
+    {
+        var adminUserIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var email = User.FindFirstValue(ClaimTypes.Email);
+
+        if (!Guid.TryParse(adminUserIdClaim, out var adminUserId) || string.IsNullOrWhiteSpace(email))
+        {
+            return Unauthorized();
+        }
+
+        return Ok(new AdminLoginResponse(
+            adminUserId,
+            email,
+            User.FindFirstValue(ClaimTypes.Name)));
+    }
+
+    /// <summary>
     /// Validates administrator credentials and returns the MFA challenge required to complete login.
     /// </summary>
     /// <param name="request">The login request containing administrator credentials.</param>
@@ -59,7 +84,7 @@ public sealed class AdminAuthController : BaseController<AdminAuthController>
     /// <returns>A short-lived MFA challenge when password validation succeeds.</returns>
     [HttpPost("login")]
     [EnableRateLimiting("admin-login")]
-    public async Task<IActionResult> Login([FromBody] AdminLoginRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> LoginAsync([FromBody] AdminLoginRequest request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
         {
@@ -96,7 +121,7 @@ public sealed class AdminAuthController : BaseController<AdminAuthController>
     /// <returns>The authenticated administrator and one-time recovery codes.</returns>
     [HttpPost("mfa/enroll/confirm")]
     [EnableRateLimiting("admin-login")]
-    public async Task<IActionResult> CompleteMfaEnrollment(
+    public async Task<IActionResult> CompleteMfaEnrollmentAsync(
         [FromBody] AdminMfaEnrollmentRequest request,
         CancellationToken cancellationToken)
     {
@@ -127,7 +152,7 @@ public sealed class AdminAuthController : BaseController<AdminAuthController>
     /// <returns>The authenticated administrator identity.</returns>
     [HttpPost("mfa/verify")]
     [EnableRateLimiting("admin-login")]
-    public async Task<IActionResult> CompleteMfaVerification(
+    public async Task<IActionResult> CompleteMfaVerificationAsync(
         [FromBody] AdminMfaVerificationRequest request,
         CancellationToken cancellationToken)
     {
@@ -155,7 +180,7 @@ public sealed class AdminAuthController : BaseController<AdminAuthController>
     /// <returns>An empty success response.</returns>
     [HttpPost("logout")]
     [Authorize]
-    public async Task<IActionResult> Logout(CancellationToken cancellationToken)
+    public async Task<IActionResult> LogoutAsync(CancellationToken cancellationToken)
     {
         var adminUserIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var sessionIdClaim = User.FindFirstValue(SessionIdClaimType);
@@ -195,10 +220,13 @@ public sealed class AdminAuthController : BaseController<AdminAuthController>
         {
             new(ClaimTypes.NameIdentifier, session.Admin.Id.ToString()),
             new(ClaimTypes.Email, session.Admin.Email),
-            new(ClaimTypes.Name, session.Admin.Name ?? session.Admin.Email),
             new(SessionIdClaimType, session.SessionId.ToString()),
             new(SecurityStampClaimType, session.SecurityStamp.ToString())
         };
+        if (!string.IsNullOrWhiteSpace(session.Admin.Name))
+        {
+            claims.Add(new Claim(ClaimTypes.Name, session.Admin.Name));
+        }
         var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
         var principal = new ClaimsPrincipal(identity);
 

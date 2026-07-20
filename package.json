@@ -1,13 +1,54 @@
 {
-  "name": "veritas",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "packageManager": "pnpm@10.15.1"
+    "name": "veritas",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "restore": "dotnet restore Veritas.slnx && pnpm install --frozen-lockfile",
+        "dev": "dotnet run --project src/orchestration/aspire/Veritas.AppHost/Veritas.AppHost.csproj",
+        "dev:backend": "dotnet run --project src/orchestration/aspire/Veritas.AppHost/Veritas.AppHost.csproj",
+        "dev:admin-ui": "pnpm --filter admin-ui dev",
+        "build": "pnpm build:backend && pnpm build:frontend",
+        "build:backend": "dotnet build Veritas.slnx",
+        "build:frontend": "pnpm -r --if-present build",
+        "test": "pnpm test:backend && pnpm test:frontend",
+        "test:backend": "dotnet test Veritas.slnx",
+        "test:frontend": "pnpm -r --if-present test",
+        "typecheck": "pnpm -r --if-present typecheck",
+        "format": "pnpm format:backend && pnpm format:frontend",
+        "format:backend": "dotnet format whitespace Veritas.slnx --no-restore && dotnet format style Veritas.slnx --no-restore --severity warn",
+        "format:frontend": "prettier --write \"src/frontend/**/*.{js,jsx,ts,tsx,css,json,jsonc,md}\" package.json pnpm-workspace.yaml \"*.config.{js,cjs,mjs}\"",
+        "format:check": "pnpm format:check:backend && pnpm format:check:frontend",
+        "format:check:backend": "dotnet format whitespace Veritas.slnx --verify-no-changes --no-restore && dotnet format style Veritas.slnx --verify-no-changes --no-restore --severity warn",
+        "format:check:frontend": "prettier --check \"src/frontend/**/*.{js,jsx,ts,tsx,css,json,jsonc,md}\" package.json pnpm-workspace.yaml \"*.config.{js,cjs,mjs}\"",
+        "lint": "pnpm lint:backend && pnpm lint:frontend",
+        "lint:backend": "dotnet build Veritas.slnx --no-restore",
+        "lint:frontend": "eslint --max-warnings 0 \"src/frontend/**/*.{js,jsx,ts,tsx}\"",
+        "lint:fix": "eslint --fix --max-warnings 0 \"src/frontend/**/*.{js,jsx,ts,tsx}\"",
+        "fix": "pnpm format && pnpm lint:fix",
+        "check": "pnpm format:check && pnpm lint:frontend && pnpm typecheck && pnpm build && pnpm test",
+        "generate:routes": "pnpm -r --if-present generate-routes"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "packageManager": "pnpm@10.15.1",
+    "engines": {
+        "node": ">=22.12.0"
+    },
+    "devDependencies": {
+        "@eslint/js": "^10.0.1",
+        "@tanstack/eslint-config": "latest",
+        "@tanstack/eslint-plugin-query": "^5.101.0",
+        "@tanstack/eslint-plugin-router": "^1.162.0",
+        "eslint": "^9.20.0",
+        "eslint-config-prettier": "^10.1.8",
+        "eslint-plugin-react-hooks": "^7.1.1",
+        "eslint-plugin-react-refresh": "^0.5.2",
+        "openapi-typescript": "^7.13.0",
+        "prettier": "^3.8.1",
+        "prettier-plugin-tailwindcss": "^0.8.0",
+        "typescript": "^6.0.3",
+        "typescript-eslint": "^8.61.0"
+    }
 }

@@ -1,4 +1,5 @@
 using FluentResults;
+
 using Veritas.UserService.Application.DataTransferObjects;
 
 namespace Veritas.UserService.Application.Interfaces;

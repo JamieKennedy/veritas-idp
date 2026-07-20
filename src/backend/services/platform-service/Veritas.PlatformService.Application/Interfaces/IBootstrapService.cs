@@ -1,4 +1,5 @@
 using FluentResults;
+
 using Veritas.PlatformService.Application.DataTransferObjects.Setup;
 
 namespace Veritas.PlatformService.Application.Interfaces;
@@ -10,7 +11,7 @@ public interface IBootstrapService
     /// </summary>
     /// <param name="cancellationToken">A token that cancels the lookup.</param>
     /// <returns>A result containing the current bootstrap state.</returns>
-    Task<Result<BootstrapStatusDto>> GetBootstrapStatus(CancellationToken cancellationToken = default);
+    Task<Result<BootstrapStatusDto>> GetBootstrapStatusAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Starts a bootstrap session for the first admin user.
@@ -20,7 +21,7 @@ public interface IBootstrapService
     /// <param name="createdFromIp">The remote IP address that started the bootstrap session, when available.</param>
     /// <param name="cancellationToken">A token that cancels the operation.</param>
     /// <returns>A result containing the bootstrap session token when a session starts.</returns>
-    Task<Result<string>> StartBootstrap(
+    Task<Result<string>> StartBootstrapAsync(
         string email,
         string bootstrapSecret,
         string? createdFromIp,
@@ -34,9 +35,16 @@ public interface IBootstrapService
     /// <param name="displayName">The optional first administrator display name.</param>
     /// <param name="cancellationToken">A token that cancels the operation.</param>
     /// <returns>A result that succeeds when bootstrap completion is durable.</returns>
-    Task<Result> CompleteBootstrap(
+    Task<Result> CompleteBootstrapAsync(
         string sessionToken,
         string password,
         string? displayName,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Records that an administrator has intentionally deferred SMTP setup.
+    /// </summary>
+    /// <param name="cancellationToken">A token that cancels the operation.</param>
+    /// <returns>A result that succeeds when SMTP deferral is durable.</returns>
+    Task<Result> DeferSmtpSetupAsync(CancellationToken cancellationToken = default);
 }

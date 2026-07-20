@@ -1,9 +1,12 @@
-using FluentResults;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using System.Net.Mail;
 using System.Security.Cryptography;
 using System.Text;
+
+using FluentResults;
+
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+
 using Veritas.PlatformService.Application.DataTransferObjects.Setup;
 using Veritas.PlatformService.Application.Dependencies;
 using Veritas.PlatformService.Application.Interfaces;
@@ -18,6 +21,7 @@ namespace Veritas.PlatformService.Application.Services;
 public class BootstrapService : BaseService<BootstrapService>, IBootstrapService
 {
     private const string BootstrapCompletedFlagKey = "BOOTSTRAP_COMPLETED";
+    private const string SmtpSetupDeferredFlagKey = "SMTP_SETUP_DEFERRED";
     private static readonly TimeSpan SessionLifetime = TimeSpan.FromMinutes(15);
     private readonly IPlatformDbContext _dbContext;
     private readonly IAdminUserDirectory _adminUserDirectory;
@@ -38,7 +42,7 @@ public class BootstrapService : BaseService<BootstrapService>, IBootstrapService
     }
 
     /// <inheritdoc />
-    public async Task<Result<BootstrapStatusDto>> GetBootstrapStatus(CancellationToken cancellationToken = default)
+    public async Task<Result<BootstrapStatusDto>> GetBootstrapStatusAsync(CancellationToken cancellationToken = default)
     {
         try
         {
@@ -50,20 +54,27 @@ public class BootstrapService : BaseService<BootstrapService>, IBootstrapService
             }
 
             var utcNow = DateTime.UtcNow;
-            await ExpireStaleSessions(utcNow, cancellationToken);
+            await ExpireStaleSessionsAsync(utcNow, cancellationToken);
             var activeSession = await _dbContext.BootstrapSessions
                 .AsNoTracking()
-                .Where(session => session.Status != EBootstrapSessionStatus.Cancelled
-                                  && session.Status != EBootstrapSessionStatus.Completed
-                                  && session.Status != EBootstrapSessionStatus.Expired
+                .Where(session => session.Status != BootstrapSessionStatus.Cancelled
+                                  && session.Status != BootstrapSessionStatus.Completed
+                                  && session.Status != BootstrapSessionStatus.Expired
                                   && session.ExpiresAtUtc > utcNow)
                 .OrderBy(session => session.ExpiresAtUtc)
                 .FirstOrDefaultAsync(cancellationToken);
 
+            var isSmtpSetupDeferred = await _dbContext.SystemFlags
+                .AsNoTracking()
+                .Where(flag => flag.Key == SmtpSetupDeferredFlagKey)
+                .Select(flag => (bool?)flag.Value)
+                .SingleOrDefaultAsync(cancellationToken) ?? false;
+
             return new BootstrapStatusDto(
                 hasAnyAdminUser.Value,
                 activeSession is not null,
-                activeSession?.ExpiresAtUtc);
+                activeSession?.ExpiresAtUtc,
+                isSmtpSetupDeferred);
         }
         catch (Exception ex)
         {
@@ -81,7 +92,7 @@ public class BootstrapService : BaseService<BootstrapService>, IBootstrapService
     /// <param name="createdFromIp">The remote IP address that started the bootstrap session, when available.</param>
     /// <param name="cancellationToken">A token that cancels the operation.</param>
     /// <returns>A session token for authenticating subsequent bootstrap requests.</returns>
-    public async Task<Result<string>> StartBootstrap(
+    public async Task<Result<string>> StartBootstrapAsync(
         string email,
         string bootstrapSecret,
         string? createdFromIp,
@@ -102,9 +113,12 @@ public class BootstrapService : BaseService<BootstrapService>, IBootstrapService
                 return new InvalidBootstrapSecret();
             }
 
-            var isBootstrapRequired = await GetBootstrapStatus(cancellationToken);
+            var isBootstrapRequired = await GetBootstrapStatusAsync(cancellationToken);
 
-            if (isBootstrapRequired.IsFailed) return isBootstrapRequired.ToResult();
+            if (isBootstrapRequired.IsFailed)
+            {
+                return isBootstrapRequired.ToResult();
+            }
 
             if (isBootstrapRequired.Value.IsConfigured)
             {
@@ -112,22 +126,25 @@ public class BootstrapService : BaseService<BootstrapService>, IBootstrapService
             }
 
             var utcNow = DateTime.UtcNow;
-            await ExpireStaleSessions(utcNow, cancellationToken);
+            await ExpireStaleSessionsAsync(utcNow, cancellationToken);
             var activeSession = await _dbContext.BootstrapSessions.FirstOrDefaultAsync(
-                session => session.Status != EBootstrapSessionStatus.Cancelled
-                           && session.Status != EBootstrapSessionStatus.Completed
-                           && session.Status != EBootstrapSessionStatus.Expired
+                session => session.Status != BootstrapSessionStatus.Cancelled
+                           && session.Status != BootstrapSessionStatus.Completed
+                           && session.Status != BootstrapSessionStatus.Expired
                            && session.ExpiresAtUtc > utcNow,
                 cancellationToken);
 
-            if (activeSession != null) return new ActiveBootstrapSessionError();
+            if (activeSession != null)
+            {
+                return new ActiveBootstrapSessionError();
+            }
 
             var sessionToken = GenerateSessionToken();
             var session = new BootstrapSession
             {
                 Id = Guid.NewGuid(),
                 Email = normalizedEmail,
-                Status = EBootstrapSessionStatus.Verified,
+                Status = BootstrapSessionStatus.Verified,
                 BootstrapSecretHash = HashSecret(bootstrapSecret),
                 SessionTokenHash = HashSecret(sessionToken),
                 ExpiresAtUtc = utcNow.Add(SessionLifetime),
@@ -141,7 +158,10 @@ public class BootstrapService : BaseService<BootstrapService>, IBootstrapService
 
             _dbContext.BootstrapSessions.Add(session);
             await _dbContext.SaveChangesAsync(cancellationToken);
-            Logger.LogInformation("Started bootstrap session {BootstrapSessionId}.", session.Id);
+            if (Logger.IsEnabled(LogLevel.Information))
+            {
+                Logger.LogInformation("Started bootstrap session {BootstrapSessionId}.", session.Id);
+            }
             return sessionToken;
         }
         catch (DbUpdateException ex)
@@ -156,7 +176,7 @@ public class BootstrapService : BaseService<BootstrapService>, IBootstrapService
     }
 
     /// <inheritdoc />
-    public async Task<Result> CompleteBootstrap(
+    public async Task<Result> CompleteBootstrapAsync(
         string sessionToken,
         string password,
         string? displayName,
@@ -169,9 +189,12 @@ public class BootstrapService : BaseService<BootstrapService>, IBootstrapService
                 return new InvalidBootstrapSessionError();
             }
 
-            var isBootstrapRequired = await GetBootstrapStatus(cancellationToken);
+            var isBootstrapRequired = await GetBootstrapStatusAsync(cancellationToken);
 
-            if (isBootstrapRequired.IsFailed) return isBootstrapRequired.ToResult();
+            if (isBootstrapRequired.IsFailed)
+            {
+                return isBootstrapRequired.ToResult();
+            }
 
             if (isBootstrapRequired.Value.IsConfigured)
             {
@@ -191,7 +214,7 @@ public class BootstrapService : BaseService<BootstrapService>, IBootstrapService
 
             if (session.ExpiresAtUtc <= utcNow)
             {
-                session.Status = EBootstrapSessionStatus.Expired;
+                session.Status = BootstrapSessionStatus.Expired;
                 session.ActiveBootstrapSlot = null;
                 session.LastSeenAtUtc = utcNow;
                 session.UpdatedAtUtc = utcNow;
@@ -199,7 +222,7 @@ public class BootstrapService : BaseService<BootstrapService>, IBootstrapService
                 return new ExpiredBootstrapSessionError();
             }
 
-            if (session.Status != EBootstrapSessionStatus.Verified)
+            if (session.Status != BootstrapSessionStatus.Verified)
             {
                 return new BootstrapSessionNotVerifiedError();
             }
@@ -215,14 +238,17 @@ public class BootstrapService : BaseService<BootstrapService>, IBootstrapService
                 return createAdminResult;
             }
 
-            session.Status = EBootstrapSessionStatus.Completed;
+            session.Status = BootstrapSessionStatus.Completed;
             session.ActiveBootstrapSlot = null;
             session.CompletedAtUtc = utcNow;
             session.LastSeenAtUtc = utcNow;
             session.UpdatedAtUtc = utcNow;
-            await SetBootstrapCompletedFlag(cancellationToken);
+            await SetBootstrapCompletedFlagAsync(cancellationToken);
             await _dbContext.SaveChangesAsync(cancellationToken);
-            Logger.LogInformation("Completed bootstrap session {BootstrapSessionId}.", session.Id);
+            if (Logger.IsEnabled(LogLevel.Information))
+            {
+                Logger.LogInformation("Completed bootstrap session {BootstrapSessionId}.", session.Id);
+            }
             return Result.Ok();
         }
         catch (Exception ex)
@@ -231,23 +257,58 @@ public class BootstrapService : BaseService<BootstrapService>, IBootstrapService
         }
     }
 
+    /// <inheritdoc />
+    public async Task<Result> DeferSmtpSetupAsync(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var flag = await _dbContext.SystemFlags.FirstOrDefaultAsync(
+                candidate => candidate.Key == SmtpSetupDeferredFlagKey,
+                cancellationToken);
+
+            if (flag is null)
+            {
+                _dbContext.SystemFlags.Add(new SystemFlag
+                {
+                    Key = SmtpSetupDeferredFlagKey,
+                    Value = true
+                });
+            }
+            else if (!flag.Value)
+            {
+                flag.Value = true;
+            }
+            else
+            {
+                return Result.Ok();
+            }
+
+            await _dbContext.SaveChangesAsync(cancellationToken);
+            return Result.Ok();
+        }
+        catch (Exception ex)
+        {
+            return new ExternalError("Failed to defer SMTP setup").CausedBy(ex);
+        }
+    }
+
     /// <summary>
     /// Marks stale active bootstrap sessions expired before evaluating current state.
     /// </summary>
     /// <param name="utcNow">The current UTC timestamp.</param>
     /// <param name="cancellationToken">A token that cancels the database operation.</param>
-    private async Task ExpireStaleSessions(DateTime utcNow, CancellationToken cancellationToken)
+    private async Task ExpireStaleSessionsAsync(DateTime utcNow, CancellationToken cancellationToken)
     {
         var staleSessions = await _dbContext.BootstrapSessions
-            .Where(session => session.Status != EBootstrapSessionStatus.Cancelled
-                              && session.Status != EBootstrapSessionStatus.Completed
-                              && session.Status != EBootstrapSessionStatus.Expired
+            .Where(session => session.Status != BootstrapSessionStatus.Cancelled
+                              && session.Status != BootstrapSessionStatus.Completed
+                              && session.Status != BootstrapSessionStatus.Expired
                               && session.ExpiresAtUtc <= utcNow)
             .ToListAsync(cancellationToken);
 
         foreach (var session in staleSessions)
         {
-            session.Status = EBootstrapSessionStatus.Expired;
+            session.Status = BootstrapSessionStatus.Expired;
             session.ActiveBootstrapSlot = null;
             session.UpdatedAtUtc = utcNow;
         }
@@ -262,7 +323,7 @@ public class BootstrapService : BaseService<BootstrapService>, IBootstrapService
     /// Sets the secondary bootstrap-completed system flag after initial administrator creation succeeds.
     /// </summary>
     /// <param name="cancellationToken">A token that cancels the database operation.</param>
-    private async Task SetBootstrapCompletedFlag(CancellationToken cancellationToken)
+    private async Task SetBootstrapCompletedFlagAsync(CancellationToken cancellationToken)
     {
         var flag = await _dbContext.SystemFlags.FindAsync([BootstrapCompletedFlagKey], cancellationToken);
 

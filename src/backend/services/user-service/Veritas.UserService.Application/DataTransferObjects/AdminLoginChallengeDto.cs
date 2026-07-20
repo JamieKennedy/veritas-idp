@@ -14,7 +14,7 @@ namespace Veritas.UserService.Application.DataTransferObjects;
 public sealed record AdminLoginChallengeDto(
     Guid ChallengeId,
     string ChallengeToken,
-    EAdminLoginChallengePurpose Purpose,
+    AdminLoginChallengePurpose Purpose,
     DateTime ExpiresAtUtc,
     string? TotpSecretBase32,
     string? TotpProvisioningUri);

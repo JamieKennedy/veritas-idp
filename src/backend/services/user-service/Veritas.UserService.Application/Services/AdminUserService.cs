@@ -1,9 +1,12 @@
 using System.Globalization;
 using System.Net.Mail;
 using System.Security.Cryptography;
+
 using FluentResults;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+
 using Veritas.Shared.Security;
 using Veritas.UserService.Application.DataTransferObjects;
 using Veritas.UserService.Application.Interfaces;
@@ -27,7 +30,6 @@ public sealed class AdminUserService : BaseService<AdminUserService>, IAdminUser
     private readonly IUserDbContext _dbContext;
     private readonly ISecretProtector _secretProtector;
     private readonly TimeProvider _timeProvider;
-    private readonly TotpService _totpService = new();
 
     public AdminUserService(
         ILogger<AdminUserService> logger,
@@ -153,14 +155,14 @@ public sealed class AdminUserService : BaseService<AdminUserService>, IAdminUser
 
             if (string.IsNullOrWhiteSpace(adminUser.MfaSecretProtected) || adminUser.MfaEnabledAtUtc is null)
             {
-                challenge.Purpose = EAdminLoginChallengePurpose.MfaEnrollment;
-                totpSecret = _totpService.GenerateSecret();
+                challenge.Purpose = AdminLoginChallengePurpose.MfaEnrollment;
+                totpSecret = TotpService.GenerateSecret();
                 challenge.PendingMfaSecretProtected = _secretProtector.Protect(totpSecret);
-                provisioningUri = _totpService.BuildProvisioningUri(adminUser.Email, totpSecret);
+                provisioningUri = TotpService.BuildProvisioningUri(adminUser.Email, totpSecret);
             }
             else
             {
-                challenge.Purpose = EAdminLoginChallengePurpose.MfaVerification;
+                challenge.Purpose = AdminLoginChallengePurpose.MfaVerification;
             }
 
             _dbContext.AdminLoginChallenges.Add(challenge);
@@ -193,7 +195,7 @@ public sealed class AdminUserService : BaseService<AdminUserService>, IAdminUser
             var challenge = await LoadValidChallengeAsync(
                 challengeId,
                 challengeToken,
-                EAdminLoginChallengePurpose.MfaEnrollment,
+                AdminLoginChallengePurpose.MfaEnrollment,
                 cancellationToken);
             if (challenge is null || string.IsNullOrWhiteSpace(challenge.PendingMfaSecretProtected))
             {
@@ -209,7 +211,7 @@ public sealed class AdminUserService : BaseService<AdminUserService>, IAdminUser
             }
 
             var totpSecret = _secretProtector.Unprotect(challenge.PendingMfaSecretProtected);
-            if (!_totpService.VerifyCode(totpSecret, totpCode, _timeProvider.GetUtcNow()))
+            if (!TotpService.VerifyCode(totpSecret, totpCode, _timeProvider.GetUtcNow()))
             {
                 return new InvalidAdminCredentialsError();
             }
@@ -260,7 +262,7 @@ public sealed class AdminUserService : BaseService<AdminUserService>, IAdminUser
             var challenge = await LoadValidChallengeAsync(
                 challengeId,
                 challengeToken,
-                EAdminLoginChallengePurpose.MfaVerification,
+                AdminLoginChallengePurpose.MfaVerification,
                 cancellationToken);
             if (challenge is null)
             {
@@ -277,7 +279,7 @@ public sealed class AdminUserService : BaseService<AdminUserService>, IAdminUser
 
             var utcNow = UtcNow();
             var totpSecret = _secretProtector.Unprotect(adminUser.MfaSecretProtected);
-            var isValidCode = _totpService.VerifyCode(totpSecret, code, _timeProvider.GetUtcNow()) ||
+            var isValidCode = TotpService.VerifyCode(totpSecret, code, _timeProvider.GetUtcNow()) ||
                               await TryConsumeRecoveryCodeAsync(adminUser.Id, code, utcNow, cancellationToken);
             if (!isValidCode)
             {
@@ -440,7 +442,7 @@ public sealed class AdminUserService : BaseService<AdminUserService>, IAdminUser
     private async Task<AdminLoginChallenge?> LoadValidChallengeAsync(
         Guid challengeId,
         string challengeToken,
-        EAdminLoginChallengePurpose purpose,
+        AdminLoginChallengePurpose purpose,
         CancellationToken cancellationToken)
     {
         var challenge = await _dbContext.AdminLoginChallenges.SingleOrDefaultAsync(
@@ -550,9 +552,11 @@ public sealed class AdminUserService : BaseService<AdminUserService>, IAdminUser
     /// <returns>The raw recovery codes to show once to the administrator.</returns>
     private static IReadOnlyList<string> GenerateRecoveryCodes()
     {
-        return Enumerable.Range(0, RecoveryCodeCount)
-            .Select(_ => $"veritas-{Base32Encoding.Encode(RandomNumberGenerator.GetBytes(10)).ToLowerInvariant()}")
-            .ToList();
+        return
+        [
+            .. Enumerable.Range(0, RecoveryCodeCount)
+                .Select(_ => $"veritas-{Base32Encoding.Encode(RandomNumberGenerator.GetBytes(10)).ToLowerInvariant()}")
+        ];
     }
 
     /// <summary>
@@ -659,7 +663,7 @@ public sealed class AdminUserService : BaseService<AdminUserService>, IAdminUser
     private static string HashSecret(string secret)
     {
         var salt = RandomNumberGenerator.GetBytes(16);
-        var hash = SHA256.HashData(salt.Concat(System.Text.Encoding.UTF8.GetBytes(secret)).ToArray());
+        var hash = SHA256.HashData([.. salt, .. System.Text.Encoding.UTF8.GetBytes(secret)]);
 
         return $"v1.sha256.{Convert.ToBase64String(salt)}.{Convert.ToBase64String(hash)}";
     }
@@ -682,7 +686,7 @@ public sealed class AdminUserService : BaseService<AdminUserService>, IAdminUser
         {
             var salt = Convert.FromBase64String(parts[2]);
             var expectedHash = Convert.FromBase64String(parts[3]);
-            var actualHash = SHA256.HashData(salt.Concat(System.Text.Encoding.UTF8.GetBytes(secret)).ToArray());
+            var actualHash = SHA256.HashData([.. salt, .. System.Text.Encoding.UTF8.GetBytes(secret)]);
 
             return CryptographicOperations.FixedTimeEquals(actualHash, expectedHash);
         }

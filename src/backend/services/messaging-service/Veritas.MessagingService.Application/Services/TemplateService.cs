@@ -1,6 +1,8 @@
 using FluentResults;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+
 using Veritas.MessagingService.Application.DataTransferObjects;
 using Veritas.MessagingService.Application.Persistence;
 using Veritas.MessagingService.Domain.Entities;
@@ -93,7 +95,10 @@ public sealed class TemplateService(ILogger<TemplateService> logger, IMessagingD
         template.UpdatedAtUtc = DateTime.UtcNow;
 
         await dbContext.SaveChangesAsync(cancellationToken);
-        logger.LogInformation("Updated email template {TemplateKey}.", normalizedKey);
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation("Updated email template {TemplateKey}.", normalizedKey);
+        }
         return Result.Ok(template);
     }
 }

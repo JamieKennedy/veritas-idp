@@ -1,5 +1,7 @@
 using System.Text.Json;
+
 using FluentResults;
+
 using Veritas.MessagingService.Application.DataTransferObjects;
 using Veritas.MessagingService.Domain.Entities;
 using Veritas.MessagingService.Domain.Errors;
@@ -17,6 +19,10 @@ public sealed class TemplateRenderer
     /// <param name="template">The template to render.</param>
     /// <param name="model">The non-secret JSON model.</param>
     /// <returns>The rendered email content, or a controlled validation failure.</returns>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage(
+        "Performance",
+        "CA1822:Mark members as static",
+        Justification = "TemplateRenderer is an injected application service and intentionally exposes an instance contract.")]
     public Result<RenderedEmailDto> Render(EmailTemplate template, JsonElement model)
     {
         if (model.ValueKind != JsonValueKind.Object)

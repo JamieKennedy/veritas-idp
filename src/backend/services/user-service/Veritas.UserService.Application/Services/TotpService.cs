@@ -7,7 +7,7 @@ namespace Veritas.UserService.Application.Services;
 /// <summary>
 /// Generates and verifies RFC 6238 TOTP codes for administrator MFA.
 /// </summary>
-internal sealed class TotpService
+internal static class TotpService
 {
     private const int SecretByteLength = 20;
     private const int CodeDigits = 6;
@@ -17,7 +17,7 @@ internal sealed class TotpService
     /// Generates a new Base32-encoded TOTP shared secret.
     /// </summary>
     /// <returns>The generated Base32 secret.</returns>
-    public string GenerateSecret()
+    public static string GenerateSecret()
     {
         return Base32Encoding.Encode(RandomNumberGenerator.GetBytes(SecretByteLength));
     }
@@ -28,7 +28,7 @@ internal sealed class TotpService
     /// <param name="adminEmail">The normalized administrator email address.</param>
     /// <param name="secretBase32">The Base32 TOTP shared secret.</param>
     /// <returns>The otpauth provisioning URI.</returns>
-    public string BuildProvisioningUri(string adminEmail, string secretBase32)
+    public static string BuildProvisioningUri(string adminEmail, string secretBase32)
     {
         var issuer = Uri.EscapeDataString("Veritas");
         var label = Uri.EscapeDataString($"Veritas:{adminEmail}");
@@ -43,7 +43,7 @@ internal sealed class TotpService
     /// <param name="code">The user-supplied TOTP code.</param>
     /// <param name="utcNow">The current UTC timestamp.</param>
     /// <returns><see langword="true" /> when the code is valid for the allowed time window.</returns>
-    public bool VerifyCode(string secretBase32, string code, DateTimeOffset utcNow)
+    public static bool VerifyCode(string secretBase32, string code, DateTimeOffset utcNow)
     {
         if (string.IsNullOrWhiteSpace(code) || code.Length != CodeDigits || code.Any(character => !char.IsDigit(character)))
         {
@@ -81,7 +81,9 @@ internal sealed class TotpService
             Array.Reverse(counterBytes);
         }
 
+#pragma warning disable CA5350 // RFC 6238 authenticator interoperability requires the standardized HMAC-SHA1 algorithm.
         using var hmac = new HMACSHA1(key);
+#pragma warning restore CA5350
         var hash = hmac.ComputeHash(counterBytes);
         var offset = hash[^1] & 0x0F;
         var binary =

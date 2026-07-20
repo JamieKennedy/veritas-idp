@@ -1,7 +1,9 @@
 using System.Text.Json;
+
 using Veritas.MessagingService.Application.Services;
 using Veritas.MessagingService.Domain.Entities;
 using Veritas.MessagingService.Domain.Errors;
+
 using Xunit;
 
 namespace Veritas.MessagingService.Application.Tests;

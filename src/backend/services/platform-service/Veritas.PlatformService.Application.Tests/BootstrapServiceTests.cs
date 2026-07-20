@@ -1,12 +1,15 @@
 using FluentResults;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
+
 using Veritas.PlatformService.Application.Dependencies;
 using Veritas.PlatformService.Application.Interfaces;
 using Veritas.PlatformService.Application.Services;
 using Veritas.PlatformService.Domain.Entities;
 using Veritas.PlatformService.Domain.Types;
 using Veritas.PlatformService.Infrastructure.Database;
+
 using Xunit;
 
 namespace Veritas.PlatformService.Application.Tests;
@@ -43,7 +46,7 @@ public sealed class BootstrapServiceTests
             adminCreator,
             new FixedBootstrapSecretValidator("expected-secret"));
 
-        var result = await service.GetBootstrapStatus(CancellationToken.None);
+        var result = await service.GetBootstrapStatusAsync(CancellationToken.None);
 
         Assert.True(result.IsSuccess);
         Assert.False(result.Value.IsConfigured);
@@ -61,19 +64,44 @@ public sealed class BootstrapServiceTests
             new StubAdminUserDirectory(false),
             new StubInitialAdminCreator(),
             new FixedBootstrapSecretValidator("expected-secret"));
-        var start = await service.StartBootstrap(
+        var start = await service.StartBootstrapAsync(
             "admin@example.com",
             "expected-secret",
             "203.0.113.10",
             CancellationToken.None);
 
-        var result = await service.GetBootstrapStatus(CancellationToken.None);
+        var result = await service.GetBootstrapStatusAsync(CancellationToken.None);
 
         Assert.True(start.IsSuccess);
         Assert.True(result.IsSuccess);
         Assert.False(result.Value.IsConfigured);
         Assert.True(result.Value.HasActiveBootstrap);
         Assert.NotNull(result.Value.ActiveBootstrapExpiresAtUtc);
+    }
+
+    [Fact]
+    public async Task DeferSmtpSetup_persists_an_idempotent_platform_setup_flag()
+    {
+        await using var context = CreateContext();
+        var service = new BootstrapService(
+            NullLogger<BootstrapService>.Instance,
+            context,
+            new StubAdminUserDirectory(true),
+            new StubInitialAdminCreator(),
+            new FixedBootstrapSecretValidator("expected-secret"));
+
+        var firstResult = await service.DeferSmtpSetupAsync(CancellationToken.None);
+        var secondResult = await service.DeferSmtpSetupAsync(CancellationToken.None);
+        var status = await service.GetBootstrapStatusAsync(CancellationToken.None);
+
+        Assert.True(firstResult.IsSuccess);
+        Assert.True(secondResult.IsSuccess);
+        Assert.True(status.IsSuccess);
+        Assert.True(status.Value.IsSmtpSetupDeferred);
+        var deferredFlag = await context.SystemFlags.FindAsync("SMTP_SETUP_DEFERRED");
+        Assert.NotNull(deferredFlag);
+        Assert.True(deferredFlag.Value);
+        Assert.Single(context.SystemFlags, flag => flag.Key == "SMTP_SETUP_DEFERRED");
     }
 
     [Fact]
@@ -87,7 +115,7 @@ public sealed class BootstrapServiceTests
             new StubInitialAdminCreator(),
             new FixedBootstrapSecretValidator("expected-secret"));
 
-        var result = await service.StartBootstrap(
+        var result = await service.StartBootstrapAsync(
             "  ADMIN@Example.COM ",
             "expected-secret",
             "203.0.113.10",
@@ -97,7 +125,7 @@ public sealed class BootstrapServiceTests
         Assert.False(string.IsNullOrWhiteSpace(result.Value));
         var session = Assert.Single(context.BootstrapSessions);
         Assert.Equal("admin@example.com", session.Email);
-        Assert.Equal(EBootstrapSessionStatus.Verified, session.Status);
+        Assert.Equal(BootstrapSessionStatus.Verified, session.Status);
         Assert.NotEqual(result.Value, session.SessionTokenHash);
         Assert.StartsWith("sha256.", session.SessionTokenHash, StringComparison.Ordinal);
         Assert.NotNull(session.VerifiedAtUtc);
@@ -131,7 +159,7 @@ public sealed class BootstrapServiceTests
             new StubInitialAdminCreator(),
             new FixedBootstrapSecretValidator("expected-secret"));
 
-        var result = await service.StartBootstrap(
+        var result = await service.StartBootstrapAsync(
             "admin@example.com",
             "wrong-secret",
             "203.0.113.10",
@@ -152,7 +180,7 @@ public sealed class BootstrapServiceTests
             new StubInitialAdminCreator(),
             new FixedBootstrapSecretValidator("expected-secret"));
 
-        var result = await service.StartBootstrap(
+        var result = await service.StartBootstrapAsync(
             "First Admin <admin@example.com>",
             "expected-secret",
             "203.0.113.10",
@@ -172,13 +200,13 @@ public sealed class BootstrapServiceTests
             new StubAdminUserDirectory(false),
             new StubInitialAdminCreator(),
             new FixedBootstrapSecretValidator("expected-secret"));
-        await service.StartBootstrap(
+        await service.StartBootstrapAsync(
             "admin@example.com",
             "expected-secret",
             "203.0.113.10",
             CancellationToken.None);
 
-        var result = await service.StartBootstrap(
+        var result = await service.StartBootstrapAsync(
             "other@example.com",
             "expected-secret",
             "203.0.113.11",
@@ -199,13 +227,13 @@ public sealed class BootstrapServiceTests
             new StubAdminUserDirectory(false),
             adminCreator,
             new FixedBootstrapSecretValidator("expected-secret"));
-        var start = await service.StartBootstrap(
+        var start = await service.StartBootstrapAsync(
             "admin@example.com",
             "expected-secret",
             "203.0.113.10",
             CancellationToken.None);
 
-        var result = await service.CompleteBootstrap(
+        var result = await service.CompleteBootstrapAsync(
             start.Value,
             "Correct Horse Battery Staple 42!",
             "First Admin",
@@ -216,7 +244,7 @@ public sealed class BootstrapServiceTests
         Assert.Equal("Correct Horse Battery Staple 42!", adminCreator.Password);
         Assert.Equal("First Admin", adminCreator.DisplayName);
         var session = Assert.Single(context.BootstrapSessions);
-        Assert.Equal(EBootstrapSessionStatus.Completed, session.Status);
+        Assert.Equal(BootstrapSessionStatus.Completed, session.Status);
         Assert.Null(session.ActiveBootstrapSlot);
         Assert.NotNull(session.CompletedAtUtc);
         Assert.NotNull(session.LastSeenAtUtc);
@@ -236,7 +264,7 @@ public sealed class BootstrapServiceTests
             new StubAdminUserDirectory(false),
             adminCreator,
             new FixedBootstrapSecretValidator("expected-secret"));
-        var start = await service.StartBootstrap(
+        var start = await service.StartBootstrapAsync(
             "admin@example.com",
             "expected-secret",
             "203.0.113.10",
@@ -245,7 +273,7 @@ public sealed class BootstrapServiceTests
         session.ExpiresAtUtc = DateTime.UtcNow.AddMinutes(-1);
         await context.SaveChangesAsync();
 
-        var result = await service.CompleteBootstrap(
+        var result = await service.CompleteBootstrapAsync(
             start.Value,
             "Correct Horse Battery Staple 42!",
             "First Admin",
@@ -253,7 +281,7 @@ public sealed class BootstrapServiceTests
 
         Assert.True(result.IsFailed);
         Assert.Null(adminCreator.Email);
-        Assert.Equal(EBootstrapSessionStatus.Expired, session.Status);
+        Assert.Equal(BootstrapSessionStatus.Expired, session.Status);
         Assert.Null(session.ActiveBootstrapSlot);
     }
 
@@ -268,13 +296,13 @@ public sealed class BootstrapServiceTests
             new StubAdminUserDirectory(false),
             adminCreator,
             new FixedBootstrapSecretValidator("expected-secret"));
-        var start = await service.StartBootstrap(
+        var start = await service.StartBootstrapAsync(
             "admin@example.com",
             "expected-secret",
             "203.0.113.10",
             CancellationToken.None);
 
-        var result = await service.CompleteBootstrap(
+        var result = await service.CompleteBootstrapAsync(
             start.Value,
             "Correct Horse Battery Staple 42!",
             "First Admin",
@@ -282,7 +310,7 @@ public sealed class BootstrapServiceTests
 
         Assert.True(result.IsFailed);
         var session = Assert.Single(context.BootstrapSessions);
-        Assert.Equal(EBootstrapSessionStatus.Verified, session.Status);
+        Assert.Equal(BootstrapSessionStatus.Verified, session.Status);
         Assert.Empty(context.SystemFlags);
     }
 
@@ -297,7 +325,10 @@ public sealed class BootstrapServiceTests
 
     private sealed class StubAdminUserDirectory(bool hasAnyAdminUser) : IAdminUserDirectory
     {
-        public int CallCount { get; private set; }
+        public int CallCount
+        {
+            get; private set;
+        }
 
         public Task<Result<bool>> HasAnyAdminUserAsync(CancellationToken cancellationToken = default)
         {
@@ -308,9 +339,18 @@ public sealed class BootstrapServiceTests
 
     private sealed class StubInitialAdminCreator(Result? result = null) : IInitialAdminCreator
     {
-        public string? Email { get; private set; }
-        public string? Password { get; private set; }
-        public string? DisplayName { get; private set; }
+        public string? Email
+        {
+            get; private set;
+        }
+        public string? Password
+        {
+            get; private set;
+        }
+        public string? DisplayName
+        {
+            get; private set;
+        }
 
         public Task<Result> CreateInitialAdminUserAsync(
             string email,

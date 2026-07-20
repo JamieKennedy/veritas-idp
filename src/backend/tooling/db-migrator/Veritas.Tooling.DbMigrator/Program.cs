@@ -2,7 +2,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+
 using Serilog;
+
 using Veritas.MessagingService.Infrastructure.Database;
 using Veritas.MessagingService.Infrastructure.Extensions;
 using Veritas.PlatformService.Infrastructure.Database;
@@ -52,9 +54,15 @@ try
     foreach (var migration in migrations)
     {
         cancellationTokenSource.Token.ThrowIfCancellationRequested();
-        logger.LogInformation("Starting {ModuleName} module migrations.", migration.ModuleName);
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation("Starting {ModuleName} module migrations.", migration.ModuleName);
+        }
         await migration.RunAsync(host.Services);
-        logger.LogInformation("Completed {ModuleName} module migrations.", migration.ModuleName);
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation("Completed {ModuleName} module migrations.", migration.ModuleName);
+        }
     }
 
     logger.LogInformation("Database migrations completed.");

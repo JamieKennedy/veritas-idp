@@ -1,12 +1,15 @@
 using System.Text.Json;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
+
 using Veritas.MessagingService.Application.Services;
 using Veritas.MessagingService.Domain.Entities;
 using Veritas.MessagingService.Domain.Types;
 using Veritas.MessagingService.Infrastructure.Database;
 using Veritas.MessagingService.Infrastructure.Email;
 using Veritas.Shared.Security;
+
 using Xunit;
 
 namespace Veritas.MessagingService.Application.Tests;
@@ -37,8 +40,15 @@ public sealed class MailpitIntegrationTests
             "admin.welcome",
             JsonSerializer.Serialize(new
             {
-                User = new { Email = recipient, DisplayName = "Integration Test" },
-                Action = new { Url = $"https://veritas.example/integration/{unique}" }
+                User = new
+                {
+                    Email = recipient,
+                    DisplayName = "Integration Test"
+                },
+                Action = new
+                {
+                    Url = $"https://veritas.example/integration/{unique}"
+                }
             }),
             CancellationToken.None);
 

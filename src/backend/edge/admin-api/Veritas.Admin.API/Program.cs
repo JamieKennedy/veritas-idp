@@ -1,10 +1,11 @@
-using Scalar.AspNetCore;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Mvc;
 using System.Threading.RateLimiting;
+
+using Microsoft.AspNetCore.Authentication.Cookies;
+
+using Scalar.AspNetCore;
+
 using Veritas.Admin.API.Authentication;
 using Veritas.Admin.API.Extensions;
-using Veritas.Admin.API.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,12 +15,11 @@ builder.AddServiceDefaults();
 builder.Services.AddVeritasModules(builder.Configuration);
 builder.ConfigureVeritasMessaging();
 
+builder.Services.AddAdminUiCorsPolicy(builder.Configuration);
+
 builder.Services.ConfigureVersioning();
 
-builder.Services.AddControllers(options =>
-{
-    options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
-});
+builder.Services.AddAdminControllers();
 builder.Services.AddAntiforgery(options =>
 {
     options.HeaderName = "X-CSRF-TOKEN";
@@ -104,7 +104,7 @@ app.UseDefaultSerilogRequestLogging();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    
+
     // Configure Scalar
     app.MapScalarApiReference(options =>
     {
@@ -114,13 +114,13 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseCors(AdminCorsExtensions.AdminUiPolicyName);
+
 app.UseRateLimiter();
 
 app.UseAuthentication();
 
 app.UseAuthorization();
-
-app.UseMiddleware<SmtpSetupGateMiddleware>();
 
 app.MapControllers();
 

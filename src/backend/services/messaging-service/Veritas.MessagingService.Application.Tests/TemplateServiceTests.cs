@@ -1,10 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
+
 using Veritas.MessagingService.Application.DataTransferObjects;
 using Veritas.MessagingService.Application.Services;
 using Veritas.MessagingService.Domain.Entities;
 using Veritas.MessagingService.Domain.Errors;
 using Veritas.MessagingService.Infrastructure.Database;
+
 using Xunit;
 
 namespace Veritas.MessagingService.Application.Tests;

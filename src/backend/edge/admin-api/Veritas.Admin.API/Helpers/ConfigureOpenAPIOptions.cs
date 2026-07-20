@@ -1,4 +1,5 @@
-﻿using Asp.Versioning.ApiExplorer;
+using Asp.Versioning.ApiExplorer;
+
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.Extensions.Options;
 
@@ -16,12 +17,18 @@ public class ConfigureOpenApiOptions : IConfigureNamedOptions<OpenApiOptions>
     public void Configure(string? name, OpenApiOptions options)
     {
         // 'name' here corresponds to the document name (e.g., "v1")
-        if (name == null) return;
+        if (name == null)
+        {
+            return;
+        }
 
         var description = _provider.ApiVersionDescriptions
             .FirstOrDefault(d => d.GroupName == name);
 
-        if (description == null) return;
+        if (description == null)
+        {
+            return;
+        }
 
         // Filter only the endpoints for the specified API version
         options.ShouldInclude = (apiDesc) => apiDesc.GroupName == name;

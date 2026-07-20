@@ -74,6 +74,6 @@ internal static class Base32Encoding
             bits -= 8;
         }
 
-        return bytes.ToArray();
+        return [.. bytes];
     }
 }

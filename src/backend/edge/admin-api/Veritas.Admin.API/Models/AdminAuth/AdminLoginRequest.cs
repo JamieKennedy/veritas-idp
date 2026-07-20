@@ -5,10 +5,16 @@ public sealed class AdminLoginRequest
     /// <summary>
     /// Gets or sets the administrator email address supplied for login.
     /// </summary>
-    public required string Email { get; set; }
+    public required string Email
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Gets or sets the raw administrator password supplied for login.
     /// </summary>
-    public required string Password { get; set; }
+    public required string Password
+    {
+        get; set;
+    }
 }

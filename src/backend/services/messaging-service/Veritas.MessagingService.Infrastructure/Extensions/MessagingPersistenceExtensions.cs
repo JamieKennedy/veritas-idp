@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+
 using Veritas.MessagingService.Application.Persistence;
 using Veritas.MessagingService.Infrastructure.Database;
 

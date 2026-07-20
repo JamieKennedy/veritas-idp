@@ -1,7 +1,10 @@
 using System.Net.Mail;
+
 using FluentResults;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+
 using Veritas.MessagingService.Application.DataTransferObjects;
 using Veritas.MessagingService.Application.Persistence;
 using Veritas.MessagingService.Domain.Entities;
@@ -114,7 +117,10 @@ public sealed class SmtpSettingsService(
         settings.UpdatedAtUtc = now;
 
         await dbContext.SaveChangesAsync(cancellationToken);
-        logger.LogInformation("SMTP settings configured for host {SmtpHost} and port {SmtpPort}.", settings.Host, settings.Port);
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation("SMTP settings configured for host {SmtpHost} and port {SmtpPort}.", settings.Host, settings.Port);
+        }
         return Result.Ok(ToDto(settings));
     }
 
@@ -130,7 +136,7 @@ public sealed class SmtpSettingsService(
             return Result.Fail(new InvalidSmtpSettingsError("SMTP port must be between 1 and 65535."));
         }
 
-        if (!Enum.IsDefined(typeof(SmtpTlsMode), request.TlsMode))
+        if (!Enum.IsDefined(request.TlsMode))
         {
             return Result.Fail(new InvalidSmtpSettingsError("SMTP TLS mode is invalid."));
         }

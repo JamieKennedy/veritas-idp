@@ -1,0 +1,158 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+[*.{json,jsonc,yml,yaml}]
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
+
+[*.cs]
+end_of_line = crlf
+
+# Imports and framework type names
+dotnet_sort_system_directives_first = true
+dotnet_separate_import_directive_groups = true
+dotnet_style_predefined_type_for_locals_parameters_members = true:warning
+dotnet_style_predefined_type_for_member_access = true:warning
+
+# Prefer inference and concise initializers.
+csharp_style_var_for_built_in_types = true:warning
+csharp_style_var_when_type_is_apparent = true:warning
+csharp_style_var_elsewhere = true:warning
+dotnet_style_object_initializer = true:warning
+dotnet_style_collection_initializer = true:warning
+dotnet_style_prefer_collection_expression = when_types_loosely_match:warning
+dotnet_style_prefer_auto_properties = true:warning
+dotnet_style_readonly_field = true:warning
+
+# Prefer modern, explicit control flow.
+csharp_style_namespace_declarations = file_scoped:warning
+csharp_prefer_braces = true:warning
+csharp_style_prefer_pattern_matching = true:warning
+csharp_style_prefer_not_pattern = true:warning
+csharp_style_prefer_switch_expression = true:warning
+csharp_style_prefer_extended_property_pattern = true:warning
+csharp_style_throw_expression = true:warning
+csharp_style_conditional_delegate_call = true:warning
+csharp_using_directive_placement = outside_namespace:warning
+
+# Keep declarations readable and avoid expression-bodied methods for multi-step behavior.
+csharp_style_expression_bodied_methods = false:silent
+csharp_style_expression_bodied_constructors = false:silent
+csharp_style_expression_bodied_operators = true:silent
+csharp_style_expression_bodied_properties = when_on_single_line:silent
+csharp_style_expression_bodied_accessors = when_on_single_line:silent
+csharp_style_expression_bodied_lambdas = when_on_single_line:silent
+
+# Formatting
+csharp_new_line_before_open_brace = all
+csharp_new_line_before_else = true
+csharp_new_line_before_catch = true
+csharp_new_line_before_finally = true
+csharp_indent_case_contents = true
+csharp_indent_switch_labels = true
+csharp_space_after_keywords_in_control_flow_statements = true
+csharp_preserve_single_line_blocks = false
+csharp_preserve_single_line_statements = false
+
+# Naming
+dotnet_naming_rule.interfaces_begin_with_i.symbols = interfaces
+dotnet_naming_rule.interfaces_begin_with_i.style = prefix_i
+dotnet_naming_rule.interfaces_begin_with_i.severity = warning
+
+dotnet_naming_rule.types_use_pascal_case.symbols = types
+dotnet_naming_rule.types_use_pascal_case.style = pascal_case
+dotnet_naming_rule.types_use_pascal_case.severity = warning
+
+dotnet_naming_rule.members_use_pascal_case.symbols = public_members
+dotnet_naming_rule.members_use_pascal_case.style = pascal_case
+dotnet_naming_rule.members_use_pascal_case.severity = warning
+
+dotnet_naming_rule.async_methods_end_with_async.symbols = async_methods
+dotnet_naming_rule.async_methods_end_with_async.style = pascal_case_async
+dotnet_naming_rule.async_methods_end_with_async.severity = warning
+dotnet_naming_rule.async_methods_end_with_async.priority = 3
+
+dotnet_naming_rule.private_fields_use_underscore.symbols = private_fields
+dotnet_naming_rule.private_fields_use_underscore.style = underscore_camel_case
+dotnet_naming_rule.private_fields_use_underscore.severity = warning
+dotnet_naming_rule.private_fields_use_underscore.priority = 2
+
+dotnet_naming_rule.private_static_fields_use_pascal_case.symbols = private_static_fields
+dotnet_naming_rule.private_static_fields_use_pascal_case.style = pascal_case
+dotnet_naming_rule.private_static_fields_use_pascal_case.severity = warning
+dotnet_naming_rule.private_static_fields_use_pascal_case.priority = 1
+
+dotnet_naming_rule.constants_use_pascal_case.symbols = constants
+dotnet_naming_rule.constants_use_pascal_case.style = pascal_case
+dotnet_naming_rule.constants_use_pascal_case.severity = warning
+dotnet_naming_rule.constants_use_pascal_case.priority = 0
+
+dotnet_naming_symbols.interfaces.applicable_kinds = interface
+dotnet_naming_symbols.interfaces.applicable_accessibilities = *
+dotnet_naming_symbols.types.applicable_kinds = class, struct, interface, enum, delegate
+dotnet_naming_symbols.types.applicable_accessibilities = *
+dotnet_naming_symbols.public_members.applicable_kinds = property, event, method
+dotnet_naming_symbols.public_members.applicable_accessibilities = public, internal, protected, protected_internal, private_protected
+dotnet_naming_symbols.async_methods.applicable_kinds = method
+dotnet_naming_symbols.async_methods.applicable_accessibilities = *
+dotnet_naming_symbols.async_methods.required_modifiers = async
+dotnet_naming_symbols.private_fields.applicable_kinds = field
+dotnet_naming_symbols.private_fields.applicable_accessibilities = private
+dotnet_naming_symbols.private_fields.required_modifiers =
+dotnet_naming_symbols.private_static_fields.applicable_kinds = field
+dotnet_naming_symbols.private_static_fields.applicable_accessibilities = private
+dotnet_naming_symbols.private_static_fields.required_modifiers = static
+dotnet_naming_symbols.constants.applicable_kinds = field
+dotnet_naming_symbols.constants.applicable_accessibilities = *
+dotnet_naming_symbols.constants.required_modifiers = const
+
+dotnet_naming_style.prefix_i.required_prefix = I
+dotnet_naming_style.prefix_i.capitalization = pascal_case
+dotnet_naming_style.pascal_case.capitalization = pascal_case
+dotnet_naming_style.pascal_case_async.required_suffix = Async
+dotnet_naming_style.pascal_case_async.capitalization = pascal_case
+dotnet_naming_style.underscore_camel_case.required_prefix = _
+dotnet_naming_style.underscore_camel_case.capitalization = camel_case
+
+# Selected deterministic code-style rules participate in command-line builds.
+# Do not bulk-enable the Roslyn Style category: it includes subjective design
+# suggestions such as mandatory primary constructors and folder-based namespaces.
+dotnet_diagnostic.IDE0007.severity = warning
+dotnet_diagnostic.IDE0011.severity = warning
+dotnet_diagnostic.IDE0161.severity = warning
+dotnet_diagnostic.IDE1006.severity = warning
+
+# Deliberate project-wide analyzer carve-outs.
+# CA1848 is reserved for measured logging hot paths; requiring source-generated logging
+# everywhere creates ceremony without improving Veritas' operational evidence.
+dotnet_diagnostic.CA1848.severity = none
+# CA1859 conflicts with intentional interface and read-only collection boundaries.
+dotnet_diagnostic.CA1859.severity = none
+
+[src/backend/building-blocks/shared/**/*.cs]
+# "Shared" is an established C#-only building-block namespace, not a public
+# cross-language API. Renaming it would add churn without consumer benefit.
+dotnet_diagnostic.CA1716.severity = none
+
+[**/Database/Migrations/*.cs]
+generated_code = true
+
+[**/*.Designer.cs]
+generated_code = true
+
+[**/*Tests.cs]
+# Behavior-oriented test names use underscores to separate action, condition,
+# and outcome. This is clearer in test-runner output than compressed PascalCase.
+dotnet_diagnostic.CA1707.severity = none
+# Test methods intentionally use behavior-oriented names instead of the Async
+# suffix required for production async methods.
+dotnet_naming_rule.async_methods_end_with_async.severity = none

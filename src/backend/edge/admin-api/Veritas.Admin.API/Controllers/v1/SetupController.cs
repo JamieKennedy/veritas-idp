@@ -1,5 +1,8 @@
 using Asp.Versioning;
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 using Veritas.Admin.API.Models.Setup;
 using Veritas.MessagingService.Application.Services;
 using Veritas.PlatformService.Application.Interfaces;
@@ -21,20 +24,34 @@ public sealed class SetupController(
     /// <param name="cancellationToken">A token that cancels the request.</param>
     /// <returns>The current setup status.</returns>
     [HttpGet("status")]
-    public async Task<IActionResult> Status(CancellationToken cancellationToken)
+    public async Task<IActionResult> StatusAsync(CancellationToken cancellationToken)
     {
-        var bootstrap = await bootstrapService.GetBootstrapStatus(cancellationToken);
+        var bootstrap = await bootstrapService.GetBootstrapStatusAsync(cancellationToken);
         if (bootstrap.IsFailed)
         {
             return FailureResultMapper.ToProblemDetails(bootstrap);
         }
 
-        return Ok(new
-        {
+        return Ok(new SetupStatusResponse(
             bootstrap.Value.IsConfigured,
             bootstrap.Value.HasActiveBootstrap,
             bootstrap.Value.ActiveBootstrapExpiresAtUtc,
-            IsSmtpConfigured = await smtpSetupStatus.IsSmtpConfiguredAsync(cancellationToken)
-        });
+            await smtpSetupStatus.IsSmtpConfiguredAsync(cancellationToken),
+            bootstrap.Value.IsSmtpSetupDeferred));
+    }
+
+    /// <summary>
+    /// Records the authenticated administrator's decision to defer SMTP setup.
+    /// </summary>
+    /// <param name="cancellationToken">A token that cancels the operation.</param>
+    /// <returns>An empty success response when SMTP deferral is durable.</returns>
+    [HttpPost("smtp/defer")]
+    [Authorize]
+    public async Task<IActionResult> DeferSmtpSetupAsync(CancellationToken cancellationToken)
+    {
+        var result = await bootstrapService.DeferSmtpSetupAsync(cancellationToken);
+        return result.IsFailed
+            ? FailureResultMapper.ToProblemDetails(result)
+            : NoContent();
     }
 }

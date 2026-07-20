@@ -1,6 +1,8 @@
 using Asp.Versioning;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 using Veritas.Admin.API.Models.Messaging;
 using Veritas.MessagingService.Application.DataTransferObjects;
 using Veritas.MessagingService.Application.Services;
@@ -24,7 +26,7 @@ public sealed class MessagingController(
     /// <param name="cancellationToken">A token that cancels the request.</param>
     /// <returns>The configured SMTP settings.</returns>
     [HttpGet("settings")]
-    public async Task<IActionResult> GetSettings(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetSettingsAsync(CancellationToken cancellationToken)
     {
         var result = await smtpSettingsService.GetSettingsAsync(cancellationToken);
         return result.IsFailed
@@ -39,7 +41,7 @@ public sealed class MessagingController(
     /// <param name="cancellationToken">A token that cancels the request.</param>
     /// <returns>The safe persisted SMTP settings.</returns>
     [HttpPut("settings/smtp")]
-    public async Task<IActionResult> ConfigureSmtp(
+    public async Task<IActionResult> ConfigureSmtpAsync(
         [FromBody] ConfigureSmtpSettingsRequest request,
         CancellationToken cancellationToken)
     {
@@ -65,7 +67,7 @@ public sealed class MessagingController(
     /// <param name="cancellationToken">A token that cancels the request.</param>
     /// <returns>The stored email templates.</returns>
     [HttpGet("templates")]
-    public async Task<IActionResult> ListTemplates(CancellationToken cancellationToken)
+    public async Task<IActionResult> ListTemplatesAsync(CancellationToken cancellationToken)
     {
         var templates = await templateService.ListTemplatesAsync(cancellationToken);
         return Ok(templates.Select(ToResponse));
@@ -78,7 +80,7 @@ public sealed class MessagingController(
     /// <param name="cancellationToken">A token that cancels the request.</param>
     /// <returns>The matching global email template.</returns>
     [HttpGet("templates/{templateKey}")]
-    public async Task<IActionResult> GetTemplate(string templateKey, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetTemplateAsync(string templateKey, CancellationToken cancellationToken)
     {
         var result = await templateService.ResolveTemplateAsync(null, templateKey, cancellationToken);
         return result.IsFailed
@@ -94,7 +96,7 @@ public sealed class MessagingController(
     /// <param name="cancellationToken">A token that cancels the request.</param>
     /// <returns>The updated email template.</returns>
     [HttpPut("templates/{templateKey}")]
-    public async Task<IActionResult> UpdateTemplate(
+    public async Task<IActionResult> UpdateTemplateAsync(
         string templateKey,
         [FromBody] UpdateEmailTemplateRequest request,
         CancellationToken cancellationToken)

@@ -8,12 +8,18 @@ public sealed class EmailTemplate
     /// <summary>
     /// Unique template row identifier.
     /// </summary>
-    public Guid Id { get; set; }
+    public Guid Id
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Optional tenant identifier for future tenant-specific overrides. Null means global default.
     /// </summary>
-    public Guid? TenantId { get; set; }
+    public Guid? TenantId
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Logical template key, for example admin.welcome.
@@ -38,15 +44,24 @@ public sealed class EmailTemplate
     /// <summary>
     /// Indicates whether the template can be used for delivery.
     /// </summary>
-    public bool IsEnabled { get; set; }
+    public bool IsEnabled
+    {
+        get; set;
+    }
 
     /// <summary>
     /// UTC instant when this template was created.
     /// </summary>
-    public DateTime CreatedAtUtc { get; set; }
+    public DateTime CreatedAtUtc
+    {
+        get; set;
+    }
 
     /// <summary>
     /// UTC instant when this template was last updated.
     /// </summary>
-    public DateTime UpdatedAtUtc { get; set; }
+    public DateTime UpdatedAtUtc
+    {
+        get; set;
+    }
 }

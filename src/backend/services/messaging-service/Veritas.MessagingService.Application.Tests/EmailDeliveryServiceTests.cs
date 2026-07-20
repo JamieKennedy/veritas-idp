@@ -1,14 +1,15 @@
-using System.Text.Json;
 using FluentResults;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
-using Veritas.MessagingService.Application.DataTransferObjects;
+
 using Veritas.MessagingService.Application.Services;
 using Veritas.MessagingService.Domain.Entities;
 using Veritas.MessagingService.Domain.Errors;
 using Veritas.MessagingService.Domain.Types;
 using Veritas.MessagingService.Infrastructure.Database;
 using Veritas.Shared.Security;
+
 using Xunit;
 
 namespace Veritas.MessagingService.Application.Tests;
@@ -187,7 +188,10 @@ public sealed class EmailDeliveryServiceTests
 
     private sealed class RecordingEmailSender(Result result) : IEmailSender
     {
-        public EmailSendRequest? LastRequest { get; private set; }
+        public EmailSendRequest? LastRequest
+        {
+            get; private set;
+        }
 
         public Task<Result> SendAsync(EmailSendRequest request, CancellationToken cancellationToken)
         {

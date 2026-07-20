@@ -2,6 +2,8 @@
 
 Scope: `src/backend/services/platform-service`.
 
+Follow the repository-wide coding standards in [`../../../../docs/engineering/coding-standards.md`](../../../../docs/engineering/coding-standards.md) in addition to the module-specific rules below.
+
 The Platform module owns global platform and instance-level state for Veritas. It is the place for bootstrap/setup state, system flags, feature flags, instance metadata, and other configuration that is not owned by a tenant, user, client, session, or key module.
 
 ## Current Shape
@@ -19,9 +21,9 @@ Current domain/application concepts:
 
 - `SystemFlag` stores boolean global flags.
 - `BootstrapSession` models bootstrap session state.
-- `EBootstrapSessionStatus` defines bootstrap session lifecycle states.
+- `BootstrapSessionStatus` defines bootstrap session lifecycle states.
 - `ISystemFlagService` / `SystemFlagService` manage system flags.
-- `IBootstrapService` / `BootstrapService` orchestrate no-email bootstrap status/start/complete logic.
+- `IBootstrapService` / `BootstrapService` orchestrate no-email bootstrap status/start/complete logic and durable SMTP setup deferral.
 - Platform Application calls `IAdminUserDirectory` to inspect admin-user state during bootstrap. API hosts provide an in-process adapter to Users Application.
 - Platform Application calls `IInitialAdminCreator` to create the first admin through Users Application during bootstrap completion.
 

@@ -1,10 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
+
+using Veritas.Shared.Errors;
 using Veritas.UserService.Application.Services;
 using Veritas.UserService.Domain.Entities;
 using Veritas.UserService.Domain.Errors.AdminUsers;
 using Veritas.UserService.Infrastructure.Database;
-using Veritas.Shared.Errors;
+
 using Xunit;
 
 namespace Veritas.UserService.Application.Tests;

@@ -1,8 +1,12 @@
 using System.Text.Json.Nodes;
+
 using Asp.Versioning;
+
 using FluentResults;
-using Microsoft.OpenApi;
+
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.OpenApi;
+
 using Veritas.Admin.API.Helpers;
 using Veritas.MessagingService.Application.Services;
 using Veritas.MessagingService.Infrastructure.Email;
@@ -11,10 +15,10 @@ using Veritas.PlatformService.Application.Dependencies;
 using Veritas.PlatformService.Application.Interfaces;
 using Veritas.PlatformService.Application.Services;
 using Veritas.PlatformService.Infrastructure.Extensions;
+using Veritas.Shared.Security;
 using Veritas.UserService.Application.Interfaces;
 using Veritas.UserService.Application.Services;
 using Veritas.UserService.Infrastructure.Extensions;
-using Veritas.Shared.Security;
 
 namespace Veritas.Admin.API.Extensions;
 
@@ -86,13 +90,15 @@ public static class ServiceExtensions
         {
             options.AddSchemaTransformer((schema, context, _) =>
             {
-                if (!context.JsonTypeInfo.Type.IsEnum) return Task.CompletedTask;
+                if (!context.JsonTypeInfo.Type.IsEnum)
+                {
+                    return Task.CompletedTask;
+                }
 
                 schema.Type = JsonSchemaType.String;
-                schema.Enum = Enum.GetNames(context.JsonTypeInfo.Type)
+                schema.Enum = [.. Enum.GetNames(context.JsonTypeInfo.Type)
                     .Select(name => JsonValue.Create(name))
-                    .Cast<JsonNode>()
-                    .ToList();
+                    .Cast<JsonNode>()];
                 return Task.CompletedTask;
             });
         });
