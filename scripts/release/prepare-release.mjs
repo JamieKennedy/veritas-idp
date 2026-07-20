@@ -3,19 +3,22 @@ import { createHash } from 'node:crypto'
 import { cpSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 
+import { resolveReleaseImages } from './image-names.mjs'
+
 const [version] = process.argv.slice(2)
 if (!version) {
     throw new Error('The release version is required.')
 }
 
-const repository = process.env.GITHUB_REPOSITORY?.toLowerCase()
+const githubRepository = process.env.GITHUB_REPOSITORY
 const revision = process.env.GITHUB_SHA
-if (!repository || !revision) {
+if (!githubRepository || !revision) {
     throw new Error('GITHUB_REPOSITORY and GITHUB_SHA are required.')
 }
 
 const registry = process.env.CONTAINER_REGISTRY ?? 'ghcr.io'
-const source = `https://github.com/${process.env.GITHUB_REPOSITORY}`
+const images = resolveReleaseImages({ githubRepository, registry })
+const source = `https://github.com/${githubRepository}`
 const shortRevision = revision.slice(0, 12)
 const isPrerelease = version.includes('-')
 const movingTag = isPrerelease ? 'beta' : 'latest'
@@ -23,11 +26,11 @@ const platforms = process.env.RELEASE_PLATFORMS ?? 'linux/amd64,linux/arm64'
 
 buildImage({
     dockerfile: 'src/backend/Dockerfile',
-    image: `${registry}/${repository}-backend`,
+    image: images.backend,
 })
 buildImage({
     dockerfile: 'src/frontend/admin-ui/Dockerfile',
-    image: `${registry}/${repository}-admin-ui`,
+    image: images.adminUi,
 })
 createComposeBundle()
 

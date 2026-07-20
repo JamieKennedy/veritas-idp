@@ -17,13 +17,13 @@ Mechanical rules belong in `.editorconfig`, `Directory.Build.props`, Prettier, E
 
 Every pull request to `staging` or `main` must pass these stable GitHub checks:
 
-| Check              | Enforced requirements                                                                                        |
-| ------------------ | ------------------------------------------------------------------------------------------------------------ |
-| `PR policy`        | Branch prefix, Conventional Commit PR title, permitted production source, and promotion evidence             |
-| `Repository lint`  | Project registration, generated routes, Prettier, Markdownlint, Actionlint, Hadolint, and Compose validation |
-| `Backend quality`  | Restore, C# formatting and style, analyzers, warnings-as-errors build, tests, and NuGet audit                |
-| `Frontend quality` | Frozen install, Prettier, ESLint without warnings, strict TypeScript, build, tests, and pnpm audit           |
-| `Container build`  | Shared backend and Admin UI image builds, entry-point verification, and high/critical vulnerability scanning |
+| Check              | Enforced requirements                                                                                                                 |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `PR policy`        | Branch prefix, Conventional Commit PR title, permitted production source, and promotion evidence                                      |
+| `Repository lint`  | Project registration, generated routes, release-image alignment, Prettier, Markdownlint, Actionlint, Hadolint, and Compose validation |
+| `Backend quality`  | Restore, C# formatting and style, analyzers, warnings-as-errors build, tests, and NuGet audit                                         |
+| `Frontend quality` | Frozen install, Prettier, ESLint without warnings, strict TypeScript, build, tests, and pnpm audit                                    |
+| `Container build`  | Shared backend and Admin UI image builds, entry-point verification, and high/critical vulnerability scanning                          |
 
 Mechanical requirements belong in repository configuration and scripts so local and CI behavior stay aligned. Architecture, threat modeling, appropriate test scope, operational safety, and documentation accuracy still require reviewer judgment and are recorded in the PR checklist.
 
