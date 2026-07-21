@@ -43,7 +43,7 @@ Copy-Item .env.example .env
 New-Item -ItemType Directory -Force secrets
 ```
 
-Set `VERITAS_VERSION` to an exact version such as `0.2.0-beta.3`. Replace both password placeholders with independently generated high-entropy values.
+Set `VERITAS_VERSION` to an exact version such as `0.2.0-beta.3`. Replace both password placeholders with independently generated high-entropy values. Generate the RabbitMQ password from URI-unreserved characters because Compose embeds it in an AMQP URI; 32 random bytes encoded as 64 hexadecimal characters is a safe default.
 
 Generate the bootstrap secret and store only that value in `secrets/bootstrap-secret.txt`. See [Deployment secrets](secrets.md).
 

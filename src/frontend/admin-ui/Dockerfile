@@ -47,4 +47,4 @@ EXPOSE 3000
 HEALTHCHECK --interval=10s --timeout=5s --start-period=10s --retries=6 \
     CMD wget --quiet --output-document=- http://127.0.0.1:3000/healthz >/dev/null || exit 1
 
-CMD ["./node_modules/.bin/srvx", "--prod", "-s", "dist/client", "server/entry.mjs"]
+CMD ["./node_modules/.bin/srvx", "--prod", "--static", "../dist/client", "server/entry.mjs"]
