@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 650" role="img" aria-labelledby="title">
+  <title id="title">Veritas mark</title>
+  <defs>
+    <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b63ff" />
+      <stop offset="1" stop-color="#0258f9" />
+    </linearGradient>
+    <linearGradient id="navy" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b3276" />
+      <stop offset="1" stop-color="#052462" />
+    </linearGradient>
+    <mask id="left-clearance" maskUnits="userSpaceOnUse" x="0" y="0" width="720" height="650">
+      <path fill="#fff" d="M40 20h220l112 210-72 315L40 20Z" />
+      <path fill="#000" d="M360 178c73 0 132 59 132 132 0 40-18 76-45 100l21 155-108 85-108-85 21-155c-27-24-45-60-45-100 0-73 59-132 132-132Z" />
+    </mask>
+    <mask id="right-clearance" maskUnits="userSpaceOnUse" x="0" y="0" width="720" height="650">
+      <path fill="#fff" d="M680 20H460L348 230l72 315L680 20Z" />
+      <path fill="#000" d="M360 178c73 0 132 59 132 132 0 40-18 76-45 100l21 155-108 85-108-85 21-155c-27-24-45-60-45-100 0-73 59-132 132-132Z" />
+    </mask>
+  </defs>
+  <path fill="url(#blue)" mask="url(#left-clearance)" d="M40 20h220l112 210-72 315L40 20Z" />
+  <path fill="url(#navy)" mask="url(#right-clearance)" d="M680 20H460L348 230l72 315L680 20Z" />
+  <path fill="url(#blue)" d="M325 365h70l35 180-70 105-70-105 35-180Z" />
+  <circle cx="360" cy="310" r="82" fill="url(#blue)" />
+</svg>

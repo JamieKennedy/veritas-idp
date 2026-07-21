@@ -1,0 +1,9 @@
+**/node_modules/**
+**/dist/**
+**/.output/**
+**/.worktrees/**
+**/artifacts/**
+**/bin/**
+**/obj/**
+**/src/routeTree.gen.ts
+pnpm-lock.yaml

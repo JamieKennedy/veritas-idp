@@ -1,0 +1,46 @@
+version: 2
+
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    target-branch: staging
+
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    target-branch: staging
+    groups:
+      frontend-dependencies:
+        patterns:
+          - '*'
+
+  - package-ecosystem: nuget
+    directory: /
+    schedule:
+      interval: weekly
+    target-branch: staging
+    groups:
+      backend-dependencies:
+        patterns:
+          - '*'
+
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly
+    target-branch: staging
+
+  - package-ecosystem: docker
+    directory: /src/backend
+    schedule:
+      interval: weekly
+    target-branch: staging
+
+  - package-ecosystem: docker
+    directory: /src/frontend/admin-ui
+    schedule:
+      interval: weekly
+    target-branch: staging

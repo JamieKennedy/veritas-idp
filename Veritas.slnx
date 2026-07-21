@@ -1,0 +1,36 @@
+<Solution>
+  <Folder Name="/Backend/BuildingBlocks/">
+    <Project Path="src\backend\building-blocks\contracts\Veritas.Contracts.Messages\Veritas.Contracts.Messages.csproj" Type="Classic C#" />
+    <Project Path="src\backend\building-blocks\service-defaults\Veritas.ServiceDefaults\Veritas.ServiceDefaults.csproj" Type="Classic C#" />
+    <Project Path="src\backend\building-blocks\shared\Veritas.Shared\Veritas.Shared.csproj" Type="Classic C#" />
+  </Folder>
+  <Folder Name="/Backend/Edge/">
+    <Project Path="src\backend\edge\admin-api\Veritas.Admin.API\Veritas.Admin.API.csproj" Type="Classic C#" />
+    <Project Path="src\backend\edge\admin-api\Veritas.Admin.API.Tests\Veritas.Admin.API.Tests.csproj" Type="Classic C#" />
+  </Folder>
+  <Folder Name="/Backend/Services/PlatformService/">
+    <Project Path="src\backend\services\platform-service\Veritas.PlatformService.Application\Veritas.PlatformService.Application.csproj" Type="Classic C#" />
+    <Project Path="src\backend\services\platform-service\Veritas.PlatformService.Application.Tests\Veritas.PlatformService.Application.Tests.csproj" Type="Classic C#" />
+    <Project Path="src\backend\services\platform-service\Veritas.PlatformService.Domain\Veritas.PlatformService.Domain.csproj" Type="Classic C#" />
+    <Project Path="src\backend\services\platform-service\Veritas.PlatformService.Infrastructure\Veritas.PlatformService.Infrastructure.csproj" Type="Classic C#" />
+  </Folder>
+  <Folder Name="/Backend/Services/MessagingService/">
+    <Project Path="src\backend\services\messaging-service\Veritas.MessagingService.Application\Veritas.MessagingService.Application.csproj" Type="Classic C#" />
+    <Project Path="src\backend\services\messaging-service\Veritas.MessagingService.Application.Tests\Veritas.MessagingService.Application.Tests.csproj" Type="Classic C#" />
+    <Project Path="src\backend\services\messaging-service\Veritas.MessagingService.Domain\Veritas.MessagingService.Domain.csproj" Type="Classic C#" />
+    <Project Path="src\backend\services\messaging-service\Veritas.MessagingService.Infrastructure\Veritas.MessagingService.Infrastructure.csproj" Type="Classic C#" />
+  </Folder>
+  <Folder Name="/Backend/Tooling/">
+    <Project Path="src\backend\tooling\db-migrator\Veritas.Tooling.DbMigrator\Veritas.Tooling.DbMigrator.csproj" Type="Classic C#" />
+  </Folder>
+  <Folder Name="/Frontend/" />
+  <Folder Name="/Orchestration/">
+    <Project Path="src\orchestration\aspire\Veritas.AppHost\Veritas.AppHost.csproj" Type="Classic C#" />
+  </Folder>
+  <Folder Name="/Backend/Services/UserService/">
+    <Project Path="src\backend\services\user-service\Veritas.UserService.Application\Veritas.UserService.Application.csproj" Type="Classic C#" />
+    <Project Path="src\backend\services\user-service\Veritas.UserService.Application.Tests\Veritas.UserService.Application.Tests.csproj" Type="Classic C#" />
+    <Project Path="src\backend\services\user-service\Veritas.UserService.Domain\Veritas.UserService.Domain.csproj" Type="Classic C#" />
+    <Project Path="src\backend\services\user-service\Veritas.UserService.Infrastructure\Veritas.UserService.Infrastructure.csproj" Type="Classic C#" />
+  </Folder>
+</Solution>
