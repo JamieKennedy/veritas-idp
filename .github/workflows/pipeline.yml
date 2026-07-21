@@ -8,7 +8,13 @@ on:
   push:
     branches:
       - main
-      - staging
+  workflow_dispatch:
+    inputs:
+      confirm_staging_release:
+        description: Confirm that this staging prerelease should be built and published
+        required: true
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -29,12 +35,18 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Check out repository
-        if: github.event_name == 'pull_request'
+        if: github.event_name != 'push'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Validate branch, title, and promotion metadata
         if: github.event_name == 'pull_request'
         run: node scripts/quality/validate-pr.mjs
+
+      - name: Validate manual staging release request
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          RELEASE_CONFIRMED: ${{ inputs.confirm_staging_release }}
+        run: node scripts/release/validate-manual-release.mjs
 
       - name: Record push policy result
         if: github.event_name == 'push'
@@ -42,6 +54,7 @@ jobs:
 
   repository-lint:
     name: Repository lint
+    needs: pr-policy
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -112,6 +125,7 @@ jobs:
 
   backend-quality:
     name: Backend quality
+    needs: pr-policy
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -153,6 +167,7 @@ jobs:
 
   frontend-quality:
     name: Frontend quality
+    needs: pr-policy
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -195,6 +210,7 @@ jobs:
 
   container-build:
     name: Container build
+    needs: pr-policy
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -247,8 +263,8 @@ jobs:
   release:
     name: Release
     if: >-
-      github.event_name == 'push' &&
-      (github.ref_name == 'staging' || github.ref_name == 'main')
+      (github.event_name == 'push' && github.ref_name == 'main') ||
+      (github.event_name == 'workflow_dispatch' && github.ref_name == 'staging')
     needs:
       - pr-policy
       - repository-lint

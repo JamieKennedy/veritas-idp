@@ -19,7 +19,7 @@ Every pull request to `staging` or `main` must pass these stable GitHub checks:
 
 | Check              | Enforced requirements                                                                                                                 |
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `PR policy`        | Branch prefix, Conventional Commit PR title, permitted production source, and promotion evidence                                      |
+| `PR policy`        | Branch prefix, Conventional Commit PR title, permitted production source, promotion evidence, and manual release authorization        |
 | `Repository lint`  | Project registration, generated routes, release-image alignment, Prettier, Markdownlint, Actionlint, Hadolint, and Compose validation |
 | `Backend quality`  | Restore, C# formatting and style, analyzers, warnings-as-errors build, tests, and NuGet audit                                         |
 | `Frontend quality` | Frozen install, Prettier, ESLint without warnings, strict TypeScript, build, tests, and pnpm audit                                    |

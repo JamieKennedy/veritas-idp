@@ -41,7 +41,17 @@ All required checks must pass and all conversations must be resolved. Do not pus
 
 ## Prereleases
 
-A qualifying merge to `staging` runs the same source and container gates as its PR. Semantic Release then creates:
+Merging to `staging` does not automatically build or publish containers. This keeps normal integration work limited to the five required PR gates and allows several changes to be batched into one prerelease.
+
+When the desired changes are present on `staging`, start a prerelease manually:
+
+1. Open **Actions → Pipeline → Run workflow**.
+2. Select the `staging` branch.
+3. Check **Confirm that this staging prerelease should be built and published**.
+4. Run the workflow.
+5. Confirm all five gates pass before the release job starts.
+
+The workflow records the exact `staging` commit selected at dispatch and reruns the source and container gates against that commit. It rejects another branch or an unconfirmed request before starting the expensive jobs. Semantic Release evaluates all commits since the preceding release and, when at least one qualifies, creates:
 
 - a `vX.Y.Z-beta.N` Git tag;
 - a GitHub prerelease;
@@ -49,7 +59,7 @@ A qualifying merge to `staging` runs the same source and container gates as its 
 - the moving `beta` container tag;
 - a versioned Docker Compose bundle and checksum.
 
-Commits that contain only non-releasing Conventional Commit types pass CI but do not create an empty prerelease.
+Commits that contain only non-releasing Conventional Commit types pass the manually requested validation but do not create an empty prerelease. Do not dispatch a prerelease solely to validate ordinary staging work; the required PR gates already provide that validation.
 
 Before production promotion, deploy and test the exact immutable prerelease with the procedure in [Docker Compose deployment](../operations/docker-compose.md). Record that version in the promotion PR.
 
@@ -57,7 +67,7 @@ Before production promotion, deploy and test the exact immutable prerelease with
 
 Open a PR from `staging` to `main`. Complete the production-promotion section of the PR template with the exact beta version tested. Use a merge commit rather than squash or rebase so Semantic Release can see the commits already exercised in staging.
 
-After the protected checks pass and the PR is merged, Semantic Release creates:
+After the protected checks pass and the PR is merged, the `main` push reruns every gate and Semantic Release automatically creates:
 
 - the stable `vX.Y.Z` tag and GitHub Release;
 - immutable `X.Y.Z` and `sha-<commit>` container tags;
