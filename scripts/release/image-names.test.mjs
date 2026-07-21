@@ -36,3 +36,15 @@ test('Compose consumes every published application image', () => {
         assert.ok(compose.includes(`${image}:`), `compose.yaml must consume ${image}`)
     }
 })
+
+test('Admin UI runtime serves the built client assets through srvx', () => {
+    const dockerfile = readFileSync(new URL('../../src/frontend/admin-ui/Dockerfile', import.meta.url), 'utf8')
+    const packageManifest = JSON.parse(readFileSync(new URL('../../src/frontend/admin-ui/package.json', import.meta.url), 'utf8'))
+    const expectedCommand = 'srvx --prod --static ../dist/client server/entry.mjs'
+
+    assert.equal(packageManifest.scripts.start, expectedCommand)
+    assert.ok(
+        dockerfile.includes('CMD ["./node_modules/.bin/srvx", "--prod", "--static", "../dist/client", "server/entry.mjs"]'),
+        'The Admin UI container must expose dist/client through the supported srvx --static option.',
+    )
+})

@@ -10,7 +10,7 @@
     "dev": "vite dev --port 3000",
     "generate-routes": "vite build",
     "build": "vite build",
-    "start": "srvx --prod -s dist/client server/entry.mjs",
+    "start": "srvx --prod --static ../dist/client server/entry.mjs",
     "preview": "vite preview",
     "test": "vitest run --exclude \"server/**/*.test.mjs\" && node --test server/*.test.mjs",
     "typecheck": "tsc --noEmit",
