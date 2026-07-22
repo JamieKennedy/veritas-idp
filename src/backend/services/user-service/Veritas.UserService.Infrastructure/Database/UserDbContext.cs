@@ -65,10 +65,18 @@ public class UserDbContext : DbContext, IUserDbContext
         modelBuilder.Entity<AdminLoginChallenge>()
             .HasIndex(challenge => challenge.ExpiresAtUtc);
 
+        modelBuilder.Entity<AdminLoginChallenge>()
+            .Property(challenge => challenge.ConsumedAtUtc)
+            .IsConcurrencyToken();
+
         modelBuilder.Entity<AdminSession>()
             .HasIndex(session => new { session.AdminUserId, session.RevokedAtUtc });
 
         modelBuilder.Entity<AdminRecoveryCode>()
             .HasIndex(code => code.AdminUserId);
+
+        modelBuilder.Entity<AdminRecoveryCode>()
+            .Property(code => code.ConsumedAtUtc)
+            .IsConcurrencyToken();
     }
 }

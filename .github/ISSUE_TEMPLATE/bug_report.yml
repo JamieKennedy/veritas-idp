@@ -1,0 +1,57 @@
+name: Bug report
+description: Report a reproducible defect in Veritas
+title: 'bug: '
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not report security vulnerabilities here. Use **Security → Advisories → Report a vulnerability** instead.
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      description: Provide the release version, container tag, or full commit SHA.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Include the operating system, deployment method, .NET/Node versions, and relevant dependency versions without secrets.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Provide the smallest safe sequence that reproduces the defect.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Sanitized evidence
+      description: Remove credentials, tokens, hashes, cookies, personal data, and internal topology before attaching logs or screenshots.
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety checks
+      options:
+        - label: I have removed secrets and personal data from this report.
+          required: true
+        - label: This is not a security vulnerability.
+          required: true

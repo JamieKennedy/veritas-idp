@@ -76,6 +76,10 @@ public class BootstrapService : BaseService<BootstrapService>, IBootstrapService
                 activeSession?.ExpiresAtUtc,
                 isSmtpSetupDeferred);
         }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
         catch (Exception ex)
         {
             return new ExternalError("Failed to get bootstrap status").CausedBy(ex);
@@ -169,6 +173,10 @@ public class BootstrapService : BaseService<BootstrapService>, IBootstrapService
             Logger.LogWarning(ex, "Rejected bootstrap start because another active bootstrap session was persisted first.");
             return new ActiveBootstrapSessionError();
         }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
         catch (Exception ex)
         {
             return new ExternalError("Failed to start bootstrap").CausedBy(ex);
@@ -251,6 +259,10 @@ public class BootstrapService : BaseService<BootstrapService>, IBootstrapService
             }
             return Result.Ok();
         }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
         catch (Exception ex)
         {
             return new ExternalError("Failed to complete bootstrap").CausedBy(ex);
@@ -285,6 +297,10 @@ public class BootstrapService : BaseService<BootstrapService>, IBootstrapService
 
             await _dbContext.SaveChangesAsync(cancellationToken);
             return Result.Ok();
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
         }
         catch (Exception ex)
         {

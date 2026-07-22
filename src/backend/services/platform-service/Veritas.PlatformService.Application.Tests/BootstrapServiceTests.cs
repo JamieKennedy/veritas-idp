@@ -314,6 +314,93 @@ public sealed class BootstrapServiceTests
         Assert.Empty(context.SystemFlags);
     }
 
+    [Fact]
+    public async Task CompleteBootstrap_rejects_replayed_session_without_creating_another_admin()
+    {
+        await using var context = CreateContext();
+        var adminCreator = new StubInitialAdminCreator();
+        var service = new BootstrapService(
+            NullLogger<BootstrapService>.Instance,
+            context,
+            new StubAdminUserDirectory(false),
+            adminCreator,
+            new FixedBootstrapSecretValidator("expected-secret"));
+        var start = await service.StartBootstrapAsync(
+            "admin@example.com",
+            "expected-secret",
+            "203.0.113.10",
+            CancellationToken.None);
+
+        var firstResult = await service.CompleteBootstrapAsync(
+            start.Value,
+            "Correct Horse Battery Staple 42!",
+            "First Admin",
+            CancellationToken.None);
+        var replayResult = await service.CompleteBootstrapAsync(
+            start.Value,
+            "Correct Horse Battery Staple 42!",
+            "First Admin",
+            CancellationToken.None);
+
+        Assert.True(firstResult.IsSuccess);
+        Assert.True(replayResult.IsFailed);
+        Assert.Equal(1, adminCreator.CallCount);
+        Assert.Single(context.BootstrapSessions, session => session.Status == BootstrapSessionStatus.Completed);
+    }
+
+    [Fact]
+    public async Task CompleteBootstrap_can_retry_after_initial_admin_dependency_failure()
+    {
+        await using var context = CreateContext();
+        var adminCreator = new SequenceInitialAdminCreator(Result.Fail("Users unavailable"), Result.Ok());
+        var service = new BootstrapService(
+            NullLogger<BootstrapService>.Instance,
+            context,
+            new StubAdminUserDirectory(false),
+            adminCreator,
+            new FixedBootstrapSecretValidator("expected-secret"));
+        var start = await service.StartBootstrapAsync(
+            "admin@example.com",
+            "expected-secret",
+            "203.0.113.10",
+            CancellationToken.None);
+
+        var firstResult = await service.CompleteBootstrapAsync(
+            start.Value,
+            "Correct Horse Battery Staple 42!",
+            "First Admin",
+            CancellationToken.None);
+        var retryResult = await service.CompleteBootstrapAsync(
+            start.Value,
+            "Correct Horse Battery Staple 42!",
+            "First Admin",
+            CancellationToken.None);
+
+        Assert.True(firstResult.IsFailed);
+        Assert.True(retryResult.IsSuccess);
+        Assert.Equal(2, adminCreator.CallCount);
+        var session = Assert.Single(context.BootstrapSessions);
+        Assert.Equal(BootstrapSessionStatus.Completed, session.Status);
+        Assert.Null(session.ActiveBootstrapSlot);
+    }
+
+    [Fact]
+    public async Task GetBootstrapStatus_propagates_caller_cancellation()
+    {
+        await using var context = CreateContext();
+        var service = new BootstrapService(
+            NullLogger<BootstrapService>.Instance,
+            context,
+            new StubAdminUserDirectory(false),
+            new StubInitialAdminCreator(),
+            new FixedBootstrapSecretValidator("expected-secret"));
+        using var cancellationTokenSource = new CancellationTokenSource();
+        await cancellationTokenSource.CancelAsync();
+
+        await Assert.ThrowsAsync<OperationCanceledException>(() =>
+            service.GetBootstrapStatusAsync(cancellationTokenSource.Token));
+    }
+
     private static PlatformDbContext CreateContext()
     {
         var options = new DbContextOptionsBuilder<PlatformDbContext>()
@@ -332,6 +419,7 @@ public sealed class BootstrapServiceTests
 
         public Task<Result<bool>> HasAnyAdminUserAsync(CancellationToken cancellationToken = default)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             CallCount++;
             return Task.FromResult(Result.Ok(hasAnyAdminUser));
         }
@@ -339,6 +427,10 @@ public sealed class BootstrapServiceTests
 
     private sealed class StubInitialAdminCreator(Result? result = null) : IInitialAdminCreator
     {
+        public int CallCount
+        {
+            get; private set;
+        }
         public string? Email
         {
             get; private set;
@@ -358,10 +450,33 @@ public sealed class BootstrapServiceTests
             string? displayName,
             CancellationToken cancellationToken = default)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+            CallCount++;
             Email = email;
             Password = password;
             DisplayName = displayName;
             return Task.FromResult(result ?? Result.Ok());
+        }
+    }
+
+    private sealed class SequenceInitialAdminCreator(params Result[] results) : IInitialAdminCreator
+    {
+        private readonly Queue<Result> _results = new(results);
+
+        public int CallCount
+        {
+            get; private set;
+        }
+
+        public Task<Result> CreateInitialAdminUserAsync(
+            string email,
+            string password,
+            string? displayName,
+            CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            CallCount++;
+            return Task.FromResult(_results.Dequeue());
         }
     }
 

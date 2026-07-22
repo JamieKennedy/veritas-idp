@@ -32,9 +32,15 @@ Required checks:
 
 - `PR policy`
 - `Repository lint`
+- `Secret scan`
 - `Backend quality`
 - `Frontend quality`
 - `Container build`
+
+After the first successful public CodeQL run, also require both language analyses:
+
+- `Analyze (csharp)`
+- `Analyze (javascript-typescript)`
 
 ## Main ruleset
 
@@ -47,9 +53,9 @@ The `PR policy` check additionally rejects any `main` PR unless its source is:
 
 ## Actions release controls
 
-Normal pushes to `staging` do not run a release workflow. To publish a prerelease, use **Actions → Pipeline → Run workflow**, select `staging`, and explicitly confirm the staging release. The `PR policy` job validates this request before the four expensive validation jobs can start.
+Normal pushes to `staging` do not run a release workflow. To publish a prerelease, use **Actions → Pipeline → Run workflow**, select `staging`, and explicitly confirm the staging release. The `PR policy` job validates this request before the five expensive validation jobs can start.
 
-Pushes to `main` continue to rerun all five gates and publish a production release automatically. Keep the workflow file on the default `main` branch because GitHub only exposes manual dispatch for workflows present on the default branch.
+Pushes to `main` continue to rerun all six gates and publish a production release automatically. Keep the workflow file on the default `main` branch because GitHub only exposes manual dispatch for workflows present on the default branch.
 
 ## Permissions and approvals
 

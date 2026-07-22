@@ -1056,3 +1056,6 @@ secrets/
 
 # Agent workflow artifacts
 docs/superpowers/
+
+# Linked local worktrees
+.worktrees/
