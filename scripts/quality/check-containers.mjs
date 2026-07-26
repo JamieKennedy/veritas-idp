@@ -45,7 +45,6 @@ for (const image of [backendImage, adminUiImage]) {
         'image',
         '--exit-code',
         '1',
-        '--ignore-unfixed',
         '--scanners',
         'vuln',
         '--report',

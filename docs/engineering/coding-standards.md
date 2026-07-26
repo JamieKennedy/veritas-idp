@@ -24,6 +24,7 @@ Every pull request to `staging` or `main` must pass these stable GitHub checks:
 | `Backend quality`  | Restore, C# formatting and style, analyzers, warnings-as-errors build, tests, and NuGet audit                                         |
 | `Frontend quality` | Frozen install, Prettier, ESLint without warnings, strict TypeScript, build, tests, and pnpm audit                                    |
 | `Container build`  | Shared backend and Admin UI image builds, entry-point verification, and high/critical vulnerability scanning                          |
+| `Secret scan`      | Gitleaks scan of the complete reachable Git history with redacted output                                                              |
 
 Mechanical requirements belong in repository configuration and scripts so local and CI behavior stay aligned. Architecture, threat modeling, appropriate test scope, operational safety, and documentation accuracy still require reviewer judgment and are recorded in the PR checklist.
 
@@ -33,6 +34,7 @@ The canonical commands are:
 pnpm fix
 pnpm check
 pnpm check:containers
+pnpm check:secrets
 pnpm lint:workflows
 ```
 

@@ -97,6 +97,10 @@ public sealed class AdminUserService : BaseService<AdminUserService>, IAdminUser
             Logger.LogError(exception, "Failed to create initial administrator account due to a database update error.");
             return new InitialAdminCreationFailedError();
         }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
         catch (Exception exception)
         {
             Logger.LogError(exception, "Failed to create initial administrator account.");
@@ -117,6 +121,10 @@ public sealed class AdminUserService : BaseService<AdminUserService>, IAdminUser
             return adminUser is null
                 ? new InvalidAdminCredentialsError()
                 : ToAuthenticationDto(adminUser);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
         }
         catch (Exception exception)
         {
@@ -175,6 +183,10 @@ public sealed class AdminUserService : BaseService<AdminUserService>, IAdminUser
                 challenge.ExpiresAtUtc,
                 totpSecret,
                 provisioningUri);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
         }
         catch (Exception exception)
         {
@@ -243,6 +255,10 @@ public sealed class AdminUserService : BaseService<AdminUserService>, IAdminUser
                 session.AbsoluteExpiresAtUtc,
                 recoveryCodes);
         }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
         catch (Exception exception)
         {
             Logger.LogError(exception, "Failed to complete administrator MFA enrollment.");
@@ -298,6 +314,10 @@ public sealed class AdminUserService : BaseService<AdminUserService>, IAdminUser
                 session.IdleExpiresAtUtc,
                 session.AbsoluteExpiresAtUtc);
         }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
         catch (Exception exception)
         {
             Logger.LogError(exception, "Failed to complete administrator MFA verification.");
@@ -346,6 +366,10 @@ public sealed class AdminUserService : BaseService<AdminUserService>, IAdminUser
                 session.IdleExpiresAtUtc,
                 session.AbsoluteExpiresAtUtc);
         }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
         catch (Exception exception)
         {
             Logger.LogError(exception, "Failed to validate administrator session.");
@@ -379,6 +403,10 @@ public sealed class AdminUserService : BaseService<AdminUserService>, IAdminUser
 
             return Result.Ok();
         }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
         catch (Exception exception)
         {
             Logger.LogError(exception, "Failed to revoke administrator session.");
@@ -396,6 +424,10 @@ public sealed class AdminUserService : BaseService<AdminUserService>, IAdminUser
                 .CountAsync(cancellationToken);
 
             return Result.Ok(count);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
         }
         catch (Exception exception)
         {

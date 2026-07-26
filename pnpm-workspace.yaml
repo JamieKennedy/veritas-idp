@@ -5,8 +5,8 @@ onlyBuiltDependencies:
   - lightningcss
   - unrs-resolver
 overrides:
-  'brace-expansion@>=2.0.0 <2.1.2': 2.1.2
-  'brace-expansion@>=3.0.0 <5.0.7': 5.0.7
+  brace-expansion: 5.0.8
+  postcss: 8.5.18
   js-yaml: 4.3.0
   shell-quote: 1.9.0
   undici: 7.28.0

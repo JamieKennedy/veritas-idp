@@ -2,7 +2,7 @@
   "name": "veritas",
   "version": "0.0.0-development",
   "private": true,
-  "description": "",
+  "description": "Experimental self-hostable authentication service and identity provider",
   "main": "index.js",
   "scripts": {
     "restore": "dotnet restore Veritas.slnx && pnpm install --frozen-lockfile",
@@ -29,19 +29,30 @@
     "lint:workflows": "node scripts/quality/lint-workflows.mjs",
     "lint:fix": "eslint --fix --max-warnings 0 \"src/frontend/**/*.{js,mjs,jsx,ts,tsx}\"",
     "fix": "pnpm format && pnpm lint:fix",
-    "check": "pnpm check:structure && pnpm check:generated && pnpm check:release && pnpm format:check && pnpm lint && pnpm typecheck && pnpm build:backend && pnpm test",
+    "check": "pnpm check:structure && pnpm check:generated && pnpm check:release && pnpm check:metadata && pnpm check:links && pnpm format:check && pnpm lint && pnpm typecheck && pnpm build:backend && pnpm test",
     "check:structure": "node scripts/quality/verify-project-registration.mjs",
     "check:generated": "node scripts/quality/verify-generated.mjs",
     "check:release": "node --test scripts/release/*.test.mjs",
+    "check:metadata": "node scripts/quality/verify-public-metadata.mjs",
+    "check:links": "node scripts/quality/check-markdown-links.mjs",
+    "check:secrets": "node scripts/security/scan-secrets.mjs",
     "check:compose": "docker compose --env-file .env.example -f compose.yaml -f compose.local.yaml config --quiet",
     "check:containers": "node scripts/quality/check-containers.mjs",
     "check:pr": "node scripts/quality/validate-pr.mjs",
     "generate:routes": "pnpm -r --if-present generate-routes",
     "release": "semantic-release"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "authentication",
+    "identity-provider",
+    "self-hosted"
+  ],
+  "author": "Jamie Kennedy",
+  "license": "AGPL-3.0-only",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JamieKennedy/veritas-idp.git"
+  },
   "packageManager": "pnpm@10.15.1",
   "engines": {
     "node": ">=22.12.0 <23"

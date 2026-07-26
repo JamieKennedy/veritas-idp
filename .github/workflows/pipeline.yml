@@ -93,6 +93,12 @@ jobs:
       - name: Verify release configuration
         run: pnpm check:release
 
+      - name: Verify public metadata
+        run: pnpm check:metadata
+
+      - name: Check Markdown links
+        run: pnpm check:links
+
       - name: Check repository formatting
         run: pnpm format:check:repository
 
@@ -122,6 +128,25 @@ jobs:
         with:
           dockerfile: src/frontend/admin-ui/Dockerfile
           failure-threshold: warning
+
+  security-scan:
+    name: Secret scan
+    needs: pr-policy
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out complete history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .node-version
+
+      - name: Scan reachable Git history
+        run: node scripts/security/scan-secrets.mjs
 
   backend-quality:
     name: Backend quality
@@ -249,7 +274,6 @@ jobs:
         with:
           image-ref: veritas-backend:quality
           exit-code: '1'
-          ignore-unfixed: true
           severity: HIGH,CRITICAL
 
       - name: Scan Admin UI image
@@ -257,7 +281,6 @@ jobs:
         with:
           image-ref: veritas-admin-ui:quality
           exit-code: '1'
-          ignore-unfixed: true
           severity: HIGH,CRITICAL
 
   release:
@@ -268,6 +291,7 @@ jobs:
     needs:
       - pr-policy
       - repository-lint
+      - security-scan
       - backend-quality
       - frontend-quality
       - container-build
