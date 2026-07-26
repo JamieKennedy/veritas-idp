@@ -37,8 +37,9 @@ Required checks:
 - `Frontend quality`
 - `Container build`
 
-After the first successful public CodeQL run, also require both language analyses:
+CodeQL is managed with GitHub default setup. Keep default setup enabled for GitHub Actions, C#, and JavaScript/TypeScript with the remote threat model and weekly scheduled scans. After the first successful pull-request run, also require all three analyses:
 
+- `Analyze (actions)`
 - `Analyze (csharp)`
 - `Analyze (javascript-typescript)`
 
