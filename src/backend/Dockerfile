@@ -21,7 +21,7 @@ RUN dotnet publish src/backend/tooling/db-migrator/Veritas.Tooling.DbMigrator/Ve
     /p:UseAppHost=false \
     -maxcpucount:1
 
-FROM mcr.microsoft.com/dotnet/aspnet:10.0.10@sha256:1fa23fc4872d95fd71c2833ebe65d7e84a43b2d51a31d119516852f13d9505a7 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:10.0.13@sha256:d5633778c754e89a386882eddf8dbee6942447a8a4b8267c19cf1e1158d0b0ac AS final
 ARG VERSION=0.0.0-development
 ARG REVISION=unknown
 ARG SOURCE=https://github.com/JamieKennedy/veritas
