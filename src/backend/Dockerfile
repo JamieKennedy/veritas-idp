@@ -1,11 +1,11 @@
 # syntax=docker/dockerfile:1.7@sha256:a57df69d0ea827fb7266491f2813635de6f17269be881f696fbfdf2d83dda33e
 
-FROM mcr.microsoft.com/dotnet/sdk:10.0.103@sha256:e362a8dbcd691522456da26a5198b8f3ca1d7641c95624fadc5e3e82678bd08a AS build
+FROM mcr.microsoft.com/dotnet/sdk:11.0.100@sha256:2794448a07118a6eaf00f29ab5d2bf44928517ce5ff86505a63a69230374f599 AS build
 ARG VERSION=0.0.0-development
 WORKDIR /src
 
 COPY . .
-RUN dotnet restore Veritas.slnx
+RUN dotnet restore Veritas.slnx --locked-mode
 RUN dotnet publish src/backend/edge/admin-api/Veritas.Admin.API/Veritas.Admin.API.csproj \
     --configuration Release \
     --no-restore \
@@ -21,7 +21,7 @@ RUN dotnet publish src/backend/tooling/db-migrator/Veritas.Tooling.DbMigrator/Ve
     /p:UseAppHost=false \
     -maxcpucount:1
 
-FROM mcr.microsoft.com/dotnet/aspnet:10.0.10@sha256:1fa23fc4872d95fd71c2833ebe65d7e84a43b2d51a31d119516852f13d9505a7 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:11.0.0@sha256:ca396ece3f2a2e62c7a03f1d7d710b8bc7e8c9dea5597d091178d9f5bfca13f0 AS final
 ARG VERSION=0.0.0-development
 ARG REVISION=unknown
 ARG SOURCE=https://github.com/JamieKennedy/veritas

@@ -18,7 +18,7 @@ describe('React Query request error pipeline', () => {
         const queryClient = createQueryClient()
 
         await expect(
-            queryClient.fetchQuery({
+            queryClient.query({
                 queryKey: ['initial'],
                 queryFn: () => Promise.reject(new ApiTransportError()),
                 retry: false,
@@ -36,7 +36,7 @@ describe('React Query request error pipeline', () => {
         queryClient.setQueryData(['background'], { ready: true })
 
         await expect(
-            queryClient.fetchQuery({
+            queryClient.query({
                 queryKey: ['background'],
                 queryFn: () => Promise.reject(new ApiTransportError()),
                 retry: false,

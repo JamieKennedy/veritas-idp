@@ -1,0 +1,19 @@
+---
+import { withBase } from '@/lib/site'
+
+interface Props {
+    compact?: boolean
+}
+
+const { compact = false } = Astro.props
+---
+
+<a class="brand" href={withBase('/')} aria-label="Veritas home">
+    <img src={withBase('/veritas-mark.svg')} width="34" height="34" alt="" />
+    {!compact && (
+        <span>
+            <strong>Veritas</strong>
+            <small>Identity infrastructure</small>
+        </span>
+    )}
+</a>

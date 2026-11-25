@@ -9,7 +9,7 @@ export default {
         },
         MD025: false,
         MD033: {
-            allowed_elements: ['details', 'summary'],
+            allowed_elements: ['TrackedEnvironmentExample', 'details', 'div', 'img', 'summary'],
         },
         MD036: false,
         MD041: false,

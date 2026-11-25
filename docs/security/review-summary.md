@@ -1,4 +1,11 @@
-# Public Readiness Security Review
+---
+title: Public readiness security review
+description: Current public-repository security review, evidence, limitations, and follow-up requirements.
+section: Security
+sectionOrder: 3
+order: 0
+label: Security review
+---
 
 ## Review target
 

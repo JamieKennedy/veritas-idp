@@ -1,6 +1,7 @@
 import { mutationOptions } from '@tanstack/react-query'
 
 import { ApiProblem, apiRequest } from '@/lib/api/http-client'
+import type { components } from '@/generated/admin-api'
 import { smtpSettingsSchema } from '../model/smtp.schemas'
 import type { ConfigureSmtpInput } from '../model/smtp.schemas'
 
@@ -37,7 +38,7 @@ export function configureSmtp(input: ConfigureSmtpInput) {
             secret: input.secret === '' ? null : input.secret,
             fromEmail: input.fromEmail,
             fromName: input.fromName === '' ? null : input.fromName,
-        },
+        } satisfies components['schemas']['ConfigureSmtpSettingsRequest'],
         schema: smtpSettingsSchema,
     })
 }

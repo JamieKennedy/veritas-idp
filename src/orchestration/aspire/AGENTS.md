@@ -2,7 +2,7 @@
 
 Scope: `src/orchestration/aspire`.
 
-Follow the repository-wide coding standards in [`../../../docs/engineering/coding-standards.md`](../../../docs/engineering/coding-standards.md) in addition to the orchestration-specific rules below.
+Before changing this scope, apply the [Development guidelines](../../../docs/engineering/development-guidelines.md), the [Veritas adoption decision](../../../docs/engineering/adr/0001-development-guidelines.md), and the [coding standards](../../../docs/engineering/coding-standards.md).
 
 The Aspire AppHost is the local development orchestrator for Veritas. It is not the production architecture by itself; keep changes compatible with the intended Docker Compose self-hosting story.
 
@@ -40,7 +40,7 @@ pnpm dev
 Use the direct AppHost command when debugging Aspire startup or when pnpm is unavailable:
 
 ```powershell
-dotnet run --project src\orchestration\aspire\Veritas.AppHost\Veritas.AppHost.csproj
+aspire run --apphost src/orchestration/aspire/Veritas.AppHost/Veritas.AppHost.csproj
 ```
 
 If AppHost fails because `bootstrap-secret` is missing, configure it via user secrets or environment variable as documented in `docs/bootstrap.md`.

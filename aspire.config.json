@@ -1,0 +1,5 @@
+{
+  "appHost": {
+    "path": "src/orchestration/aspire/Veritas.AppHost/Veritas.AppHost.csproj"
+  }
+}

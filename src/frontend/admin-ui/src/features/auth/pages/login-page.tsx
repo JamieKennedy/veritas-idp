@@ -22,7 +22,7 @@ export function LoginPage({ redirectTo }: { redirectTo: LoginRedirect }) {
             queryClient.invalidateQueries({ queryKey: currentAdminQueryOptions().queryKey }),
             queryClient.invalidateQueries({ queryKey: setupStatusQueryOptions().queryKey }),
         ])
-        const [currentSetup] = await Promise.all([queryClient.fetchQuery(setupStatusQueryOptions()), queryClient.fetchQuery(currentAdminQueryOptions())])
+        const [currentSetup] = await Promise.all([queryClient.query(setupStatusQueryOptions()), queryClient.query(currentAdminQueryOptions())])
         await navigate({ to: resolvePostLoginDestination(currentSetup, redirectTo) })
     }
 

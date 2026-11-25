@@ -11,13 +11,18 @@ using Veritas.Shared.Http;
 namespace Veritas.Admin.API.Controllers.v1;
 
 [ApiVersion("1.0")]
-[Route("api/v{version:apiVersion}/[controller]")]
+[Route("api/v{version:apiVersion}/bootstrap")]
 [ApiController]
-public class BootstrapController : BaseController<BootstrapController>
+public sealed class BootstrapController : BaseController<BootstrapController>
 {
     private const string BootstrapCookieName = "__Host-veritas-bootstrap";
     private readonly IBootstrapService _bootstrapService;
 
+    /// <summary>
+    /// Creates the controller for the first-administrator setup flow.
+    /// </summary>
+    /// <param name="logger">The request logger.</param>
+    /// <param name="bootstrapService">The service that owns platform bootstrap.</param>
     public BootstrapController(
         ILogger<BootstrapController> logger,
         IBootstrapService bootstrapService) : base(logger)
@@ -31,6 +36,8 @@ public class BootstrapController : BaseController<BootstrapController>
     /// <param name="cancellationToken">A token that cancels the request.</param>
     /// <returns>The current bootstrap status for the installation.</returns>
     [HttpGet("status")]
+    [ProducesResponseType<BootstrapStatusResponse>(200)]
+    [ProducesResponseType<ProblemDetails>(500)]
     public async Task<IActionResult> StatusAsync(CancellationToken cancellationToken)
     {
         var result = await _bootstrapService.GetBootstrapStatusAsync(cancellationToken);
@@ -53,6 +60,12 @@ public class BootstrapController : BaseController<BootstrapController>
     /// <param name="cancellationToken">A token that cancels the request.</param>
     /// <returns>An HTTP result describing whether bootstrap start was accepted.</returns>
     [HttpPost("start")]
+    [ProducesResponseType(202)]
+    [ProducesResponseType<ProblemDetails>(400)]
+    [ProducesResponseType<ProblemDetails>(401)]
+    [ProducesResponseType<ProblemDetails>(409)]
+    [ProducesResponseType(429)]
+    [ProducesResponseType<ProblemDetails>(500)]
     [EnableRateLimiting("bootstrap-start")]
     public async Task<IActionResult> StartAsync([FromBody] StartBootstrapRequest request, CancellationToken cancellationToken)
     {
@@ -83,6 +96,13 @@ public class BootstrapController : BaseController<BootstrapController>
     /// <param name="cancellationToken">A token that cancels the request.</param>
     /// <returns>An HTTP result describing whether bootstrap completion succeeded.</returns>
     [HttpPost("complete")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType<ProblemDetails>(400)]
+    [ProducesResponseType<ProblemDetails>(401)]
+    [ProducesResponseType<ProblemDetails>(409)]
+    [ProducesResponseType<ProblemDetails>(410)]
+    [ProducesResponseType(429)]
+    [ProducesResponseType<ProblemDetails>(500)]
     [EnableRateLimiting("bootstrap-complete")]
     public async Task<IActionResult> CompleteAsync([FromBody] CompleteBootstrapRequest request, CancellationToken cancellationToken)
     {

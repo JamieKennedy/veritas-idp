@@ -13,7 +13,7 @@ function readJson(relativePath) {
     return JSON.parse(read(relativePath))
 }
 
-for (const manifest of ['package.json', 'src/frontend/admin-ui/package.json']) {
+for (const manifest of ['package.json', 'src/frontend/admin-ui/package.json', 'src/docs/package.json']) {
     if (readJson(manifest).license !== expectedLicense) {
         failures.push(`${manifest} must declare ${expectedLicense}`)
     }
@@ -36,6 +36,9 @@ if (!read('LICENSE').includes('GNU AFFERO GENERAL PUBLIC LICENSE')) {
 const readme = read('README.md')
 if (!readme.includes('pre-alpha') || !readme.includes('[GNU Affero General Public License v3.0 only](LICENSE)')) {
     failures.push('README.md must state the maturity warning and AGPL-3.0-only license')
+}
+if (!readme.includes('https://jamiekennedy.github.io/veritas-idp/')) {
+    failures.push('README.md must link to the canonical documentation site')
 }
 
 for (const requiredFile of ['SECURITY.md', 'SUPPORT.md', 'CONTRIBUTING.md', 'CODE_OF_CONDUCT.md', 'docs/security/threat-model.md']) {

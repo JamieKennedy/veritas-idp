@@ -1,0 +1,35 @@
+---
+import Brand from '@/components/Brand.astro'
+import { withBase } from '@/lib/site'
+---
+
+<footer class="site-footer">
+    <div class="site-container site-footer__grid">
+        <div class="site-footer__identity">
+            <Brand />
+            <p>Experimental, self-hostable authentication infrastructure built in the open.</p>
+        </div>
+        <div>
+            <h2>Build</h2>
+            <a href={withBase('/getting-started/')}>Getting started</a>
+            <a href={withBase('/engineering/architecture/')}>Architecture</a>
+            <a href="https://github.com/JamieKennedy/veritas-idp/blob/staging/CONTRIBUTING.md">Contribute</a>
+        </div>
+        <div>
+            <h2>Operate</h2>
+            <a href={withBase('/operations/docker-compose/')}>Docker Compose</a>
+            <a href={withBase('/operations/secrets/')}>Secret management</a>
+            <a href={withBase('/operations/runbook/')}>Operations</a>
+        </div>
+        <div>
+            <h2>Project</h2>
+            <a href="https://github.com/JamieKennedy/veritas-idp">GitHub</a>
+            <a href="https://github.com/JamieKennedy/veritas-idp/security/policy">Security</a>
+            <a href="https://github.com/JamieKennedy/veritas-idp/blob/main/LICENSE">AGPL-3.0</a>
+        </div>
+    </div>
+    <div class="site-container site-footer__bottom">
+        <span>© {new Date().getFullYear()} Veritas contributors.</span>
+        <span>Documentation tracks the latest stable release.</span>
+    </div>
+</footer>

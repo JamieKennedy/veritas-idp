@@ -1,0 +1,254 @@
+---
+import { getCollection } from 'astro:content'
+import { ArrowRight, Boxes, Braces, Database, GitBranch, LockKeyhole, Network, Rabbit, ServerCog, ShieldCheck } from 'lucide-react'
+
+import PreAlphaBanner from '@/components/PreAlphaBanner.astro'
+import SiteFooter from '@/components/SiteFooter.astro'
+import SiteHeader from '@/components/SiteHeader.astro'
+import { InstallPreview } from '@/components/install-preview'
+import { LandingCapabilities } from '@/components/landing-capabilities'
+import { Badge } from '@/components/ui/badge'
+import { buttonVariants } from '@/components/ui/button'
+import { landingContent } from '@/content/landing'
+import BaseLayout from '@/layouts/BaseLayout.astro'
+import { createDocumentationNavigation } from '@/lib/documentation'
+import { cn } from '@/lib/utils'
+import { isExternalUrl, withBase } from '@/lib/site'
+
+const entries = await getCollection('docs')
+const navigation = createDocumentationNavigation(entries)
+
+const link = (href: string) => (isExternalUrl(href) ? href : withBase(href))
+---
+
+<BaseLayout
+    title="Veritas · Self-hostable identity infrastructure"
+    description="Experimental, open-source authentication and identity infrastructure for developers who want to own their identity layer."
+>
+    <PreAlphaBanner />
+    <SiteHeader navigation={navigation} currentPath={Astro.url.pathname} />
+
+    <main id="main-content">
+        <section class="hero-section">
+            <div class="hero-grid" aria-hidden="true"></div>
+            <div class="site-container hero-layout">
+                <div class="hero-copy">
+                    <Badge>{landingContent.eyebrow}</Badge>
+                    <h1>{landingContent.title}</h1>
+                    <p>{landingContent.description}</p>
+                    <div class="hero-actions">
+                        <a class={cn(buttonVariants({ size: 'lg' }), 'button-primary')} href={link(landingContent.links.documentation.href)}>
+                            {landingContent.links.documentation.label}
+                            <ArrowRight aria-hidden="true" size={16} />
+                        </a>
+                        <a
+                            class={buttonVariants({
+                                variant: 'outline',
+                                size: 'lg',
+                            })}
+                            href={link(landingContent.links.install.href)}
+                        >
+                            {landingContent.links.install.label}
+                        </a>
+                    </div>
+                    <dl class="hero-facts">
+                        <div>
+                            <dt>License</dt>
+                            <dd>AGPL-3.0</dd>
+                        </div>
+                        <div>
+                            <dt>Deployment</dt>
+                            <dd>Docker Compose</dd>
+                        </div>
+                        <div>
+                            <dt>Runtime</dt>
+                            <dd>.NET 11</dd>
+                        </div>
+                    </dl>
+                </div>
+
+                <div class="identity-console" aria-label="Veritas deployment boundary">
+                    <div class="identity-console__bar">
+                        <span class="status-dot"></span>
+                        <span>veritas / deployment topology</span>
+                        <Badge variant="outline">self-hosted</Badge>
+                    </div>
+                    <div class="identity-console__flow">
+                        <div class="topology-node topology-node--edge">
+                            <Network aria-hidden="true" />
+                            <span>HTTPS edge</span>
+                            <small>Your reverse proxy</small>
+                        </div>
+                        <span class="flow-line">trusted ingress</span>
+                        <div class="topology-node topology-node--primary">
+                            <ShieldCheck aria-hidden="true" />
+                            <span>Veritas</span>
+                            <small>Admin UI + API</small>
+                        </div>
+                        <div class="topology-services">
+                            <div>
+                                <Database aria-hidden="true" />
+                                <span>PostgreSQL</span>
+                            </div>
+                            <div>
+                                <Rabbit aria-hidden="true" />
+                                <span>RabbitMQ</span>
+                            </div>
+                            <div>
+                                <ServerCog aria-hidden="true" />
+                                <span>Redis</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="identity-console__footer">
+                        <span>
+                            <LockKeyhole aria-hidden="true" /> Secrets stay inside your boundary
+                        </span>
+                        <span>health: explicit</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section-block">
+            <div class="site-container">
+                <header class="section-heading">
+                    <p class="eyebrow">Why self-host identity</p>
+                    <h2>Authentication is infrastructure. Treat it like infrastructure.</h2>
+                    <p>
+                        Veritas is being built for teams that need more than a hosted login widget: they need to understand the system, control its lifecycle,
+                        and adapt it without asking a vendor for permission.
+                    </p>
+                </header>
+                <div class="principle-grid">
+                    {landingContent.differentiators.map((item, index) => (
+                        <article class="principle-card">
+                            <span>0{index + 1}</span>
+                            <h3>{item.title}</h3>
+                            <p>{item.description}</p>
+                        </article>
+                    ))}
+                </div>
+            </div>
+        </section>
+
+        <section class="section-block section-block--tinted">
+            <div class="site-container split-heading">
+                <header class="section-heading">
+                    <p class="eyebrow">Current state</p>
+                    <h2>Evaluate the implementation that exists—not a promised feature list.</h2>
+                </header>
+                <p>
+                    The administration and deployment foundations are real. The OAuth, OpenID Connect, and public-user protocol surface is not. That boundary
+                    stays visible while the project is pre-alpha.
+                </p>
+            </div>
+            <div class="site-container">
+                <LandingCapabilities client:load available={landingContent.available} roadmap={landingContent.roadmap} warning={landingContent.warning} />
+            </div>
+        </section>
+
+        <section class="section-block">
+            <div class="site-container architecture-layout">
+                <div>
+                    <header class="section-heading">
+                        <p class="eyebrow">Architecture you can reason about</p>
+                        <h2>A modular core with explicit operational edges.</h2>
+                        <p>
+                            Business capabilities stay inside a .NET modular monolith. PostgreSQL schemas are module-owned, RabbitMQ carries durable side
+                            effects, Redis remains ephemeral, and Aspire orchestrates the development topology.
+                        </p>
+                    </header>
+                    <a class="text-link" href={link(landingContent.links.architecture.href)}>
+                        {landingContent.links.architecture.label}
+                        <ArrowRight aria-hidden="true" size={15} />
+                    </a>
+                </div>
+                <div class="architecture-map" aria-label="Veritas architecture overview">
+                    <div class="architecture-map__edge">
+                        <Braces />
+                        <span>React administration edge</span>
+                    </div>
+                    <div class="architecture-map__core">
+                        <Boxes />
+                        <strong>ASP.NET Core modular monolith</strong>
+                        <span>Platform · Users · Messaging</span>
+                    </div>
+                    <div class="architecture-map__data">
+                        <span>
+                            <Database /> Module-owned schemas
+                        </span>
+                        <span>
+                            <GitBranch /> Versioned messages
+                        </span>
+                        <span>
+                            <ServerCog /> Ephemeral cache
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section-block section-block--dark">
+            <div class="site-container install-layout">
+                <div>
+                    <p class="eyebrow">A deployment you can inspect</p>
+                    <h2>Start with a release bundle, not an opaque control plane.</h2>
+                    <p>
+                        Every operator input is documented. Bootstrap secrets are file-mounted, persistent Data Protection keys are called out, and migrations
+                        run as an explicit one-shot service before the API starts.
+                    </p>
+                    <a
+                        class={buttonVariants({
+                            variant: 'secondary',
+                            size: 'lg',
+                        })}
+                        href={link(landingContent.links.install.href)}
+                    >
+                        Open the installation guide
+                        <ArrowRight aria-hidden="true" size={16} />
+                    </a>
+                </div>
+                <InstallPreview client:visible commands={landingContent.install.commands} description={landingContent.install.description} />
+            </div>
+        </section>
+
+        <section class="section-block">
+            <div class="site-container stack-section">
+                <header class="section-heading">
+                    <p class="eyebrow">Built for developers and operators</p>
+                    <h2>Familiar tools, narrow boundaries, visible failure modes.</h2>
+                </header>
+                <div class="technology-list" aria-label="Veritas technology stack">
+                    {landingContent.technologies.map((technology) => (
+                        <span>{technology}</span>
+                    ))}
+                </div>
+            </div>
+        </section>
+
+        <section class="site-container final-cta">
+            <div>
+                <p class="eyebrow">Build identity infrastructure in the open</p>
+                <h2>Read the design. Run the stack. Challenge the assumptions.</h2>
+                <p>
+                    Veritas is early enough for architectural feedback to matter. Explore the operator guides, inspect the source, and help shape a self-hosted
+                    alternative.
+                </p>
+            </div>
+            <div class="final-cta__actions">
+                <a class={cn(buttonVariants({ size: 'lg' }), 'button-primary')} href={link(landingContent.links.documentation.href)}>
+                    {landingContent.links.documentation.label}
+                </a>
+                <a class={buttonVariants({ variant: 'outline', size: 'lg' })} href={link(landingContent.links.contribute.href)}>
+                    {landingContent.links.contribute.label}
+                </a>
+                <a class="text-link" href={link(landingContent.links.repository.href)}>
+                    {landingContent.links.repository.label}
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <SiteFooter />
+</BaseLayout>

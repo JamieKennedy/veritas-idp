@@ -2,8 +2,6 @@
 
 using Aspire.Hosting.JavaScript;
 
-using Projects;
-
 var builder = DistributedApplication.CreateBuilder(args);
 
 const int adminApiHttpPort = 5100;
@@ -21,7 +19,7 @@ var rabbitmq = builder.AddRabbitMQ("messaging")
     .WithDataVolume("veritas-rabbitmq-data")
     .WithManagementPlugin(port: 15672);
 
-var migrator = builder.AddProject<Veritas_Tooling_DbMigrator>("migrator")
+var migrator = builder.AddDotnetProject("migrator", "../../../backend/tooling/db-migrator/Veritas.Tooling.DbMigrator/Veritas.Tooling.DbMigrator.csproj")
     .WithReference(veritasDb)
     .WaitFor(veritasDb);
 
@@ -32,14 +30,14 @@ var dataProtectionKeysPath = Path.Combine(
     "Veritas",
     "DataProtectionKeys");
 
-var adminApi = builder.AddProject<Veritas_Admin_API>("veritas-admin-api")
+var adminApi = builder.AddDotnetProject("veritas-admin-api", "../../../backend/edge/admin-api/Veritas.Admin.API/Veritas.Admin.API.csproj")
     .WithHttpEndpoint(port: adminApiHttpPort)
     .WithHttpsEndpoint(port: adminApiHttpsPort)
     .WithReference(veritasDb)
     .WithReference(rabbitmq)
     .WaitFor(veritasDb)
     .WaitFor(rabbitmq)
-    .WaitFor(migrator)
+    .WaitForCompletion(migrator)
     .WithEnvironment("BOOTSTRAP_SECRET", bootstrapSecret)
     .WithEnvironment("DataProtection__KeysPath", dataProtectionKeysPath)
     .WithUrlForEndpoint("http", url =>

@@ -1057,5 +1057,9 @@ secrets/
 # Agent workflow artifacts
 docs/superpowers/
 
+# Playwright output
+test-results/
+playwright-report/
+
 # Linked local worktrees
 .worktrees/

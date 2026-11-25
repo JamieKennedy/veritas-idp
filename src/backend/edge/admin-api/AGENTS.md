@@ -2,7 +2,7 @@
 
 Scope: `src/backend/edge/admin-api`.
 
-Follow the repository-wide coding standards in [`../../../../docs/engineering/coding-standards.md`](../../../../docs/engineering/coding-standards.md) in addition to the host-specific rules below.
+Before changing this scope, apply the [Development guidelines](../../../../docs/engineering/development-guidelines.md), the [Veritas adoption decision](../../../../docs/engineering/adr/0001-development-guidelines.md), and the [coding standards](../../../../docs/engineering/coding-standards.md).
 
 The Admin API is the admin-facing HTTP API host for Veritas. It should stay thin: expose versioned HTTP endpoints, validate request shape, compose backend modules in-process, call module Application services, and map module failures into appropriate HTTP responses. Business rules belong in the owning backend module.
 
@@ -62,7 +62,7 @@ Use backend-only commands for narrower verification or debugging:
 
 ```powershell
 dotnet build Veritas.slnx
-dotnet run --project src\orchestration\aspire\Veritas.AppHost\Veritas.AppHost.csproj
+aspire run --apphost src/orchestration/aspire/Veritas.AppHost/Veritas.AppHost.csproj
 ```
 
 Use the Aspire dashboard or Admin API Scalar page in development to inspect endpoints.

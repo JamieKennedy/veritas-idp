@@ -24,6 +24,8 @@ public sealed class SetupController(
     /// <param name="cancellationToken">A token that cancels the request.</param>
     /// <returns>The current setup status.</returns>
     [HttpGet("status")]
+    [ProducesResponseType<SetupStatusResponse>(200)]
+    [ProducesResponseType<ProblemDetails>(500)]
     public async Task<IActionResult> StatusAsync(CancellationToken cancellationToken)
     {
         var bootstrap = await bootstrapService.GetBootstrapStatusAsync(cancellationToken);
@@ -46,6 +48,11 @@ public sealed class SetupController(
     /// <param name="cancellationToken">A token that cancels the operation.</param>
     /// <returns>An empty success response when SMTP deferral is durable.</returns>
     [HttpPost("smtp/defer")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType<ProblemDetails>(400)]
+    [ProducesResponseType(401)]
+    [ProducesResponseType<ProblemDetails>(409)]
+    [ProducesResponseType<ProblemDetails>(500)]
     [Authorize]
     public async Task<IActionResult> DeferSmtpSetupAsync(CancellationToken cancellationToken)
     {

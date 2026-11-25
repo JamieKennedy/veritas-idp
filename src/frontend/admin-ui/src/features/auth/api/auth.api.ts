@@ -2,6 +2,7 @@ import { mutationOptions } from '@tanstack/react-query'
 
 import { adminIdentitySchema, loginChallengeSchema, mfaEnrollmentResponseSchema } from '../model/auth.schemas'
 import { ApiProblem, apiRequest, resetCsrfToken } from '@/lib/api/http-client'
+import type { components } from '@/generated/admin-api'
 import type { CredentialsInput, LoginChallenge } from '../model/auth.schemas'
 
 export async function getCurrentAdmin(signal?: AbortSignal) {
@@ -19,7 +20,7 @@ export async function getCurrentAdmin(signal?: AbortSignal) {
 export function startAdminLogin(input: CredentialsInput) {
     return apiRequest('/api/v1/admin-auth/login', {
         method: 'POST',
-        body: input,
+        body: input satisfies components['schemas']['AdminLoginRequest'],
         schema: loginChallengeSchema,
     })
 }
@@ -31,7 +32,7 @@ export async function confirmMfaEnrollment(challenge: LoginChallenge, totpCode: 
             challengeId: challenge.challengeId,
             challengeToken: challenge.challengeToken,
             totpCode,
-        },
+        } satisfies components['schemas']['AdminMfaEnrollmentRequest'],
         schema: mfaEnrollmentResponseSchema,
     })
     resetCsrfToken()
@@ -45,7 +46,7 @@ export async function verifyMfa(challenge: LoginChallenge, code: string) {
             challengeId: challenge.challengeId,
             challengeToken: challenge.challengeToken,
             code,
-        },
+        } satisfies components['schemas']['AdminMfaVerificationRequest'],
         schema: adminIdentitySchema,
     })
     resetCsrfToken()

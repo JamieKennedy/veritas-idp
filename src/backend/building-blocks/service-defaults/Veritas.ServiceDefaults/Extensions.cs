@@ -3,6 +3,7 @@ using System.Globalization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
@@ -24,7 +25,7 @@ public static class Extensions
     private const string HealthEndpointPath = "/health";
     private const string AlivenessEndpointPath = "/alive";
     private const string FileLogOutputTemplate =
-        "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Application} {SourceContext} {Message:lj}{NewLine}{Exception}";
+        "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Application} {SourceContext} {TraceId} {Message:lj}{NewLine}{Exception}";
 
     public static TBuilder AddServiceDefaults<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
     {
@@ -70,7 +71,6 @@ public static class Extensions
                     formatProvider: CultureInfo.InvariantCulture,
                     rollingInterval: RollingInterval.Day,
                     retainedFileCountLimit: GetRetainedFileCountLimit(builder),
-                    shared: true,
                     outputTemplate: FileLogOutputTemplate);
         }, preserveStaticLogger: true, writeToProviders: true);
 
@@ -137,6 +137,11 @@ public static class Extensions
         return builder;
     }
 
+    /// <summary>
+    /// Maps process liveness and the aggregate status of checks tagged for readiness.
+    /// </summary>
+    /// <param name="app">The host that serves the health endpoints.</param>
+    /// <returns>The host for further configuration.</returns>
     public static WebApplication MapDefaultEndpoints(this WebApplication app)
     {
         // The liveness endpoint intentionally exposes only the process-level self check
@@ -146,20 +151,34 @@ public static class Extensions
             Predicate = r => r.Tags.Contains("live")
         });
 
-        // The readiness endpoint can include dependency details, so it remains
-        // development-only until its production disclosure contract is explicit.
-        if (app.Environment.IsDevelopment())
+        // Only the aggregate readiness status is exposed to callers.
+        app.MapHealthChecks(HealthEndpointPath, new HealthCheckOptions
         {
-            app.MapHealthChecks(HealthEndpointPath);
-        }
+            Predicate = registration => registration.Tags.Contains("ready")
+        });
 
         return app;
     }
 
+    /// <summary>
+    /// Records HTTP completions with route templates and excludes raw paths and query strings.
+    /// </summary>
+    /// <param name="app">The host whose requests are logged.</param>
+    /// <returns>The host for further configuration.</returns>
     public static WebApplication UseDefaultSerilogRequestLogging(this WebApplication app)
     {
         app.UseSerilogRequestLogging(options =>
         {
+            options.Logger = app.Services.GetRequiredService<Serilog.ILogger>();
+            options.MessageTemplate = "HTTP {RequestMethod} {Route} responded {StatusCode} in {Elapsed:0.0000} ms";
+            options.GetMessageTemplateProperties = (httpContext, _, elapsed, statusCode) =>
+            [
+                new LogEventProperty("RequestMethod", new ScalarValue(httpContext.Request.Method)),
+                new LogEventProperty("Route", new ScalarValue((httpContext.GetEndpoint() as RouteEndpoint)?.RoutePattern.RawText ?? "(unmatched)")),
+                new LogEventProperty("StatusCode", new ScalarValue(statusCode)),
+                new LogEventProperty("Elapsed", new ScalarValue(elapsed))
+            ];
+
             options.GetLevel = (httpContext, _, exception) =>
             {
                 if (exception is not null || httpContext.Response.StatusCode >= StatusCodes.Status500InternalServerError)
@@ -176,12 +195,6 @@ public static class Extensions
                 return LogEventLevel.Information;
             };
 
-            options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
-            {
-                diagnosticContext.Set("RequestHost", httpContext.Request.Host.ToString());
-                diagnosticContext.Set("RequestScheme", httpContext.Request.Scheme);
-                diagnosticContext.Set("RemoteIpAddress", httpContext.Connection.RemoteIpAddress?.ToString() ?? string.Empty);
-            };
         });
 
         return app;

@@ -1,0 +1,83 @@
+---
+import type { MarkdownHeading } from 'astro'
+
+import { CodeBlockControls } from '@/components/CodeBlockControls'
+import DocsSidebar from '@/components/DocsSidebar.astro'
+import PreAlphaBanner from '@/components/PreAlphaBanner.astro'
+import SiteFooter from '@/components/SiteFooter.astro'
+import SiteHeader from '@/components/SiteHeader.astro'
+import TableOfContents from '@/components/TableOfContents.astro'
+import BaseLayout from '@/layouts/BaseLayout.astro'
+import { adjacentDocumentation, createDocumentationNavigation, documentationEditUrl, documentationLastUpdated, documentationPath } from '@/lib/documentation'
+import type { DocumentationEntry } from '@/lib/documentation'
+import { withBase } from '@/lib/site'
+
+interface Props {
+    entry: DocumentationEntry
+    entries: Array<DocumentationEntry>
+    headings: Array<MarkdownHeading>
+}
+
+const { entry, entries, headings } = Astro.props
+const navigation = createDocumentationNavigation(entries)
+const { previous, next } = adjacentDocumentation(entries, entry.id)
+const lastUpdated = documentationLastUpdated(entry)
+const currentPath = withBase(documentationPath(entry))
+---
+
+<BaseLayout title={`${entry.data.title} · Veritas`} description={entry.data.description}>
+    <PreAlphaBanner />
+    <SiteHeader navigation={navigation} currentPath={currentPath} />
+    <div class="site-container docs-grid">
+        <aside class="docs-grid__sidebar">
+            <DocsSidebar navigation={navigation} currentId={entry.id} />
+        </aside>
+        <main id="main-content" class="docs-main">
+            <nav class="breadcrumbs" aria-label="Breadcrumb">
+                <a href={withBase('/docs/')}>Docs</a>
+                <span aria-hidden="true">/</span>
+                <span>{entry.data.section}</span>
+            </nav>
+            <header class="docs-heading">
+                <p class="eyebrow">{entry.data.section}</p>
+                <h1 data-pagefind-meta="title">{entry.data.title}</h1>
+                <p>{entry.data.description}</p>
+            </header>
+            <article class="prose" data-pagefind-body>
+                <slot />
+            </article>
+            <CodeBlockControls client:load />
+            <footer class="docs-meta">
+                <div>
+                    <a href={documentationEditUrl(entry)}>Edit this page on GitHub</a>
+                    {lastUpdated && (
+                        <span>
+                            Updated{' '}
+                            {lastUpdated.toLocaleDateString('en-GB', {
+                                dateStyle: 'medium',
+                            })}
+                        </span>
+                    )}
+                </div>
+                <nav aria-label="Adjacent documentation">
+                    {previous && (
+                        <a class="docs-pagination docs-pagination--previous" href={withBase(documentationPath(previous))}>
+                            <small>Previous</small>
+                            <strong>{previous.data.label ?? previous.data.title}</strong>
+                        </a>
+                    )}
+                    {next && (
+                        <a class="docs-pagination docs-pagination--next" href={withBase(documentationPath(next))}>
+                            <small>Next</small>
+                            <strong>{next.data.label ?? next.data.title}</strong>
+                        </a>
+                    )}
+                </nav>
+            </footer>
+        </main>
+        <aside class="docs-grid__toc">
+            <TableOfContents headings={headings} />
+        </aside>
+    </div>
+    <SiteFooter />
+</BaseLayout>

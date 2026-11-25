@@ -1,4 +1,11 @@
-# Public Repository Publication Checklist
+---
+title: Public repository publication checklist
+description: Maintainer checklist for safely publishing the Veritas repository and verifying its controls.
+section: Development
+sectionOrder: 4
+order: 4
+label: Publication checklist
+---
 
 This checklist is the owner runbook for changing the existing GitHub repository from private to public. Complete it against the exact `main` commit approved in the [security review](../security/review-summary.md).
 

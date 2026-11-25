@@ -1,0 +1,132 @@
+---
+title: Environment variables
+description: Configure Veritas operator inputs, understand Compose-managed settings, and validate environment resolution.
+section: Deploy and operate
+sectionOrder: 1
+order: 1
+---
+
+import { TrackedEnvironmentExample } from '@/components/tracked-environment-example'
+
+Veritas uses a root `.env` file for Docker Compose interpolation. The file controls the release version, Admin UI binding, infrastructure passwords, and location of the bootstrap-secret file. It is deployment configuration and must not be committed.
+
+## Operator-facing values
+
+These are the complete inputs exposed by the release `.env.example`.
+
+| Variable                        | Required | Default                                | Sensitive | Purpose                                                   | Safe example                           |
+| ------------------------------- | -------- | -------------------------------------- | --------- | --------------------------------------------------------- | -------------------------------------- |
+| `VERITAS_VERSION`               | Yes      | Version embedded in the release bundle | No        | Selects the exact backend and Admin UI image tags.        | `0.2.0-beta.3`                         |
+| `VERITAS_BIND_ADDRESS`          | No       | `127.0.0.1`                            | No        | Chooses the host address for the Admin UI port binding.   | `127.0.0.1`                            |
+| `VERITAS_ADMIN_UI_PORT`         | No       | `8080`                                 | No        | Chooses the host port forwarded to Admin UI.              | `8080`                                 |
+| `VERITAS_POSTGRES_PASSWORD`     | Yes      | None                                   | Yes       | Authenticates the Veritas PostgreSQL application account. | `<generated-64-hex-postgres-password>` |
+| `VERITAS_RABBITMQ_PASSWORD`     | Yes      | None                                   | Yes       | Authenticates the RabbitMQ account used in the AMQP URI.  | `<generated-64-hex-rabbitmq-password>` |
+| `VERITAS_BOOTSTRAP_SECRET_FILE` | No       | `./secrets/bootstrap-secret.txt`       | No        | Locates the host file mounted as the bootstrap secret.    | `./secrets/bootstrap-secret.txt`       |
+
+`VERITAS_VERSION` must be an exact version. Do not use `latest`, `beta`, or a mutable branch name for an accepted deployment.
+Angle-bracketed values above are documentation placeholders, not literal credentials.
+
+<TrackedEnvironmentExample client:load />
+
+## Create and select an environment file
+
+The default workflow places `.env` next to `compose.yaml`:
+
+<div data-shell-tabs="create-environment"></div>
+
+```bash
+cp .env.example .env
+mkdir -p secrets
+```
+
+```powershell
+Copy-Item .env.example .env
+New-Item -ItemType Directory -Force secrets
+```
+
+To keep deployment configuration elsewhere, pass it explicitly on every Compose command:
+
+<div data-shell-tabs="custom-environment"></div>
+
+```bash
+docker compose --env-file /etc/veritas/veritas.env config
+docker compose --env-file /etc/veritas/veritas.env up -d
+```
+
+```powershell
+docker compose --env-file "C:\ProgramData\Veritas\veritas.env" config
+docker compose --env-file "C:\ProgramData\Veritas\veritas.env" up -d
+```
+
+Multiple `--env-file` options are processed in order, with later files overriding earlier files. Shell environment values override values loaded from an environment file. Prefer one reviewed production file over layered overrides unless the operational process records the effective configuration.
+
+Inspect interpolation before creating containers:
+
+<div data-shell-tabs="inspect-environment"></div>
+
+```bash
+docker compose config --environment
+docker compose config --quiet
+```
+
+```powershell
+docker compose config --environment
+docker compose config --quiet
+```
+
+The first command can display sensitive values. Run it only in a trusted terminal and do not attach its output to issues or logs.
+
+## Compose-managed container settings
+
+The release Compose file supplies these values internally. Operators normally change the six `VERITAS_*` inputs instead of overriding this layer.
+
+| Service    | Settings supplied by Compose                                                                                                                                                      |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| PostgreSQL | `POSTGRES_DB`, `POSTGRES_USER`, and the interpolated `POSTGRES_PASSWORD`.                                                                                                         |
+| RabbitMQ   | `RABBITMQ_DEFAULT_USER` and the interpolated `RABBITMQ_DEFAULT_PASS`.                                                                                                             |
+| Migrator   | `ConnectionStrings__VeritasDb`, `Migration__ConnectRetryDelay`, `Migration__MaxConnectAttempts`, and `Serilog__File__Path`.                                                       |
+| Admin API  | `ASPNETCORE_ENVIRONMENT`, forwarded-header handling, bootstrap-secret path, database and RabbitMQ connection strings, Data Protection path, HTTPS-redirection mode, and log path. |
+| Admin UI   | `ADMIN_API_ORIGIN`, `HOST`, `NODE_ENV`, and `PORT`.                                                                                                                               |
+
+Changing these settings requires a reviewed Compose override and corresponding operational documentation. Never expose the Admin API connection strings or infrastructure credentials to the browser.
+
+## Optional application settings
+
+Advanced deployments can use standard .NET configuration environment names in a Compose override:
+
+- `OTEL_EXPORTER_OTLP_ENDPOINT` enables the configured OTLP exporter.
+- `Serilog__File__RetainedFileCountLimit` changes the default retention of 14 rolling files.
+- `Cors__AllowedOrigins__N` adds an Admin UI origin when the API is hosted outside the supplied topology.
+- `HttpsRedirection__Enabled` controls application-level redirect behavior; the supplied Compose topology disables it because HTTPS terminates at the trusted proxy.
+
+Treat connection strings, telemetry headers, and exporter credentials as secrets. The default Compose stack does not publish a production readiness endpoint containing dependency details.
+
+## Aspire development settings
+
+Aspire obtains `bootstrap-secret` as a secret parameter and injects it into Admin API as `BOOTSTRAP_SECRET`. It also supplies:
+
+- `VITE_ADMIN_API_BASE_URL` to the development Admin UI;
+- `Cors__AllowedOrigins__0` to Admin API;
+- service-discovered `VeritasDb` and `messaging` connection strings; and
+- a local persistent Data Protection key path.
+
+Configure the Aspire parameter with .NET user secrets rather than adding a local `.env` value:
+
+<div data-shell-tabs="aspire-bootstrap-secret"></div>
+
+```bash
+dotnet user-secrets --project src/orchestration/aspire/Veritas.AppHost set "Parameters:bootstrap-secret" "<generated-development-secret>"
+```
+
+```powershell
+dotnet user-secrets --project src/orchestration/aspire/Veritas.AppHost set "Parameters:bootstrap-secret" "<generated-development-secret>"
+```
+
+## Safe environment management
+
+- Restrict `.env` and secret files to the deployment account.
+- Store reviewed templates without values in source control; store real values in an approved secret manager or protected host configuration.
+- Generate independent values per environment and per credential purpose.
+- Validate after every change and keep a sanitized record of the effective version, bind address, and port.
+- Rotate a value immediately after suspected disclosure, then restart affected services and verify logs and health.
+- Never place a raw secret in a command argument if the host records process arguments or shell history.

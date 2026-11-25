@@ -1,4 +1,11 @@
-# Bootstrap Flow
+---
+title: Bootstrap flow
+description: Create the first Veritas administrator through the guarded, short-lived bootstrap flow.
+section: Administration
+sectionOrder: 2
+order: 0
+label: Bootstrap
+---
 
 Bootstrap creates the first administrator account for a new Veritas installation. It is separate from normal admin login and does not send email.
 

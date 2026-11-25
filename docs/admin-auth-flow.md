@@ -1,4 +1,11 @@
-# Admin Authentication Flow
+---
+title: Administrator authentication
+description: Understand administrator password, TOTP MFA, recovery-code, cookie, session, and CSRF behavior.
+section: Administration
+sectionOrder: 2
+order: 1
+label: Admin authentication
+---
 
 Admin authentication uses password validation, mandatory TOTP MFA, server-side admin sessions, cookie authentication, and CSRF protection.
 

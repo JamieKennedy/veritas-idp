@@ -103,7 +103,7 @@ jobs:
         run: pnpm format:check:repository
 
       - name: Lint documentation
-        run: pnpm lint:docs
+        run: pnpm lint:markdown
 
       - name: Validate Compose configuration
         run: pnpm check:compose
@@ -166,12 +166,12 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.nuget/packages
-          key: nuget-${{ runner.os }}-${{ hashFiles('global.json', '**/*.csproj') }}
+          key: nuget-${{ runner.os }}-${{ hashFiles('global.json', '**/packages.lock.json') }}
           restore-keys: |
             nuget-${{ runner.os }}-
 
       - name: Restore dependencies
-        run: dotnet restore Veritas.slnx
+        run: dotnet restore Veritas.slnx --locked-mode
 
       - name: Verify C# formatting and code style
         run: >-
@@ -181,13 +181,37 @@ jobs:
       - name: Build with analyzers and warnings as errors
         run: dotnet build Veritas.slnx --no-restore
 
+      - name: Find the latest released v1 contract
+        id: released-contract
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag=$(gh api --paginate --slurp "repos/$GITHUB_REPOSITORY/releases" --jq '
+            [.[][] | select(.draft == false and any(.assets[]; .name == "veritas-admin-api-v1.json"))]
+            | ((map(select(.prerelease == false)) | first) // first)
+            | .tag_name // empty')
+          if [[ -n "$tag" ]]; then
+            gh release download "$tag" --repo "$GITHUB_REPOSITORY" --pattern veritas-admin-api-v1.json --dir artifacts/baseline
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "No release has published a v1 contract yet."
+          fi
+
+      - name: Verify v1 compatibility
+        if: steps.released-contract.outputs.available == 'true'
+        uses: oasdiff/oasdiff-action/breaking@8bf13f088a1c9fd69292cb7694a35b0da07b5915 # v0
+        with:
+          base: artifacts/baseline/veritas-admin-api-v1.json
+          revision: src/backend/edge/admin-api/Veritas.Admin.API/obj/Veritas.Admin.API.json
+          fail-on: WARN
+
       - name: Run backend tests
         run: dotnet test Veritas.slnx --no-build --no-restore
 
       - name: Audit .NET dependencies
         shell: bash
         run: |
-          dotnet list Veritas.slnx package --vulnerable --include-transitive | tee dotnet-audit.txt
+          dotnet list Veritas.slnx package --no-restore --vulnerable --include-transitive | tee dotnet-audit.txt
           ! grep -q "has the following vulnerable packages" dotnet-audit.txt
 
   frontend-quality:
@@ -198,6 +222,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
 
       - name: Set up pnpm
         uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
@@ -216,10 +242,10 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Check frontend formatting
-        run: pnpm --filter admin-ui format:check
+        run: pnpm --filter admin-ui format:check && pnpm --filter veritas-docs format:check
 
       - name: Lint frontend
-        run: pnpm lint:frontend
+        run: pnpm lint:frontend && pnpm lint:docs
 
       - name: Type-check frontend
         run: pnpm typecheck
@@ -230,8 +256,20 @@ jobs:
       - name: Run frontend tests
         run: pnpm test:frontend
 
+      - name: Install documentation browser
+        run: pnpm --filter veritas-docs exec playwright install --with-deps chromium
+
+      - name: Run documentation browser tests
+        run: pnpm --filter veritas-docs test:browser
+
       - name: Audit frontend dependencies
         run: pnpm audit --audit-level high
+
+      - name: Upload documentation Pages artifact
+        if: github.event_name == 'push' && github.ref_name == 'main'
+        uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
+        with:
+          path: src/docs/dist
 
   container-build:
     name: Container build
@@ -262,6 +300,27 @@ jobs:
           load: true
           push: false
           tags: veritas-admin-ui:quality
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
+        with:
+          version: 10.15.1
+          run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Verify the administrator journey and migrator rerun
+        env:
+          VERITAS_TEST_USE_QUALITY_IMAGES: '1'
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm --filter admin-ui exec playwright install --with-deps chromium
+          pnpm check:admin-workflow
 
       - name: Verify backend entry points
         run: >-
@@ -323,6 +382,11 @@ jobs:
       - name: Install release dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Set up .NET
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
 
@@ -338,3 +402,22 @@ jobs:
           CONTAINER_REGISTRY: ghcr.io
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: pnpm release
+
+  docs-deploy:
+    name: Deploy documentation
+    if: github.event_name == 'push' && github.ref_name == 'main'
+    needs:
+      - release
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy documentation to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5

@@ -34,6 +34,12 @@ public sealed class AdminAuthController : BaseController<AdminAuthController>
     private readonly IAdminUserService _adminUserService;
     private readonly IAntiforgery _antiforgery;
 
+    /// <summary>
+    /// Creates the controller for administrator authentication.
+    /// </summary>
+    /// <param name="logger">The request logger.</param>
+    /// <param name="adminUserService">The service that verifies credentials and manages administrator sessions.</param>
+    /// <param name="antiforgery">The framework service that issues request tokens.</param>
     public AdminAuthController(
         ILogger<AdminAuthController> logger,
         IAdminUserService adminUserService,
@@ -48,6 +54,8 @@ public sealed class AdminAuthController : BaseController<AdminAuthController>
     /// </summary>
     /// <returns>The antiforgery request token clients must send in the X-CSRF-TOKEN header.</returns>
     [HttpGet("csrf")]
+    [ProducesResponseType<AdminCsrfTokenResponse>(200)]
+    [ProducesResponseType<ProblemDetails>(500)]
     public IActionResult GetCsrfToken()
     {
         var tokens = _antiforgery.GetAndStoreTokens(HttpContext);
@@ -59,6 +67,9 @@ public sealed class AdminAuthController : BaseController<AdminAuthController>
     /// </summary>
     /// <returns>The authenticated administrator identity, or an unauthorized response when required claims are absent.</returns>
     [HttpGet("me")]
+    [ProducesResponseType<AdminLoginResponse>(200)]
+    [ProducesResponseType(401)]
+    [ProducesResponseType<ProblemDetails>(500)]
     [Authorize]
     public IActionResult CurrentAdmin()
     {
@@ -83,6 +94,11 @@ public sealed class AdminAuthController : BaseController<AdminAuthController>
     /// <param name="cancellationToken">A token that cancels credential validation.</param>
     /// <returns>A short-lived MFA challenge when password validation succeeds.</returns>
     [HttpPost("login")]
+    [ProducesResponseType<AdminLoginChallengeResponse>(202)]
+    [ProducesResponseType<ProblemDetails>(400)]
+    [ProducesResponseType<ProblemDetails>(401)]
+    [ProducesResponseType(429)]
+    [ProducesResponseType<ProblemDetails>(500)]
     [EnableRateLimiting("admin-login")]
     public async Task<IActionResult> LoginAsync([FromBody] AdminLoginRequest request, CancellationToken cancellationToken)
     {
@@ -120,6 +136,11 @@ public sealed class AdminAuthController : BaseController<AdminAuthController>
     /// <param name="cancellationToken">A token that cancels enrollment completion.</param>
     /// <returns>The authenticated administrator and one-time recovery codes.</returns>
     [HttpPost("mfa/enroll/confirm")]
+    [ProducesResponseType<AdminMfaEnrollmentResponse>(200)]
+    [ProducesResponseType<ProblemDetails>(400)]
+    [ProducesResponseType<ProblemDetails>(401)]
+    [ProducesResponseType(429)]
+    [ProducesResponseType<ProblemDetails>(500)]
     [EnableRateLimiting("admin-login")]
     public async Task<IActionResult> CompleteMfaEnrollmentAsync(
         [FromBody] AdminMfaEnrollmentRequest request,
@@ -151,6 +172,11 @@ public sealed class AdminAuthController : BaseController<AdminAuthController>
     /// <param name="cancellationToken">A token that cancels MFA verification.</param>
     /// <returns>The authenticated administrator identity.</returns>
     [HttpPost("mfa/verify")]
+    [ProducesResponseType<AdminLoginResponse>(200)]
+    [ProducesResponseType<ProblemDetails>(400)]
+    [ProducesResponseType<ProblemDetails>(401)]
+    [ProducesResponseType(429)]
+    [ProducesResponseType<ProblemDetails>(500)]
     [EnableRateLimiting("admin-login")]
     public async Task<IActionResult> CompleteMfaVerificationAsync(
         [FromBody] AdminMfaVerificationRequest request,
@@ -179,6 +205,10 @@ public sealed class AdminAuthController : BaseController<AdminAuthController>
     /// <param name="cancellationToken">A token that cancels session revocation.</param>
     /// <returns>An empty success response.</returns>
     [HttpPost("logout")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType<ProblemDetails>(400)]
+    [ProducesResponseType(401)]
+    [ProducesResponseType<ProblemDetails>(500)]
     [Authorize]
     public async Task<IActionResult> LogoutAsync(CancellationToken cancellationToken)
     {

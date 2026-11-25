@@ -19,7 +19,7 @@ export function SmtpSetupPage() {
             queryClient.invalidateQueries({ queryKey: setupStatusQueryOptions().queryKey }),
             queryClient.invalidateQueries({ queryKey: smtpSettingsQueryOptions().queryKey }),
         ])
-        await queryClient.fetchQuery(setupStatusQueryOptions())
+        await queryClient.query(setupStatusQueryOptions())
         await router.invalidate()
         await navigate({ to: '/dashboard' })
     }
@@ -27,7 +27,7 @@ export function SmtpSetupPage() {
     async function skipSmtpSetup() {
         await deferSmtpSetup.mutateAsync()
         await queryClient.invalidateQueries({ queryKey: setupStatusQueryOptions().queryKey })
-        await queryClient.fetchQuery(setupStatusQueryOptions())
+        await queryClient.query(setupStatusQueryOptions())
         await router.invalidate()
         await navigate({ to: '/dashboard' })
     }

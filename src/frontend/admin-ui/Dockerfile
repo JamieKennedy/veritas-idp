@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.7@sha256:a57df69d0ea827fb7266491f2813635de6f17269be881f696fbfdf2d83dda33e
 
-FROM node:22-alpine@sha256:16e22a550f3863206a3f701448c45f7912c6896a62de43add43bb9c86130c3e2 AS build
+FROM node:22.23.5-alpine@sha256:1314fb30ec37592d5845e5a160d522c0e680972aa534549940b8d73bde88481a AS build
 WORKDIR /workspace
 
 RUN corepack enable
@@ -18,7 +18,7 @@ ENV VITE_APP_VERSION=${VERSION}
 RUN pnpm --filter admin-ui build
 RUN pnpm --filter admin-ui --prod deploy --legacy /app
 
-FROM node:22-alpine@sha256:16e22a550f3863206a3f701448c45f7912c6896a62de43add43bb9c86130c3e2 AS final
+FROM node:22.23.5-alpine@sha256:1314fb30ec37592d5845e5a160d522c0e680972aa534549940b8d73bde88481a AS final
 ARG VERSION=0.0.0-development
 ARG REVISION=unknown
 ARG SOURCE=https://github.com/JamieKennedy/veritas

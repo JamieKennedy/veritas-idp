@@ -4,6 +4,7 @@ using Asp.Versioning;
 
 using FluentResults;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.OpenApi;
 
@@ -88,6 +89,49 @@ public static class ServiceExtensions
 
         services.AddOpenApi("v1", options =>
         {
+            options.AddDocumentTransformer((document, _, _) =>
+            {
+                document.Components ??= new OpenApiComponents();
+                document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>(StringComparer.Ordinal);
+                document.Components.SecuritySchemes["adminSession"] = new OpenApiSecurityScheme
+                {
+                    Type = SecuritySchemeType.ApiKey,
+                    In = ParameterLocation.Cookie,
+                    Name = "__Host-veritas-admin"
+                };
+                return Task.CompletedTask;
+            });
+
+            options.AddOperationTransformer((operation, context, _) =>
+            {
+                var metadata = context.Description.ActionDescriptor.EndpointMetadata;
+                if (metadata.OfType<IAuthorizeData>().Any() && !metadata.OfType<IAllowAnonymous>().Any())
+                {
+                    operation.Security =
+                    [
+                        new OpenApiSecurityRequirement
+                        {
+                            [new OpenApiSecuritySchemeReference("adminSession", context.Document)] = []
+                        }
+                    ];
+                }
+
+                if (context.Description.HttpMethod is "POST" or "PUT" or "PATCH" or "DELETE")
+                {
+                    operation.Parameters ??= [];
+                    operation.Parameters.Add(new OpenApiParameter
+                    {
+                        Name = "X-CSRF-TOKEN",
+                        In = ParameterLocation.Header,
+                        Required = true,
+                        Description = "Request token from the CSRF endpoint, paired with its antiforgery cookie.",
+                        Schema = new OpenApiSchema { Type = JsonSchemaType.String }
+                    });
+                }
+
+                return Task.CompletedTask;
+            });
+
             options.AddSchemaTransformer((schema, context, _) =>
             {
                 if (!context.JsonTypeInfo.Type.IsEnum)
@@ -102,15 +146,6 @@ public static class ServiceExtensions
                 return Task.CompletedTask;
             });
         });
-    }
-
-    /// <summary>
-    /// Registers default OpenAPI services.
-    /// </summary>
-    /// <param name="services">The service collection receiving OpenAPI services.</param>
-    public static void ConfigureOpenApi(this IServiceCollection services)
-    {
-        services.AddOpenApi();
     }
 
     private sealed class InProcessAdminUserDirectory(IAdminUserService adminUserService) : IAdminUserDirectory

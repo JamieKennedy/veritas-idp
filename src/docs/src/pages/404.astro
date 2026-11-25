@@ -1,0 +1,33 @@
+---
+import { getCollection } from 'astro:content'
+import { ArrowLeft, BookOpen } from 'lucide-react'
+
+import PreAlphaBanner from '@/components/PreAlphaBanner.astro'
+import SiteFooter from '@/components/SiteFooter.astro'
+import SiteHeader from '@/components/SiteHeader.astro'
+import { buttonVariants } from '@/components/ui/button'
+import BaseLayout from '@/layouts/BaseLayout.astro'
+import { createDocumentationNavigation } from '@/lib/documentation'
+import { withBase } from '@/lib/site'
+
+const navigation = createDocumentationNavigation(await getCollection('docs'))
+---
+
+<BaseLayout title="Page not found · Veritas" description="The requested Veritas documentation page could not be found.">
+    <PreAlphaBanner />
+    <SiteHeader navigation={navigation} currentPath={Astro.url.pathname} />
+    <main id="main-content" class="not-found site-container">
+        <span>404</span>
+        <h1>This route has no identity.</h1>
+        <p>The page may have moved, or the address may be incomplete. The documentation directory is the best place to recover.</p>
+        <div>
+            <a class={buttonVariants({ size: 'lg' })} href={withBase('/docs/')}>
+                <BookOpen /> Browse documentation
+            </a>
+            <a class={buttonVariants({ variant: 'outline', size: 'lg' })} href={withBase('/')}>
+                <ArrowLeft /> Return home
+            </a>
+        </div>
+    </main>
+    <SiteFooter />
+</BaseLayout>

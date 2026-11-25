@@ -2,7 +2,7 @@
 
 Scope: `src/backend/services/user-service`.
 
-Follow the repository-wide coding standards in [`../../../../docs/engineering/coding-standards.md`](../../../../docs/engineering/coding-standards.md) in addition to the module-specific rules below.
+Before changing this scope, apply the [Development guidelines](../../../../docs/engineering/development-guidelines.md), the [Veritas adoption decision](../../../../docs/engineering/adr/0001-development-guidelines.md), and the [coding standards](../../../../docs/engineering/coding-standards.md).
 
 The Users module owns identities and credential-related user data. In the current implementation it is small, but it is the future home for public users, admin users, emails/usernames/phones, password hashes, MFA enrollment, recovery codes, verification state, account status, and user lifecycle events.
 
@@ -71,7 +71,7 @@ From the repo root:
 
 ```powershell
 dotnet build Veritas.slnx
-dotnet run --project src\orchestration\aspire\Veritas.AppHost\Veritas.AppHost.csproj
+aspire run --apphost src/orchestration/aspire/Veritas.AppHost/Veritas.AppHost.csproj
 ```
 
 When changing Users Application behavior, add/update focused tests in `Veritas.UserService.Application.Tests` and rebuild the solution.

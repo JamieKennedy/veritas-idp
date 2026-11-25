@@ -4,6 +4,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <AnalysisMode>Recommended</AnalysisMode>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- Veritas documents public contracts and non-obvious behavior. XML syntax and reference diagnostics remain enabled. -->
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <RestoreLockedMode Condition="'$(CI)' == 'true'">true</RestoreLockedMode>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <Authors>Jamie Kennedy</Authors>
     <Copyright>Copyright (C) Jamie Kennedy</Copyright>
