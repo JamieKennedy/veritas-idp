@@ -186,7 +186,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          tag=$(gh api --paginate --slurp "repos/$GITHUB_REPOSITORY/releases" --jq '
+          tag=$(gh api --paginate --slurp "repos/$GITHUB_REPOSITORY/releases" | jq -r '
             [.[][] | select(.draft == false and any(.assets[]; .name == "veritas-admin-api-v1.json"))]
             | ((map(select(.prerelease == false)) | first) // first)
             | .tag_name // empty')
