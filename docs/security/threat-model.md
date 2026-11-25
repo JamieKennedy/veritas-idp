@@ -1,4 +1,10 @@
-# Veritas Threat Model
+---
+title: Threat model
+description: Security objectives, assets, trust boundaries, controls, limitations, and review triggers for Veritas.
+section: Security
+sectionOrder: 3
+order: 1
+---
 
 ## Status and scope
 

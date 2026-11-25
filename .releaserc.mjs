@@ -42,6 +42,10 @@ export default {
                 successCommentCondition: false,
                 assets: [
                     {
+                        path: 'artifacts/veritas-admin-api-v1.json',
+                        label: 'Admin API v1 OpenAPI contract',
+                    },
+                    {
                         path: 'artifacts/veritas-compose-*.tar.gz',
                         label: 'Docker Compose deployment bundle',
                     },

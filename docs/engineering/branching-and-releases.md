@@ -1,4 +1,10 @@
-# Branching and releases
+---
+title: Branching and releases
+description: Branch conventions, pull requests, prereleases, production promotion, hotfixes, and release artifacts.
+section: Development
+sectionOrder: 4
+order: 2
+---
 
 Veritas uses one integration branch and one production branch:
 

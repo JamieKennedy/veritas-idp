@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Threading.RateLimiting;
 
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -6,6 +7,7 @@ using Scalar.AspNetCore;
 
 using Veritas.Admin.API.Authentication;
 using Veritas.Admin.API.Extensions;
+using Veritas.PlatformService.Infrastructure.Database;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,18 +15,25 @@ builder.AddServiceDefaults();
 
 // Add services to the container.
 builder.Services.AddVeritasModules(builder.Configuration);
-builder.ConfigureVeritasMessaging();
+// The OpenAPI generator starts a metadata-only host without external dependencies.
+if (Assembly.GetEntryAssembly()?.GetName().Name != "GetDocument.Insider")
+{
+    builder.ConfigureVeritasMessaging();
+}
 
 builder.Services.AddAdminUiCorsPolicy(builder.Configuration);
 
 builder.Services.ConfigureVersioning();
 
 builder.Services.AddAdminControllers();
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<AdminApiExceptionHandler>();
+builder.Services.AddHealthChecks().AddDbContextCheck<PlatformDbContext>(tags: ["ready"]);
 builder.Services.AddAntiforgery(options =>
 {
     options.HeaderName = "X-CSRF-TOKEN";
     options.Cookie.Name = "__Host-veritas-admin-csrf";
-    options.Cookie.HttpOnly = false;
+    options.Cookie.HttpOnly = true;
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
     options.Cookie.SameSite = SameSiteMode.Strict;
     options.Cookie.Path = "/";
@@ -94,11 +103,10 @@ builder.Services.AddRateLimiter(options =>
     };
 });
 
-builder.Services.ConfigureOpenApi();
-
 var app = builder.Build();
 
 app.UseDefaultSerilogRequestLogging();
+app.UseExceptionHandler();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

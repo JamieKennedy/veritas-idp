@@ -29,6 +29,8 @@ scripts
 **/.vs
 **/.idea
 **/node_modules
+**/test-results
+**/playwright-report
 secrets
 *.user
 *.suo

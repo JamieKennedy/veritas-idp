@@ -1,30 +1,30 @@
-# Veritas Source Docs
+---
+title: Veritas documentation
+description: Deploy, configure, operate, secure, and contribute to the Veritas identity provider.
+section: Start here
+sectionOrder: 0
+order: 0
+label: Documentation overview
+---
 
-This folder contains practical API and setup notes for developers building against the current source tree.
+Veritas is an experimental, self-hostable authentication service and identity provider. The current implementation provides a secured first-run administration flow, mandatory administrator MFA, SMTP configuration, module-owned persistence, and production-shaped Docker Compose packaging.
 
-## Available Docs
+## Choose a path
 
-- [Bootstrap flow](./bootstrap.md)
-- [SMTP and messaging setup](./smtp-messaging.md)
-- [Admin authentication flow](./admin-auth-flow.md)
+- **Deploy Veritas:** start with the [Docker Compose guide](./operations/docker-compose.md), then configure [environment variables](./operations/environment.mdx), [secrets](./operations/secrets.md), and your [HTTPS reverse proxy](./operations/reverse-proxy.md).
+- **Administer an instance:** follow the [bootstrap flow](./bootstrap.md), understand [administrator authentication](./admin-auth-flow.md), and configure [SMTP and messaging](./smtp-messaging.md).
+- **Operate safely:** use the [operations and recovery runbook](./operations/runbook.md) for health checks, logs, backups, upgrades, rollback, and failure handling.
+- **Contribute:** read the [architecture guide](./engineering/architecture.md), [coding standards](./engineering/coding-standards.md), and [branching and release process](./engineering/branching-and-releases.md).
 
-## Engineering
+## Current scope
 
-- [Coding standards](./engineering/coding-standards.md)
-- [Branching and releases](./engineering/branching-and-releases.md)
-- [GitHub repository settings](./engineering/github-settings.md)
-- [Public repository checklist](./engineering/publication-checklist.md)
+The documentation describes the currently implemented Admin API and Admin UI. OAuth 2.0, OpenID Connect, public-user authentication, client management, signing-key management, federation, and production support guarantees are not implemented.
 
-## Security
+Examples deliberately use placeholders. Never paste real passwords, tokens, one-time codes, or private deployment details into issues, screenshots, logs, or documentation.
 
-- [Threat model](./security/threat-model.md)
-- [Public readiness review](./security/review-summary.md)
+## Project policies
 
-## Operations
-
-- [Docker Compose deployment](./operations/docker-compose.md)
-- [Deployment secrets](./operations/secrets.md)
-
-## Notes
-
-These docs describe the Admin API behavior in the current implementation. They intentionally avoid raw secret values and use placeholders in request examples.
+- [Report a security vulnerability](https://github.com/JamieKennedy/veritas-idp/security/policy)
+- [Contribute to Veritas](https://github.com/JamieKennedy/veritas-idp/blob/staging/CONTRIBUTING.md)
+- [Read the support policy](https://github.com/JamieKennedy/veritas-idp/blob/main/SUPPORT.md)
+- [Review the code of conduct](https://github.com/JamieKennedy/veritas-idp/blob/main/CODE_OF_CONDUCT.md)

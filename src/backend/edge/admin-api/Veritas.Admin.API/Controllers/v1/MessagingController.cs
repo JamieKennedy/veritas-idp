@@ -25,7 +25,12 @@ public sealed class MessagingController(
     /// </summary>
     /// <param name="cancellationToken">A token that cancels the request.</param>
     /// <returns>The configured SMTP settings.</returns>
+    /// <remarks>When setup is incomplete, the response carries the MESSAGING_SMTP_NOT_CONFIGURED error code.</remarks>
     [HttpGet("settings")]
+    [ProducesResponseType<SmtpSettingsResponse>(200)]
+    [ProducesResponseType(401)]
+    [ProducesResponseType<ProblemDetails>(409)]
+    [ProducesResponseType<ProblemDetails>(500)]
     public async Task<IActionResult> GetSettingsAsync(CancellationToken cancellationToken)
     {
         var result = await smtpSettingsService.GetSettingsAsync(cancellationToken);
@@ -41,6 +46,10 @@ public sealed class MessagingController(
     /// <param name="cancellationToken">A token that cancels the request.</param>
     /// <returns>The safe persisted SMTP settings.</returns>
     [HttpPut("settings/smtp")]
+    [ProducesResponseType<SmtpSettingsResponse>(200)]
+    [ProducesResponseType<ProblemDetails>(400)]
+    [ProducesResponseType(401)]
+    [ProducesResponseType<ProblemDetails>(500)]
     public async Task<IActionResult> ConfigureSmtpAsync(
         [FromBody] ConfigureSmtpSettingsRequest request,
         CancellationToken cancellationToken)
@@ -67,6 +76,9 @@ public sealed class MessagingController(
     /// <param name="cancellationToken">A token that cancels the request.</param>
     /// <returns>The stored email templates.</returns>
     [HttpGet("templates")]
+    [ProducesResponseType<EmailTemplateResponse[]>(200)]
+    [ProducesResponseType(401)]
+    [ProducesResponseType<ProblemDetails>(500)]
     public async Task<IActionResult> ListTemplatesAsync(CancellationToken cancellationToken)
     {
         var templates = await templateService.ListTemplatesAsync(cancellationToken);
@@ -80,6 +92,10 @@ public sealed class MessagingController(
     /// <param name="cancellationToken">A token that cancels the request.</param>
     /// <returns>The matching global email template.</returns>
     [HttpGet("templates/{templateKey}")]
+    [ProducesResponseType<EmailTemplateResponse>(200)]
+    [ProducesResponseType(401)]
+    [ProducesResponseType<ProblemDetails>(404)]
+    [ProducesResponseType<ProblemDetails>(500)]
     public async Task<IActionResult> GetTemplateAsync(string templateKey, CancellationToken cancellationToken)
     {
         var result = await templateService.ResolveTemplateAsync(null, templateKey, cancellationToken);
@@ -96,6 +112,11 @@ public sealed class MessagingController(
     /// <param name="cancellationToken">A token that cancels the request.</param>
     /// <returns>The updated email template.</returns>
     [HttpPut("templates/{templateKey}")]
+    [ProducesResponseType<EmailTemplateResponse>(200)]
+    [ProducesResponseType<ProblemDetails>(400)]
+    [ProducesResponseType(401)]
+    [ProducesResponseType<ProblemDetails>(404)]
+    [ProducesResponseType<ProblemDetails>(500)]
     public async Task<IActionResult> UpdateTemplateAsync(
         string templateKey,
         [FromBody] UpdateEmailTemplateRequest request,

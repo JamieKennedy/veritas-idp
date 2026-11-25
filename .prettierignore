@@ -1,9 +1,14 @@
 **/node_modules/**
 **/dist/**
+**/.astro/**
 **/.output/**
+**/test-results/**
+**/playwright-report/**
+**/src/generated/admin-api.d.ts
 **/.worktrees/**
 **/artifacts/**
 **/bin/**
 **/obj/**
 **/src/routeTree.gen.ts
 pnpm-lock.yaml
+**/packages.lock.json

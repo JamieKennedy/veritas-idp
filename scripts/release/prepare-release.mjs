@@ -4,6 +4,7 @@ import { cpSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 
 import { resolveReleaseImages } from './image-names.mjs'
+import { renderDocsMarkdown } from './render-docs-markdown.mjs'
 
 const [version] = process.argv.slice(2)
 if (!version) {
@@ -23,6 +24,12 @@ const shortRevision = revision.slice(0, 12)
 const isPrerelease = version.includes('-')
 const movingTag = isPrerelease ? 'beta' : 'latest'
 const platforms = process.env.RELEASE_PLATFORMS ?? 'linux/amd64,linux/arm64'
+
+const adminApiProject = 'src/backend/edge/admin-api/Veritas.Admin.API'
+run('dotnet', ['restore', adminApiProject, '--locked-mode'])
+run('dotnet', ['build', adminApiProject, '--configuration', 'Release', '--no-restore'])
+mkdirSync('artifacts', { recursive: true })
+cpSync(path.join(adminApiProject, 'obj/Veritas.Admin.API.json'), 'artifacts/veritas-admin-api-v1.json')
 
 buildImage({
     dockerfile: 'src/backend/Dockerfile',
@@ -70,8 +77,18 @@ function createComposeBundle() {
     rmSync(bundleDirectory, { recursive: true, force: true })
     mkdirSync(path.join(bundleDirectory, 'secrets'), { recursive: true })
     cpSync('compose.yaml', path.join(bundleDirectory, 'compose.yaml'))
-    cpSync('docs/operations/docker-compose.md', path.join(bundleDirectory, 'README.md'))
-    cpSync('docs/operations/secrets.md', path.join(bundleDirectory, 'secrets', 'README.md'))
+    writeFileSync(
+        path.join(bundleDirectory, 'README.md'),
+        renderDocsMarkdown(readFileSync('docs/operations/docker-compose.md', 'utf8'), {
+            replacements: {
+                './secrets.md': './secrets/README.md',
+                './environment.mdx': 'https://jamiekennedy.github.io/veritas-idp/operations/environment/',
+                './reverse-proxy.md': 'https://jamiekennedy.github.io/veritas-idp/operations/reverse-proxy/',
+                './runbook.md': 'https://jamiekennedy.github.io/veritas-idp/operations/runbook/',
+            },
+        }),
+    )
+    writeFileSync(path.join(bundleDirectory, 'secrets', 'README.md'), renderDocsMarkdown(readFileSync('docs/operations/secrets.md', 'utf8')))
 
     const environmentExample = readFileSync('.env.example', 'utf8').replace('VERITAS_VERSION=0.0.0-development', `VERITAS_VERSION=${version}`)
     writeFileSync(path.join(bundleDirectory, '.env.example'), environmentExample)

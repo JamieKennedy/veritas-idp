@@ -3,7 +3,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 const repositoryRoot = path.resolve(import.meta.dirname, '../..')
-const markdownFiles = execFileSync('git', ['ls-files', '--cached', '--others', '--exclude-standard', '--', '*.md'], {
+const markdownFiles = execFileSync('git', ['ls-files', '--cached', '--others', '--exclude-standard', '--', '*.md', '*.mdx'], {
     cwd: repositoryRoot,
     encoding: 'utf8',
 })

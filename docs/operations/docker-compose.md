@@ -1,4 +1,11 @@
-# Docker Compose deployment
+---
+title: Docker Compose deployment
+description: Install and run the complete Veritas stack using immutable release images and Docker Compose.
+section: Deploy and operate
+sectionOrder: 1
+order: 0
+label: Docker Compose
+---
 
 The release bundle runs the complete currently implemented Veritas application:
 
@@ -36,7 +43,16 @@ The Compose file publishes only Admin UI, bound to `127.0.0.1` by default. Confi
 
 ## Configure
 
-Copy the example environment file:
+Copy the example environment file and create the local secret directory.
+
+Create the environment and secrets directory:
+
+<div data-shell-tabs="configure"></div>
+
+```bash
+cp .env.example .env
+mkdir -p secrets
+```
 
 ```powershell
 Copy-Item .env.example .env
@@ -45,7 +61,7 @@ New-Item -ItemType Directory -Force secrets
 
 Set `VERITAS_VERSION` to an exact version such as `0.2.0-beta.3`. Replace both password placeholders with independently generated high-entropy values. Generate the RabbitMQ password from URI-unreserved characters because Compose embeds it in an AMQP URI; 32 random bytes encoded as 64 hexadecimal characters is a safe default.
 
-Generate the bootstrap secret and store only that value in `secrets/bootstrap-secret.txt`. See [Deployment secrets](secrets.md).
+Generate the bootstrap secret and store only that value in `secrets/bootstrap-secret.txt`. See [Secret management](./secrets.md) and the complete [environment-variable reference](./environment.mdx).
 
 The important runtime settings are:
 
@@ -57,9 +73,31 @@ The important runtime settings are:
 - `VERITAS_BOOTSTRAP_SECRET_FILE`: path to the bootstrap-secret file.
 - `ADMIN_API_ORIGIN`: internal UI-to-API origin, set by Compose.
 
+Validate interpolation before creating containers:
+
+<div data-shell-tabs="validate-compose"></div>
+
+```bash
+docker compose config --quiet
+```
+
+```powershell
+docker compose config --quiet
+```
+
+Use `docker compose config --environment` only in a trusted terminal because it can display sensitive values.
+
 ## Start and inspect
 
 Pull the exact images and start the stack:
+
+<div data-shell-tabs="start-compose"></div>
+
+```bash
+docker compose pull
+docker compose up -d
+docker compose ps -a
+```
 
 ```powershell
 docker compose pull
@@ -75,6 +113,14 @@ Expected ordering is:
 4. Admin UI starts and becomes healthy at `/healthz`.
 
 Inspect startup evidence:
+
+<div data-shell-tabs="compose-logs"></div>
+
+```bash
+docker compose logs migrator
+docker compose logs admin-api
+docker compose logs admin-ui
+```
 
 ```powershell
 docker compose logs migrator
@@ -92,7 +138,7 @@ Use an immutable beta such as `0.2.0-beta.3`, never the moving `beta` tag, when 
 
 1. Start from empty disposable volumes or an appropriate restored test backup.
 2. Confirm the migrator exits successfully.
-3. Open the HTTPS Admin UI endpoint through the external proxy.
+3. Open the HTTPS Admin UI endpoint through the [external proxy](./reverse-proxy.md).
 4. Confirm the initial setup or login route renders without browser console failures.
 5. Confirm `/api/v1/setup/status` succeeds through the Admin UI origin.
 6. Exercise the bootstrap entry flow without recording the bootstrap secret in screenshots or logs.
@@ -105,6 +151,12 @@ The current pipeline does not automate this full-stack acceptance procedure.
 ## Stop, reset, and upgrade
 
 Stop containers while preserving data:
+
+<div data-shell-tabs="stop-compose"></div>
+
+```bash
+docker compose down
+```
 
 ```powershell
 docker compose down
@@ -123,9 +175,19 @@ For an upgrade:
 
 Application rollback is safe only when the older application version is compatible with the migrated schema. Use expand-and-contract database changes for rolling compatibility; restore from backup when a migration itself must be reversed.
 
+See [Operations and recovery](./runbook.md) for backup scope, failure handling, and rollback constraints.
+
 ## Local image testing
 
 Build the same topology from the repository:
+
+<div data-shell-tabs="local-compose"></div>
+
+```bash
+cp .env.example .env
+docker compose -f compose.yaml -f compose.local.yaml build
+docker compose -f compose.yaml -f compose.local.yaml up -d
+```
 
 ```powershell
 Copy-Item .env.example .env

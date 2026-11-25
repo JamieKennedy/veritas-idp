@@ -1,4 +1,10 @@
-# Veritas Coding Standards
+---
+title: Coding standards
+description: Canonical engineering standards for backend, frontend, testing, documentation, and generated code.
+section: Development
+sectionOrder: 4
+order: 1
+---
 
 This handbook is the canonical reference for how Veritas code is written. It applies to humans and AI agents. Repository and scoped `AGENTS.md` files remain authoritative for architecture, module ownership, security, persistence, messaging, and operational requirements.
 
@@ -29,6 +35,16 @@ Every pull request to `staging` or `main` must pass these stable GitHub checks:
 Mechanical requirements belong in repository configuration and scripts so local and CI behavior stay aligned. Architecture, threat modeling, appropriate test scope, operational safety, and documentation accuracy still require reviewer judgment and are recorded in the PR checklist.
 
 The canonical commands are:
+
+<div data-shell-tabs="quality-checks"></div>
+
+```bash
+pnpm fix
+pnpm check
+pnpm check:containers
+pnpm check:secrets
+pnpm lint:workflows
+```
 
 ```powershell
 pnpm fix

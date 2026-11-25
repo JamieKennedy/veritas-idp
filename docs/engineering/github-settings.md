@@ -1,4 +1,10 @@
-# GitHub repository settings
+---
+title: GitHub repository settings
+description: Required repository rules, permissions, security features, and merge settings for Veritas.
+section: Development
+sectionOrder: 4
+order: 3
+---
 
 Repository configuration is part of the release control. Review these settings whenever required check names or collaborators change.
 

@@ -31,10 +31,12 @@ export default [
         ignores: [
             '**/eslint.config.*',
             '**/prettier.config.*',
+            '**/.astro/**',
             '**/dist/**',
             '**/.output/**',
             '**/node_modules/**',
             '**/src/routeTree.gen.ts',
+            '**/src/generated/admin-api.d.ts',
             '**/src/shared/api/generated/schema.ts',
         ],
     },
@@ -66,7 +68,7 @@ export default [
     ...tseslint.configs.stylisticTypeChecked,
     {
         ...tseslint.configs.disableTypeChecked,
-        files: ['src/frontend/**/server/**/*.mjs'],
+        files: ['src/frontend/**/server/**/*.mjs', 'src/docs/**/*.mjs'],
         languageOptions: {
             ...tseslint.configs.disableTypeChecked.languageOptions,
             globals: globals.node,

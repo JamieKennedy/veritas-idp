@@ -1,4 +1,11 @@
-# SMTP And Messaging Setup
+---
+title: SMTP and messaging setup
+description: Configure protected SMTP credentials, test delivery, and manage Veritas email templates.
+section: Administration
+sectionOrder: 2
+order: 2
+label: SMTP and messaging
+---
 
 SMTP setup configures outbound email delivery for Veritas messaging workflows. It happens after bootstrap and admin MFA login.
 

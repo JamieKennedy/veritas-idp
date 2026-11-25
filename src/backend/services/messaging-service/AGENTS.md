@@ -2,7 +2,7 @@
 
 Scope: `src/backend/services/messaging-service`.
 
-Follow the repository-wide coding standards in [`../../../../docs/engineering/coding-standards.md`](../../../../docs/engineering/coding-standards.md) in addition to the module-specific rules below.
+Before changing this scope, apply the [Development guidelines](../../../../docs/engineering/development-guidelines.md), the [Veritas adoption decision](../../../../docs/engineering/adr/0001-development-guidelines.md), and the [coding standards](../../../../docs/engineering/coding-standards.md).
 
 The Messaging module owns outbound notification delivery concerns for Veritas: SMTP settings, email adapters, template storage, placeholder validation, rendering, tenant-ready template overrides, and delivery orchestration.
 

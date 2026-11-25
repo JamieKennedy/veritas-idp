@@ -9,6 +9,11 @@ const before = readFileSync(generatedRouteTree, 'utf8')
 const pnpmCli = process.env.npm_execpath
 
 assert.ok(pnpmCli, 'This check must run through pnpm so the pinned package manager is used.')
+
+execFileSync(process.execPath, [pnpmCli, 'generate:api', '--check'], {
+    cwd: repositoryRoot,
+    stdio: 'inherit',
+})
 execFileSync(process.execPath, [pnpmCli, 'generate:routes'], {
     cwd: repositoryRoot,
     stdio: 'inherit',

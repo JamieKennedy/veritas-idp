@@ -1,0 +1,41 @@
+---
+import { Code2 } from 'lucide-react'
+
+import Brand from '@/components/Brand.astro'
+import { MobileNavigation } from '@/components/mobile-navigation'
+import { SearchDialog } from '@/components/search-dialog'
+import { ThemeToggle } from '@/components/theme-toggle'
+import type { NavigationSection } from '@/lib/documentation'
+import { withBase } from '@/lib/site'
+
+interface Props {
+    currentPath: string
+    navigation: Array<NavigationSection>
+}
+
+const { currentPath, navigation } = Astro.props
+const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, '')
+---
+
+<header class="site-header">
+    <div class="site-container site-header__inner">
+        <div class="site-header__start">
+            <MobileNavigation client:load navigation={navigation} currentPath={currentPath} baseUrl={baseUrl} />
+            <Brand />
+        </div>
+
+        <nav class="site-header__nav" aria-label="Primary">
+            <a href={withBase('/docs/')}>Documentation</a>
+            <a href={withBase('/operations/docker-compose/')}>Install</a>
+            <a href={withBase('/engineering/architecture/')}>Architecture</a>
+        </nav>
+
+        <div class="site-header__actions">
+            <SearchDialog client:load baseUrl={baseUrl} />
+            <ThemeToggle client:load />
+            <a class="icon-link" href="https://github.com/JamieKennedy/veritas-idp" aria-label="Veritas on GitHub">
+                <Code2 aria-hidden="true" size={18} />
+            </a>
+        </div>
+    </div>
+</header>

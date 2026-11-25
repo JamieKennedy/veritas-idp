@@ -1,6 +1,6 @@
 # Veritas Agent Guide
 
-Veritas is a self-hostable auth service / identity provider. The backend is a .NET 10 modular monolith with separate HTTP API hosts for different audiences, local development is orchestrated with .NET Aspire, and the intended deployment shape is Docker Compose. Backend business capability is organized into modules that follow onion architecture: Domain at the center, Application around use cases, Infrastructure for persistence and external integrations, and API hosts at the edge.
+Veritas is a self-hostable auth service / identity provider. The backend is a .NET 11 modular monolith with separate HTTP API hosts for different audiences, local development is orchestrated with .NET Aspire, and the intended deployment shape is Docker Compose. Backend business capability is organized into modules that follow onion architecture: Domain at the center, Application around use cases, Infrastructure for persistence and external integrations, and API hosts at the edge.
 
 This file applies to the whole repository. More specific `AGENTS.md` files exist under module, API-host, and orchestration directories and should be read when working in those scopes.
 
@@ -57,7 +57,7 @@ Allowed project references should flow inward plus composition at the API:
 
 ## Backend Style
 
-- Target .NET 10, nullable reference types enabled, implicit usings enabled.
+- Target .NET 11, nullable reference types enabled, implicit usings enabled.
 - Follow existing namespaces and folder naming: `Veritas.<Service>.<Layer>`.
 - Prefer constructor injection. Primary constructors are already used in several services; use them when they keep the class readable.
 - Use `FluentResults` in Application services for recoverable domain/application failures. Map those failures to HTTP status codes at API-host boundaries.
@@ -72,7 +72,9 @@ Allowed project references should flow inward plus composition at the API:
 - Log failures at the boundary that can add the most useful context, then return controlled errors. Avoid duplicate noisy logs for the same failure unless each log adds distinct operational information.
 - For dependency calls such as Postgres, Redis, RabbitMQ, email, and future external identity providers, handle unavailable or slow dependencies with timeouts, cancellation, retry/backoff where appropriate, and clear error reporting.
 
-## Code Style
+## Development Standards
+
+Before designing, editing, or reviewing an implementation, read the [Development guidelines](docs/engineering/development-guidelines.md) and the [Veritas adoption decision](docs/engineering/adr/0001-development-guidelines.md). Apply the shared defaults within the documented Veritas architecture and verification workflow.
 
 The canonical code-level standards are in [`docs/engineering/coding-standards.md`](docs/engineering/coding-standards.md). They apply to every human and AI-authored change in this repository. Mechanical rules are enforced by the root formatting, analyzer, lint, and type-checking configuration; run `pnpm fix` while working and `pnpm check` before handoff.
 

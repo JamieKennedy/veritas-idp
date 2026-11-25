@@ -107,6 +107,7 @@ public static class Utilities
     /// </summary>
     /// <param name="dbContext">The DbContext used to test database connectivity.</param>
     /// <param name="logger">The logger that records retry progress.</param>
+    /// <param name="options">The retry limit and delay for database startup.</param>
     /// <param name="contextName">The display name of the DbContext waiting for connectivity.</param>
     /// <param name="cancellationToken">A token that cancels retry attempts.</param>
     /// <typeparam name="TContext">The module DbContext type waiting for database connectivity.</typeparam>

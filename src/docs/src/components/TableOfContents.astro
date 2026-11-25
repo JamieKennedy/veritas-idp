@@ -1,0 +1,23 @@
+---
+import type { MarkdownHeading } from 'astro'
+
+interface Props {
+    headings: Array<MarkdownHeading>
+}
+
+const { headings } = Astro.props
+const visibleHeadings = headings.filter((heading) => heading.depth === 2 || heading.depth === 3)
+---
+
+{visibleHeadings.length > 0 && (
+    <nav class="table-of-contents" aria-label="On this page">
+        <h2>On this page</h2>
+        <ol>
+            {visibleHeadings.map((heading) => (
+                <li data-depth={heading.depth}>
+                    <a href={`#${heading.slug}`}>{heading.text}</a>
+                </li>
+            ))}
+        </ol>
+    </nav>
+)}

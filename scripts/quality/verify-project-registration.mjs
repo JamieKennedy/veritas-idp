@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
-import { readdirSync, readFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 
 const repositoryRoot = path.resolve(import.meta.dirname, '../..')
@@ -22,8 +22,9 @@ const frontendPackages = readdirSync(frontendRoot, { withFileTypes: true })
     .filter((entry) => entry.isDirectory())
     .map((entry) => path.join(frontendRoot, entry.name, 'package.json'))
     .filter((packagePath) => gitLines(['ls-files', normalizePath(path.relative(repositoryRoot, packagePath))]).length > 0)
+const workspacePackages = [...frontendPackages, path.join(repositoryRoot, 'src/docs/package.json')].filter((packagePath) => existsSync(packagePath))
 
-for (const packagePath of frontendPackages) {
+for (const packagePath of workspacePackages) {
     const manifest = JSON.parse(readFileSync(packagePath, 'utf8'))
     const relativePath = normalizePath(path.relative(repositoryRoot, packagePath))
 
@@ -40,7 +41,7 @@ const rootManifest = JSON.parse(readFileSync(path.join(repositoryRoot, 'package.
 assert.equal(rootManifest.packageManager, 'pnpm@10.15.1', 'The repository must pin pnpm 10.15.1.')
 assert.equal(rootManifest.engines?.node, '>=22.12.0 <23', 'The repository must remain on the supported Node 22 line.')
 
-console.log(`Verified ${trackedProjects.length} .NET projects and ${frontendPackages.length} frontend package(s).`)
+console.log(`Verified ${trackedProjects.length} .NET projects and ${workspacePackages.length} JavaScript workspace package(s).`)
 
 function gitLines(arguments_) {
     return execFileSync('git', arguments_, {
