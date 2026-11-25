@@ -11,7 +11,7 @@
     "test": "vitest run",
     "test:browser": "playwright test",
     "typecheck": "astro check",
-    "lint": "eslint --max-warnings 0 .",
+    "lint": "astro sync && eslint --max-warnings 0 .",
     "format": "prettier --write . --ignore-path ../../.prettierignore",
     "format:check": "prettier --check . --ignore-path ../../.prettierignore",
     "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build"
